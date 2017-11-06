@@ -96,6 +96,7 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
+    captureSegments: PropTypes.bool,
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,

@@ -186,6 +186,7 @@ export default class Example extends React.Component {
           onZoomChanged={() => {}}
           defaultTouchToFocus
           mirrorImage={false}
+          captureSegments={true}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity
