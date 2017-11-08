@@ -978,6 +978,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     dispatch_barrier_sync(self.segmentBufferQueue, ^{
       [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex];
     });
+    NSMutableDictionary *videoInfo = [NSMutableDictionary dictionaryWithDictionary:@{}];
+    resolve(videoInfo);
     return;
   }
   

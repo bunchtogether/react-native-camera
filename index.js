@@ -99,6 +99,7 @@ export default class Camera extends Component {
     captureSegments: PropTypes.bool,
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
+    onSegment: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
@@ -154,6 +155,7 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
+    this._addOnSegmentListener()
     this._addOnBarCodeReadListener()
 
     let { captureMode } = convertNativeProps({ captureMode: this.props.captureMode })
@@ -167,6 +169,7 @@ export default class Camera extends Component {
   }
 
   componentWillUnmount() {
+    this._removeOnSegmentListener()
     this._removeOnBarCodeReadListener()
 
     if (this.state.isRecording) {
@@ -178,6 +181,10 @@ export default class Camera extends Component {
     const { onBarCodeRead } = this.props
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps)
+    }
+    const { onSegment } = this.props
+    if (onSegment !== newProps.onSegment) {
+      this._addOnSegmentListener(newProps)
     }
   }
 
@@ -197,6 +204,28 @@ export default class Camera extends Component {
       listener.remove()
     }
   }
+
+  _addOnSegmentListener(props) {
+    const { onSegment } = props || this.props
+    this._removeOnSegmentListener()
+    if (onSegment) {
+      this.cameraSegmentListener = Platform.select({
+        ios: NativeAppEventEmitter.addListener('Segment', this._onSegment),
+        android: DeviceEventEmitter.addListener('SegmentAndroid',  this._onSegment)
+      })
+    }
+  }
+  _removeOnSegmentListener() {
+    const listener = this.cameraSegmentListener
+    if (listener) {
+      listener.remove()
+    }
+  }
+  _onSegment = (data) => {
+    if (this.props.onSegment) {
+      this.props.onSegment(data)
+    }
+  };
 
   render() {
     const style = [styles.base, this.props.style];

@@ -187,6 +187,7 @@ export default class Example extends React.Component {
           defaultTouchToFocus
           mirrorImage={false}
           captureSegments={true}
+          onSegment={console.log}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity
