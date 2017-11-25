@@ -449,45 +449,122 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                                   AVFormatIDKey           : @(kAudioFormatMPEG4AAC),
                                   AVNumberOfChannelsKey   : @1,
                                   AVSampleRateKey         : @44100.0,
-                                  AVEncoderBitRateKey     : @64000
+                                  AVEncoderBitRateKey     : @128000
                                   };
-  if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
-    videoSettings  = @{
-                       AVVideoCodecKey  : AVVideoCodecH264,
-                       AVVideoWidthKey  : @720,
-                       AVVideoHeightKey : @1280
-                       };
-  } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
-    videoSettings  = @{
-                       AVVideoCodecKey  : AVVideoCodecH264,
-                       AVVideoWidthKey  : @360,
-                       AVVideoHeightKey : @480
-                       };
-  } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
-    videoSettings  = @{
-                       AVVideoCodecKey  : AVVideoCodecH264,
-                       AVVideoWidthKey  : @144,
-                       AVVideoHeightKey : @192
-                       };
-  } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
-    videoSettings  = @{
-                       AVVideoCodecKey  : AVVideoCodecH264,
-                       AVVideoWidthKey  : @1080,
-                       AVVideoHeightKey : @1920
-                       };
-  } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
-    videoSettings  = @{
-                       AVVideoCodecKey  : AVVideoCodecH264,
-                       AVVideoWidthKey  : @720,
-                       AVVideoHeightKey : @1280
-                       };
-  } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
-    videoSettings  = @{
-                       AVVideoCodecKey  : AVVideoCodecH264,
-                       AVVideoWidthKey  : @480,
-                       AVVideoHeightKey : @640
-                       };
+  if(self.captureOrientation == AVCaptureVideoOrientationPortrait || self.captureOrientation == AVCaptureVideoOrientationPortraitUpsideDown) {
+    if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @720,
+                         AVVideoHeightKey : @1280,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @4194304,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @360,
+                         AVVideoHeightKey : @480,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @1572864,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @144,
+                         AVVideoHeightKey : @192,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @524288,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @1080,
+                         AVVideoHeightKey : @1920,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @8388608,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @720,
+                         AVVideoHeightKey : @1280,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @4194304,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @480,
+                         AVVideoHeightKey : @640,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @2097152,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    }
+  } else {
+    if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @1280,
+                         AVVideoHeightKey : @720,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @4194304,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @480,
+                         AVVideoHeightKey : @360,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @1572864,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @192,
+                         AVVideoHeightKey : @144,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @524288,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @1920,
+                         AVVideoHeightKey : @1080,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @8388608,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @1280,
+                         AVVideoHeightKey : @720,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @4194304,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
+      videoSettings  = @{
+                         AVVideoCodecKey  : AVVideoCodecH264,
+                         AVVideoWidthKey  : @640,
+                         AVVideoHeightKey : @480,
+                         AVVideoCompressionPropertiesKey : @{
+                             AVVideoAverageBitRateKey: @2097152,
+                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
+                         };
+    }
   }
+  
   AVAssetWriterInput *videoSegmentWriterInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
   videoSegmentWriterInput.expectsMediaDataInRealTime = YES;
   AVAssetWriterInput *audioSegmentWriterInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:audioSettings];
@@ -584,11 +661,19 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     [self.segmentWriter startWriting];
     [self.segmentWriter startSessionAtSourceTime:startTime];
   }
-  if ([captureOutput isKindOfClass:AVCaptureVideoDataOutput.class] && self.videoSegmentWriterInput.isReadyForMoreMediaData) {
-    [self.videoSegmentWriterInput appendSampleBuffer:sampleBuffer];
+  if ([captureOutput isKindOfClass:AVCaptureVideoDataOutput.class]) {
+    if(self.videoSegmentWriterInput.isReadyForMoreMediaData) {
+      [self.videoSegmentWriterInput appendSampleBuffer:sampleBuffer];
+    } else {
+      NSLog(@"VideoSegmentWriterInput dropping sample.");
+    }
   }
-  if ([captureOutput isKindOfClass:AVCaptureAudioDataOutput.class] && self.audioSegmentWriterInput.isReadyForMoreMediaData) {
-    [self.audioSegmentWriterInput appendSampleBuffer:sampleBuffer];
+  if ([captureOutput isKindOfClass:AVCaptureAudioDataOutput.class]) {
+    if(self.audioSegmentWriterInput.isReadyForMoreMediaData) {
+      [self.audioSegmentWriterInput appendSampleBuffer:sampleBuffer];
+    } else {
+      NSLog(@"AudioSegmentWriterInput dropping sample.");
+    }
   }
 }
 
@@ -960,10 +1045,13 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 
 -(void)captureVideo:(NSInteger)target options:(NSDictionary *)options orientation:(AVCaptureVideoOrientation)orientation resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
+  
   if (self.movieFileOutput.recording) {
     reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(@"Already recording"));
     return;
   }
+  
+  self.captureOrientation = orientation;
   
   if(self.captureSegments) {
     self.capturingSegments = YES;

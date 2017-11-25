@@ -85,6 +85,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) AVAssetWriter *segmentWriter;
 @property (nonatomic, assign) BOOL capturingSegments;
 @property (nonatomic, assign) BOOL captureSegments;
+@property (nonatomic, assign) NSInteger captureOrientation;
 
 - (void)changeOrientation:(NSInteger)orientation;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
@@ -102,3 +103,4 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 
 
 @end
+
