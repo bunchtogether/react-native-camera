@@ -78,7 +78,7 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) RCTCamera *camera;
 @property (nonatomic, strong) NSTimer *segmentTimer;
 @property (nonatomic, assign) NSInteger segmentIndex;
-@property (nonatomic, strong) AVAssetWriterInput *videoBufferOutput;
+@property (nonatomic, strong) AVCaptureOutput *videoBufferOutput;
 @property (nonatomic, strong) AVCaptureOutput *audioBufferOutput;
 @property (nonatomic, strong) AVAssetWriterInput *videoSegmentWriterInput;
 @property (nonatomic, strong) AVAssetWriterInput *audioSegmentWriterInput;

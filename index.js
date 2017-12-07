@@ -130,6 +130,7 @@ export default class Camera extends Component {
     captureMode: CameraManager.CaptureMode.still,
     captureTarget: CameraManager.CaptureTarget.cameraRoll,
     captureQuality: CameraManager.CaptureQuality.high,
+    captureSegments: false,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
     playSoundOnCapture: true,

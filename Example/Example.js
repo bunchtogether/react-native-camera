@@ -1,4 +1,5 @@
 import React from 'react';
+import Video from 'react-native-video';
 import {
   Image,
   StatusBar,
@@ -52,6 +53,13 @@ const styles = StyleSheet.create({
   buttonsSpace: {
     width: 10,
   },
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
 });
 
 export default class Example extends React.Component {
@@ -68,35 +76,32 @@ export default class Example extends React.Component {
         orientation: Camera.constants.Orientation.auto,
         flashMode: Camera.constants.FlashMode.auto,
       },
-      isRecording: false
+      isRecording: false,
+      videoUri: null
     };
   }
 
-  takePicture = () => {
+  takePicture = async () => {
     if (this.camera) {
-      this.camera.capture()
-        .then((data) => console.log(data))
-        .catch(err => console.error(err));
+      console.log(await this.camera.capture());
     }
   }
 
-  startRecording = () => {
+  startRecording = async () => {
     if (this.camera) {
-      this.camera.capture({mode: Camera.constants.CaptureMode.video})
-          .then((data) => console.log(data))
-          .catch(err => console.error(err));
       this.setState({
         isRecording: true
       });
+      console.log(await this.camera.capture({mode: Camera.constants.CaptureMode.video}));
     }
   }
 
   stopRecording = () => {
     if (this.camera) {
-      this.camera.stopCapture();
       this.setState({
         isRecording: false
       });
+      this.camera.stopCapture();
     }
   }
 
@@ -151,6 +156,23 @@ export default class Example extends React.Component {
     });
   }
 
+  displaySegment = (data) => {
+    if(!this.state.isRecording){
+      return;
+    }
+    this.stopRecording();
+    this.setState({
+      videoUri: `file:${data.path}`
+    });
+    console.log("SEGMENT DATA:", data);
+  }
+
+  clearSegment = () => {
+    this.setState({
+      videoUri: null
+    });  
+  }
+
   get flashIcon() {
     let icon;
     const { auto, on, off } = Camera.constants.FlashMode;
@@ -167,6 +189,25 @@ export default class Example extends React.Component {
   }
 
   render() {
+    if(this.state.videoUri) {
+      return (<TouchableOpacity style={styles.backgroundVideo} onPress={this.clearSegment}>
+        <Video source={{uri: this.state.videoUri}}   // Can be a URL or a local file.
+          ref={(ref) => {
+            this.player = ref
+          }}                                      // Store reference
+          rate={1.0}                              // 0 is paused, 1 is normal.
+          volume={1.0}                            // 0 is muted, 1 is normal.
+          muted={false}                           // Mutes the audio entirely.
+          paused={false}                          // Pauses playback entirely.
+          resizeMode="cover"                      // Fill the whole screen at aspect ratio.*
+          repeat={true}                           // Repeat forever.
+          playInBackground={false}                // Audio continues to play when app entering background.
+          playWhenInactive={false}                // [iOS] Video continues to play when control or notification center are shown.
+          ignoreSilentSwitch={"ignore"}           // [iOS] ignore | obey - When 'ignore', audio will still play with the iOS hard silent switch set to silent. When 'obey', audio will toggle with the switch. When not specified, will inherit audio settings as usual.
+          progressUpdateInterval={250.0}          // [iOS] Interval to fire onProgress (default to ~250ms)
+          style={styles.backgroundVideo} />
+      </TouchableOpacity>);
+    }
     return (
       <View style={styles.container}>
         <StatusBar
@@ -177,6 +218,7 @@ export default class Example extends React.Component {
           ref={(cam) => {
             this.camera = cam;
           }}
+          captureAudio={true}
           style={styles.preview}
           aspect={this.state.camera.aspect}
           captureTarget={this.state.camera.captureTarget}
@@ -187,7 +229,7 @@ export default class Example extends React.Component {
           defaultTouchToFocus
           mirrorImage={false}
           captureSegments={true}
-          onSegment={console.log}
+          onSegment={this.displaySegment}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity

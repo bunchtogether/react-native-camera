@@ -233,11 +233,14 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RCTCamera) {
       {
         [self.session addInput:self.videoCaptureDeviceInput];
       }
-      
       [self.session commitConfiguration];
     });
   }
-  [self initializeCaptureSessionInput:AVMediaTypeVideo];
+  [self.sensorOrientationChecker getDeviceOrientationWithBlock:^(UIInterfaceOrientation orientation) {
+    self.captureOrientation = orientation;
+    NSLog(@"Setting capture orientation to %ld", self.captureOrientation);
+    [self initializeCaptureSessionInput:AVMediaTypeVideo];
+  }];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
@@ -302,7 +305,7 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
   BOOL captureAudio = [RCTConvert BOOL:json];
   if (captureAudio) {
-    RCTLog(@"capturing audio");
+    NSLog(@"capturing audio");
     [self initializeCaptureSessionInput:AVMediaTypeAudio];
   }
 }
@@ -334,6 +337,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureSegments, BOOL, RCTCamera) {
     self.segmentBufferQueue = dispatch_queue_create("segmentBufferQueue", DISPATCH_QUEUE_SERIAL);
     self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
     self.capturingSegments = NO;
+    [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
   }
   return self;
 }
@@ -376,6 +380,9 @@ RCT_EXPORT_METHOD(checkAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
   [self setOrientation:orientation];
+  self.captureOrientation = orientation;
+  NSLog(@"Re-setting capture orientation to %ld", self.captureOrientation);
+  [self initializeCaptureSessionInput:AVMediaTypeVideo];
 }
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options
@@ -399,6 +406,8 @@ RCT_EXPORT_METHOD(stopCapture) {
     __weak RCTCameraManager *weakSelf = self;
     dispatch_barrier_sync(self.segmentBufferQueue, ^{
       [weakSelf finishCurrentSegmentWriting];
+      [self initializeCaptureSegments];
+      [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex + 1];
     });
     return;
   } else if (self.movieFileOutput.recording) {
@@ -441,6 +450,13 @@ RCT_EXPORT_METHOD(getFOV:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejec
 RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
   AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
   resolve(@(device.hasFlash));
+}
+
+- (void)orientationChanged:(NSNotification *)notification{
+  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  [self setOrientation:orientation];
+  self.captureOrientation = orientation;
+  [self initializeCaptureSessionInput:AVMediaTypeVideo];
 }
 
 - (void)setupSegmentWriterWithIndex:(NSInteger)segmentIndex {
@@ -564,7 +580,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          };
     }
   }
-  
   AVAssetWriterInput *videoSegmentWriterInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
   videoSegmentWriterInput.expectsMediaDataInRealTime = YES;
   AVAssetWriterInput *audioSegmentWriterInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:audioSettings];
@@ -581,13 +596,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   self.audioSegmentWriterInput = audioSegmentWriterInput;
   if ([self.segmentWriter canAddInput:self.videoSegmentWriterInput]) {
     [self.segmentWriter addInput:self.videoSegmentWriterInput];
-  } else {
-    NSLog(@"Cannot add videoSegmentWriterInput");
   }
   if ([self.segmentWriter canAddInput:self.audioSegmentWriterInput]) {
     [self.segmentWriter addInput:self.audioSegmentWriterInput];
-  } else {
-    NSLog(@"Cannot add audioSegmentWriterInput");
   }
   self.segmentIndex = segmentIndex;
 }
@@ -788,6 +799,12 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       }
       else if (type == AVMediaTypeVideo) {
         self.videoCaptureDeviceInput = captureDeviceInput;
+        if(self.captureSegments) {
+          AVCaptureConnection *connection = [self.videoBufferOutput connectionWithMediaType:AVMediaTypeVideo];
+          if ([connection isVideoOrientationSupported]) {
+            [connection setVideoOrientation:self.captureOrientation];
+          }
+        }
         [self setFlashMode];
       }
       [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
@@ -1051,7 +1068,17 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     return;
   }
   
-  self.captureOrientation = orientation;
+  
+  
+  if ([[options valueForKey:@"audio"] boolValue]) {
+    [self initializeCaptureSessionInput:AVMediaTypeAudio];
+  }
+  
+  if(self.captureOrientation != orientation) {
+    NSLog(@"Initializing because orientation does not match: %ld, %ld", self.captureOrientation, orientation);
+    self.captureOrientation = orientation;
+    [self initializeCaptureSessionInput:AVMediaTypeVideo];
+  }
   
   if(self.captureSegments) {
     self.capturingSegments = YES;
@@ -1061,19 +1088,19 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                                               selector: @selector(changeWriters)
                                               userInfo: nil
                                                repeats: YES];
-    [[NSRunLoop mainRunLoop] addTimer:self.segmentTimer forMode:NSRunLoopCommonModes];
-    __weak RCTCameraManager *weakSelf = self;
-    dispatch_barrier_sync(self.segmentBufferQueue, ^{
-      [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex];
+    dispatch_async(self.sessionQueue, ^{
+      __weak RCTCameraManager *weakSelf = self;
+      dispatch_barrier_sync(self.segmentBufferQueue, ^{
+        [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex];
+      });
+      [[NSRunLoop mainRunLoop] addTimer:self.segmentTimer forMode:NSRunLoopCommonModes];
+      NSMutableDictionary *videoInfo = [NSMutableDictionary dictionaryWithDictionary:@{}];
+      resolve(videoInfo);
     });
-    NSMutableDictionary *videoInfo = [NSMutableDictionary dictionaryWithDictionary:@{}];
-    resolve(videoInfo);
     return;
   }
   
-  if ([[options valueForKey:@"audio"] boolValue]) {
-    [self initializeCaptureSessionInput:AVMediaTypeAudio];
-  }
+  
   
   Float64 totalSeconds = [[options valueForKey:@"totalSeconds"] floatValue];
   if (totalSeconds > -1) {
