@@ -465,7 +465,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                                   AVFormatIDKey           : @(kAudioFormatMPEG4AAC),
                                   AVNumberOfChannelsKey   : @1,
                                   AVSampleRateKey         : @44100.0,
-                                  AVEncoderBitRateKey     : @128000
+                                  AVEncoderBitRateKey     : @256000
                                   };
   if(self.captureOrientation == AVCaptureVideoOrientationPortrait || self.captureOrientation == AVCaptureVideoOrientationPortraitUpsideDown) {
     if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
@@ -474,6 +474,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @720,
                          AVVideoHeightKey : @1280,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @4194304,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -483,6 +486,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @360,
                          AVVideoHeightKey : @480,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @1572864,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -492,6 +498,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @144,
                          AVVideoHeightKey : @192,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @524288,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -501,6 +510,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @1080,
                          AVVideoHeightKey : @1920,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @8388608,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -510,6 +522,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @720,
                          AVVideoHeightKey : @1280,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @4194304,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -519,6 +534,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @480,
                          AVVideoHeightKey : @640,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @2097152,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -530,6 +548,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @1280,
                          AVVideoHeightKey : @720,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @4194304,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -539,6 +560,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @480,
                          AVVideoHeightKey : @360,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @1572864,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -548,6 +572,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @192,
                          AVVideoHeightKey : @144,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @524288,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -557,6 +584,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @1920,
                          AVVideoHeightKey : @1080,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @8388608,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -566,6 +596,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @1280,
                          AVVideoHeightKey : @720,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @4194304,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -575,6 +608,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
                          AVVideoWidthKey  : @640,
                          AVVideoHeightKey : @480,
                          AVVideoCompressionPropertiesKey : @{
+                             AVVideoExpectedSourceFrameRateKey: @(24),
+                             AVVideoAverageNonDroppableFrameRateKey: @(24),
+                             AVVideoMaxKeyFrameIntervalKey: @3,
                              AVVideoAverageBitRateKey: @2097152,
                              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
                          };
@@ -771,9 +807,16 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     
     if (type == AVMediaTypeAudio) {
       captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    }
-    else if (type == AVMediaTypeVideo) {
+    } else if (type == AVMediaTypeVideo) {
       captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+      if ([captureDevice lockForConfiguration:NULL] == YES) {
+        captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 24);
+        captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 24);
+        [captureDevice unlockForConfiguration];
+        NSLog(@"At 24FPS");
+      } else {
+        NSLog(@"Could not set FPS");
+      }
     }
     
     if (captureDevice == nil) {
@@ -803,6 +846,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           AVCaptureConnection *connection = [self.videoBufferOutput connectionWithMediaType:AVMediaTypeVideo];
           if ([connection isVideoOrientationSupported]) {
             [connection setVideoOrientation:self.captureOrientation];
+          }
+          if (connection.supportsVideoStabilization) {
+            connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeCinematic;
           }
         }
         [self setFlashMode];
