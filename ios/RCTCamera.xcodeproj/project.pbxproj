@@ -11,8 +11,8 @@
 		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
+		725BE2271FE0BF85008ECBB0 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 725BE2261FE0BF85008ECBB0 /* libiconv.dylib */; };
 		72CD99591FDFE2AB00FD055B /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72CD99551FDFE29600FD055B /* libHudlFFmpegProcessor.a */; };
-		72CD99691FDFE86400FD055B /* libiconv.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 72CD99681FDFE86400FD055B /* libiconv.2.dylib */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
 
@@ -54,6 +54,7 @@
 		410701491ACB732B00C6AA39 /* RCTCameraManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTCameraManager.h; sourceTree = "<group>"; };
 		4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTCameraManager.m; sourceTree = "<group>"; };
 		454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ImageMetadata.m"; sourceTree = "<group>"; };
+		725BE2261FE0BF85008ECBB0 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = Submodules/HudlFFmpeg/HudlFFmpegProcessor/libiconv.dylib; sourceTree = "<group>"; };
 		72CD994F1FDFE29600FD055B /* HudlFFmpegProcessor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = HudlFFmpegProcessor.xcodeproj; path = Submodules/HudlFFmpeg/HudlFFmpegProcessor.xcodeproj; sourceTree = "<group>"; };
 		72CD99681FDFE86400FD055B /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = ../../../../../usr/lib/libiconv.2.dylib; sourceTree = "<group>"; };
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
@@ -65,7 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				72CD99691FDFE86400FD055B /* libiconv.2.dylib in Frameworks */,
+				725BE2271FE0BF85008ECBB0 /* libiconv.dylib in Frameworks */,
 				72CD99591FDFE2AB00FD055B /* libHudlFFmpegProcessor.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -111,6 +112,7 @@
 		72CD99581FDFE2AB00FD055B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				725BE2261FE0BF85008ECBB0 /* libiconv.dylib */,
 				72CD99681FDFE86400FD055B /* libiconv.2.dylib */,
 			);
 			name = Frameworks;
@@ -253,6 +255,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -292,6 +298,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
