@@ -160,10 +160,11 @@ export default class Example extends React.Component {
     if(!this.state.isRecording){
       return;
     }
-    this.stopRecording();
-    this.setState({
-      videoUri: `file:${data.path}`
-    });
+    //console.log(data);
+    //this.stopRecording();
+    //this.setState({
+    //  videoUri: `file:${data.path}`
+    //});
     console.log("SEGMENT DATA:", data);
   }
 

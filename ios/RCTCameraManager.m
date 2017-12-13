@@ -11,6 +11,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 #import "RCTSensorOrientationChecker.h"
+#import "KFRecorder.h"
 
 @interface RCTCameraManager ()
 
@@ -31,16 +32,29 @@ RCT_EXPORT_MODULE();
 
 - (UIView *)view
 {
-  self.session = [AVCaptureSession new];
+  self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
+  self.session = self.recorder.session;
 #if !(TARGET_IPHONE_SIMULATOR)
-  self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
+  self.previewLayer = self.recorder.previewLayer;
   self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
   
   if(!self.camera){
     self.camera = [[RCTCamera alloc] initWithManager:self bridge:self.bridge];
   }
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(newAssetGroupCreated:) name:NotifNewAssetGroupCreated object:nil];
+  
   return self.camera;
+}
+
+- (void)newAssetGroupCreated:(NSNotification *)notification
+{
+
+    NSLog(@"New Asset Group - %@", notification.object);
+    // do something with the new .ts file.
+    [self.bridge.eventDispatcher sendAppEventWithName:@"Segment" body:notification.object];
+
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -305,7 +319,6 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTCamera) {
 RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
   BOOL captureAudio = [RCTConvert BOOL:json];
   if (captureAudio) {
-    NSLog(@"capturing audio");
     [self initializeCaptureSessionInput:AVMediaTypeAudio];
   }
 }
@@ -313,10 +326,8 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
 RCT_CUSTOM_VIEW_PROPERTY(captureSegments, BOOL, RCTCamera) {
   self.captureSegments = [RCTConvert BOOL:json];
   if (self.captureSegments) {
-    RCTLog(@"capturing segments");
-    [self initializeCaptureSegments];
+
   } else {
-    RCTLog(@"not capturing segments");
     [self initializeCaptureMovieFile];
   }
 }
@@ -334,7 +345,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureSegments, BOOL, RCTCamera) {
     self.mirrorImage = false;
     
     self.sessionQueue = dispatch_queue_create("cameraManagerQueue", DISPATCH_QUEUE_SERIAL);
-    self.segmentBufferQueue = dispatch_queue_create("segmentBufferQueue", DISPATCH_QUEUE_SERIAL);
+
     self.sensorOrientationChecker = [RCTSensorOrientationChecker new];
     self.capturingSegments = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self  selector:@selector(orientationChanged:)    name:UIDeviceOrientationDidChangeNotification  object:nil];
@@ -381,8 +392,6 @@ RCT_EXPORT_METHOD(checkAudioAuthorizationStatus:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
   [self setOrientation:orientation];
   self.captureOrientation = orientation;
-  NSLog(@"Re-setting capture orientation to %ld", self.captureOrientation);
-  [self initializeCaptureSessionInput:AVMediaTypeVideo];
 }
 
 RCT_EXPORT_METHOD(capture:(NSDictionary *)options
@@ -402,13 +411,7 @@ RCT_EXPORT_METHOD(capture:(NSDictionary *)options
 RCT_EXPORT_METHOD(stopCapture) {
   if(self.captureSegments) {
     self.capturingSegments = NO;
-    [self.segmentTimer invalidate];
-    __weak RCTCameraManager *weakSelf = self;
-    dispatch_barrier_sync(self.segmentBufferQueue, ^{
-      [weakSelf finishCurrentSegmentWriting];
-      [self initializeCaptureSegments];
-      [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex + 1];
-    });
+    [self.recorder stopRecording];
     return;
   } else if (self.movieFileOutput.recording) {
     [self.movieFileOutput stopRecording];
@@ -459,233 +462,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   [self initializeCaptureSessionInput:AVMediaTypeVideo];
 }
 
-- (void)setupSegmentWriterWithIndex:(NSInteger)segmentIndex {
-  NSDictionary *videoSettings;
-  NSDictionary *audioSettings = @{
-                                  AVFormatIDKey           : @(kAudioFormatMPEG4AAC),
-                                  AVNumberOfChannelsKey   : @1,
-                                  AVSampleRateKey         : @44100.0,
-                                  AVEncoderBitRateKey     : @256000
-                                  };
-  if(self.captureOrientation == AVCaptureVideoOrientationPortrait || self.captureOrientation == AVCaptureVideoOrientationPortraitUpsideDown) {
-    if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @720,
-                         AVVideoHeightKey : @1280,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @4194304,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @360,
-                         AVVideoHeightKey : @480,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @1572864,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @144,
-                         AVVideoHeightKey : @192,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @524288,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @1080,
-                         AVVideoHeightKey : @1920,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @8388608,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @720,
-                         AVVideoHeightKey : @1280,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @4194304,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @480,
-                         AVVideoHeightKey : @640,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @2097152,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    }
-  } else {
-    if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @1280,
-                         AVVideoHeightKey : @720,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @4194304,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @480,
-                         AVVideoHeightKey : @360,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @1572864,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @192,
-                         AVVideoHeightKey : @144,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @524288,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @1920,
-                         AVVideoHeightKey : @1080,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @8388608,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @1280,
-                         AVVideoHeightKey : @720,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @4194304,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
-      videoSettings  = @{
-                         AVVideoCodecKey  : AVVideoCodecH264,
-                         AVVideoWidthKey  : @640,
-                         AVVideoHeightKey : @480,
-                         AVVideoCompressionPropertiesKey : @{
-                             AVVideoExpectedSourceFrameRateKey: @(24),
-                             AVVideoAverageNonDroppableFrameRateKey: @(24),
-                             AVVideoMaxKeyFrameIntervalKey: @3,
-                             AVVideoAverageBitRateKey: @2097152,
-                             AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel }
-                         };
-    }
-  }
-  AVAssetWriterInput *videoSegmentWriterInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
-  videoSegmentWriterInput.expectsMediaDataInRealTime = YES;
-  AVAssetWriterInput *audioSegmentWriterInput = [[AVAssetWriterInput alloc] initWithMediaType:AVMediaTypeAudio outputSettings:audioSettings];
-  audioSegmentWriterInput.expectsMediaDataInRealTime = YES;
-  NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@%04ld%@", NSTemporaryDirectory(), @"output", segmentIndex, @".mp4"];
-  NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
-  NSFileManager *fileManager = [NSFileManager defaultManager];
-  if ([fileManager fileExistsAtPath:outputPath])
-  {
-    [fileManager removeItemAtPath:outputPath error:nil];
-  }
-  self.segmentWriter = [AVAssetWriter assetWriterWithURL:outputURL fileType:AVFileTypeMPEG4 error:nil];
-  self.videoSegmentWriterInput = videoSegmentWriterInput;
-  self.audioSegmentWriterInput = audioSegmentWriterInput;
-  if ([self.segmentWriter canAddInput:self.videoSegmentWriterInput]) {
-    [self.segmentWriter addInput:self.videoSegmentWriterInput];
-  }
-  if ([self.segmentWriter canAddInput:self.audioSegmentWriterInput]) {
-    [self.segmentWriter addInput:self.audioSegmentWriterInput];
-  }
-  self.segmentIndex = segmentIndex;
-}
 
-
-- (void)finishCurrentSegmentWriting {
-  [self.videoSegmentWriterInput markAsFinished];
-  [self.audioSegmentWriterInput markAsFinished];
-  NSURL *outputFileURL = self.segmentWriter.outputURL;
-  [self.segmentWriter finishWritingWithCompletionHandler:^{
-    dispatch_async(self.sessionQueue, ^{
-      AVURLAsset* videoAsAsset = [AVURLAsset URLAssetWithURL:outputFileURL options:nil];
-      AVAssetTrack* videoTrack = [[videoAsAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-      float videoWidth;
-      float videoHeight;
-      CGSize videoSize = [videoTrack naturalSize];
-      CGAffineTransform txf = [videoTrack preferredTransform];
-      if ((txf.tx == videoSize.width && txf.ty == videoSize.height) || (txf.tx == 0 && txf.ty == 0)) {
-        // Video recorded in landscape orientation
-        videoWidth = videoSize.width;
-        videoHeight = videoSize.height;
-      } else {
-        // Video recorded in portrait orientation, so have to swap reported width/height
-        videoWidth = videoSize.height;
-        videoHeight = videoSize.width;
-      }
-      NSNumber *fileSizeValue = nil;
-      NSError *fileSizeError = nil;
-      [outputFileURL getResourceValue:&fileSizeValue
-                               forKey:NSURLFileSizeKey
-                                error:&fileSizeError];
-      NSMutableDictionary *videoInfo = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                       @"path": outputFileURL.path,
-                                                                                       @"duration":[NSNumber numberWithFloat:CMTimeGetSeconds(videoAsAsset.duration)],
-                                                                                       @"width":[NSNumber numberWithFloat:videoWidth],
-                                                                                       @"height":[NSNumber numberWithFloat:videoHeight],
-                                                                                       @"size":fileSizeValue,
-                                                                                       }];
-      NSLog(@"Done writing segment %@, %@", outputFileURL, videoInfo);
-      [self.bridge.eventDispatcher sendAppEventWithName:@"Segment" body:videoInfo];
-    });
-  }];
-}
-
-- (void)changeWriters {
-  __weak RCTCameraManager *weakSelf = self;
-  dispatch_barrier_sync(self.segmentBufferQueue, ^{
-    [weakSelf finishCurrentSegmentWriting];
-    [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex + 1];
-  });
-}
 
 - (AVCaptureOutput *)videoOutputForQueue:(dispatch_queue_t)queue {
   AVCaptureVideoDataOutput *videoOutput = [AVCaptureVideoDataOutput new];
@@ -699,36 +476,13 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   return audioOutput;
 }
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-  if(!self.capturingSegments) {
-    return;
-  }
-  if (self.segmentWriter.status != AVAssetWriterStatusWriting) {
-    CMTime startTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    [self.segmentWriter startWriting];
-    [self.segmentWriter startSessionAtSourceTime:startTime];
-  }
-  if ([captureOutput isKindOfClass:AVCaptureVideoDataOutput.class]) {
-    if(self.videoSegmentWriterInput.isReadyForMoreMediaData) {
-      [self.videoSegmentWriterInput appendSampleBuffer:sampleBuffer];
-    } else {
-      NSLog(@"VideoSegmentWriterInput dropping sample.");
-    }
-  }
-  if ([captureOutput isKindOfClass:AVCaptureAudioDataOutput.class]) {
-    if(self.audioSegmentWriterInput.isReadyForMoreMediaData) {
-      [self.audioSegmentWriterInput appendSampleBuffer:sampleBuffer];
-    } else {
-      NSLog(@"AudioSegmentWriterInput dropping sample.");
-    }
-  }
-}
-
 - (void)startSession {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
+  
   dispatch_async(self.sessionQueue, ^{
+    
     if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
       self.presetCamera = AVCaptureDevicePositionBack;
     }
@@ -741,21 +495,24 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       self.stillImageOutput = stillImageOutput;
     }
     
-    AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-    if ([self.session canAddOutput:movieFileOutput])
-    {
-      [self.session addOutput:movieFileOutput];
-      self.movieFileOutput = movieFileOutput;
+    if(!self.captureSegments) {
+
+      AVCaptureMovieFileOutput *movieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+      if ([self.session canAddOutput:movieFileOutput])
+      {
+        [self.session addOutput:movieFileOutput];
+        self.movieFileOutput = movieFileOutput;
+      }
+      
+      AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
+      if ([self.session canAddOutput:metadataOutput]) {
+        [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
+        [self.session addOutput:metadataOutput];
+        [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+        self.metadataOutput = metadataOutput;
+      }
     }
-    
-    AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
-    if ([self.session canAddOutput:metadataOutput]) {
-      [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
-      [self.session addOutput:metadataOutput];
-      [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
-      self.metadataOutput = metadataOutput;
-    }
-    
+  
     __weak RCTCameraManager *weakSelf = self;
     [self setRuntimeErrorHandlingObserver:[NSNotificationCenter.defaultCenter addObserverForName:AVCaptureSessionRuntimeErrorNotification object:self.session queue:nil usingBlock:^(NSNotification *note) {
       RCTCameraManager *strongSelf = weakSelf;
@@ -764,8 +521,9 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         [strongSelf.session startRunning];
       });
     }]];
-    
+     
     [self.session startRunning];
+    
   });
 }
 
@@ -799,7 +557,8 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
         }
       }
     }
-    
+    BOOL resetAudio = NO;
+    BOOL resetVideo = NO;
     [self.session beginConfiguration];
     
     NSError *error = nil;
@@ -809,14 +568,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
     } else if (type == AVMediaTypeVideo) {
       captureDevice = [self deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
-      if ([captureDevice lockForConfiguration:NULL] == YES) {
-        captureDevice.activeVideoMinFrameDuration = CMTimeMake(1, 24);
-        captureDevice.activeVideoMaxFrameDuration = CMTimeMake(1, 24);
-        [captureDevice unlockForConfiguration];
-        NSLog(@"At 24FPS");
-      } else {
-        NSLog(@"Could not set FPS");
-      }
     }
     
     if (captureDevice == nil) {
@@ -831,6 +582,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     }
     
     if (type == AVMediaTypeVideo) {
+      resetVideo = YES;
       [self.session removeInput:self.videoCaptureDeviceInput];
     }
     
@@ -838,27 +590,103 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       [self.session addInput:captureDeviceInput];
       
       if (type == AVMediaTypeAudio) {
+        resetAudio = YES;
+        NSLog(@"Initialize audioCaptureDeviceInput");
         self.audioCaptureDeviceInput = captureDeviceInput;
-      }
-      else if (type == AVMediaTypeVideo) {
+      } else if (type == AVMediaTypeVideo) {
+        NSLog(@"Initialize videoCaptureDeviceInput");
         self.videoCaptureDeviceInput = captureDeviceInput;
-        if(self.captureSegments) {
-          AVCaptureConnection *connection = [self.videoBufferOutput connectionWithMediaType:AVMediaTypeVideo];
-          if ([connection isVideoOrientationSupported]) {
-            [connection setVideoOrientation:self.captureOrientation];
-          }
-          if (connection.supportsVideoStabilization) {
-            connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeCinematic;
-          }
-        }
         [self setFlashMode];
       }
       [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
     }
-    
     [self.session commitConfiguration];
+    if(!self.captureSegments) {
+      return;
+    }
+    if(resetVideo) {
+      for(AVCaptureOutput *output in self.session.outputs) {
+        if([output isKindOfClass:[AVCaptureVideoDataOutput class]] || [output isKindOfClass:[AVCaptureMovieFileOutput class]] || [output isKindOfClass:[AVCaptureMetadataOutput class]]){
+          NSLog(@"Removing old video outputs.");
+          [self.session removeOutput:output];
+        }
+      }
+      if(self.captureOrientation == AVCaptureVideoOrientationPortrait || self.captureOrientation == AVCaptureVideoOrientationPortraitUpsideDown) {
+        if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
+          self.recorder.videoWidth = 720;
+          self.recorder.videoHeight = 1280;
+          self.recorder.videoBitrate = 4194304;
+        } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
+          self.recorder.videoWidth = 360;
+          self.recorder.videoHeight = 480;
+          self.recorder.videoBitrate = 1572864;
+        } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
+          self.recorder.videoWidth = 144;
+          self.recorder.videoHeight = 192;
+          self.recorder.videoBitrate = 524288;
+        } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
+          self.recorder.videoWidth = 1080;
+          self.recorder.videoHeight = 1920;
+          self.recorder.videoBitrate = 8388608;
+        } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
+          self.recorder.videoWidth = 720;
+          self.recorder.videoHeight = 1280;
+          self.recorder.videoBitrate = 4194304;
+        } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
+          self.recorder.videoWidth = 480;
+          self.recorder.videoHeight = 640;
+          self.recorder.videoBitrate = 2097152;
+        }
+      } else {
+        if(self.session.sessionPreset == AVCaptureSessionPresetHigh || self.session.sessionPreset == AVCaptureSessionPresetPhoto) {
+          self.recorder.videoWidth = 1280;
+          self.recorder.videoHeight = 720;
+          self.recorder.videoBitrate = 4194304;
+        } else if(self.session.sessionPreset == AVCaptureSessionPresetMedium) {
+          self.recorder.videoWidth = 480;
+          self.recorder.videoHeight = 360;
+          self.recorder.videoBitrate = 1572864;
+        } else if(self.session.sessionPreset == AVCaptureSessionPresetLow) {
+          self.recorder.videoWidth = 192;
+          self.recorder.videoHeight = 144;
+          self.recorder.videoBitrate = 524288;
+        } else if(self.session.sessionPreset == AVCaptureSessionPreset1920x1080) {
+          self.recorder.videoWidth = 1920;
+          self.recorder.videoHeight = 1080;
+          self.recorder.videoBitrate = 8388608;
+        } else if(self.session.sessionPreset == AVCaptureSessionPreset1280x720) {
+          self.recorder.videoWidth = 1280;
+          self.recorder.videoHeight = 720;
+          self.recorder.videoBitrate = 4194304;
+        } else if(self.session.sessionPreset == AVCaptureSessionPreset640x480) {
+          self.recorder.videoWidth = 640;
+          self.recorder.videoHeight = 720;
+          self.recorder.videoBitrate = 2097152;
+        }
+      }
+      [self.recorder setupVideoCapture];
+      
+      AVCaptureConnection *connection = [self.recorder.videoOutput connectionWithMediaType:AVMediaTypeVideo];
+      if ([connection isVideoOrientationSupported]) {
+        [connection setVideoOrientation:self.captureOrientation];
+      }
+      if (connection.supportsVideoStabilization) {
+        connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeCinematic;
+      }
+      
+    }
+    if(resetAudio) {
+      for(AVCaptureOutput *output in self.session.outputs) {
+        if([output isKindOfClass:[AVCaptureAudioDataOutput class]] ){
+          NSLog(@"Removing old audio outputs.");
+          [self.session removeOutput:output];
+        }
+      }
+      [self.recorder setupAudioCapture];
+    }
   });
 }
+
 
 - (void)initializeCaptureMovieFile {
   dispatch_async(self.sessionQueue, ^{
@@ -868,32 +696,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     {
       [self.session addOutput:movieFileOutput];
       self.movieFileOutput = movieFileOutput;
-    }
-    [self.session commitConfiguration];
-  });
-}
-
-- (void)initializeCaptureSegments {
-  dispatch_async(self.sessionQueue, ^{
-    [self.session beginConfiguration];
-    [self.session removeOutput:self.movieFileOutput];
-    AVCaptureOutput *videoBufferOutput = [self videoOutputForQueue:self.segmentBufferQueue];
-    if ([self.session canAddOutput:videoBufferOutput])
-    {
-      [self.session addOutput:videoBufferOutput];
-      NSLog(@"Added video buffer queue.");
-      self.videoBufferOutput = videoBufferOutput;
-    } else {
-      NSLog(@"Cannot add video buffer queue.");
-    }
-    AVCaptureOutput *audioBufferOutput = [self audioOutputForQueue:self.segmentBufferQueue];
-    if ([self.session canAddOutput:audioBufferOutput])
-    {
-      [self.session addOutput:audioBufferOutput];
-      NSLog(@"Added audio buffer queue.");
-      self.audioBufferOutput = audioBufferOutput;
-    } else {
-      NSLog(@"Cannot add audio buffer queue.");
     }
     [self.session commitConfiguration];
   });
@@ -1114,8 +916,6 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     return;
   }
   
-  
-  
   if ([[options valueForKey:@"audio"] boolValue]) {
     [self initializeCaptureSessionInput:AVMediaTypeAudio];
   }
@@ -1126,27 +926,14 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
     [self initializeCaptureSessionInput:AVMediaTypeVideo];
   }
   
+  
   if(self.captureSegments) {
     self.capturingSegments = YES;
-    self.segmentIndex = 0;
-    self.segmentTimer = [NSTimer timerWithTimeInterval: 3.0
-                                                target: self
-                                              selector: @selector(changeWriters)
-                                              userInfo: nil
-                                               repeats: YES];
     dispatch_async(self.sessionQueue, ^{
-      __weak RCTCameraManager *weakSelf = self;
-      dispatch_barrier_sync(self.segmentBufferQueue, ^{
-        [weakSelf setupSegmentWriterWithIndex:weakSelf.segmentIndex];
-      });
-      [[NSRunLoop mainRunLoop] addTimer:self.segmentTimer forMode:NSRunLoopCommonModes];
-      NSMutableDictionary *videoInfo = [NSMutableDictionary dictionaryWithDictionary:@{}];
-      resolve(videoInfo);
+      [self.recorder startRecording];
     });
     return;
   }
-  
-  
   
   Float64 totalSeconds = [[options valueForKey:@"totalSeconds"] floatValue];
   if (totalSeconds > -1) {

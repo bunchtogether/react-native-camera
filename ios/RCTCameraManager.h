@@ -1,5 +1,6 @@
 #import <React/RCTViewManager.h>
 #import <AVFoundation/AVFoundation.h>
+#import "KFRecorder.h"
 
 @class RCTCamera;
 
@@ -76,16 +77,10 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 @property (nonatomic, strong) RCTPromiseResolveBlock videoResolve;
 @property (nonatomic, strong) RCTPromiseRejectBlock videoReject;
 @property (nonatomic, strong) RCTCamera *camera;
-@property (nonatomic, strong) NSTimer *segmentTimer;
-@property (nonatomic, assign) NSInteger segmentIndex;
-@property (nonatomic, strong) AVCaptureOutput *videoBufferOutput;
-@property (nonatomic, strong) AVCaptureOutput *audioBufferOutput;
-@property (nonatomic, strong) AVAssetWriterInput *videoSegmentWriterInput;
-@property (nonatomic, strong) AVAssetWriterInput *audioSegmentWriterInput;
-@property (nonatomic, strong) AVAssetWriter *segmentWriter;
 @property (nonatomic, assign) BOOL capturingSegments;
 @property (nonatomic, assign) BOOL captureSegments;
 @property (nonatomic, assign) NSInteger captureOrientation;
+@property (nonatomic, strong) KFRecorder *recorder;
 
 - (void)changeOrientation:(NSInteger)orientation;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
@@ -94,7 +89,6 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)initializeCaptureSessionInput:(NSString*)type;
 - (void)initializeCaptureMovieFile;
-- (void)initializeCaptureSegments;
 - (void)stopCapture;
 - (void)startSession;
 - (void)stopSession;
