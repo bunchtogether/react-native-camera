@@ -16,6 +16,7 @@
 @property (nonatomic, weak) RCTBridge *bridge;
 @property (nonatomic, strong) RCTCameraFocusSquare *camFocus;
 
+
 @end
 
 @implementation RCTCamera
