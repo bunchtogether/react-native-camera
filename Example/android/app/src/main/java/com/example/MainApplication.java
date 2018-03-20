@@ -20,7 +20,12 @@ public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
-    protected boolean getUseDeveloperSupport() {
+    protected String getJSMainModuleName() {
+      return "index";
+    }
+
+    @Override
+    public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
     }
 
