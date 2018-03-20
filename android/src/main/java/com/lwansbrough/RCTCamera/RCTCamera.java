@@ -8,6 +8,11 @@ import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.util.Log;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -348,6 +353,32 @@ public class RCTCamera {
 
     public void setCaptureSegmentsEnabled(boolean captureSegmentsEnabled) {
         this._captureSegmentsEnabled = captureSegmentsEnabled;
+
+
+        // TODO put event creation on appropriate location
+        // TODO send event when a segment is actually ready (need FFmpeg for that)
+        // NSDictionary* fragment = @{
+        //                            @"order": @((NSInteger) fragmentOrder++),
+        //                            @"path": absolutePath,
+        //                            @"manifestPath": manifestPath,
+        //                            @"filename": group.fileName,
+        //                            @"height": @((NSInteger) self.videoHeight),
+        //                            @"width": @((NSInteger) self.videoWidth),
+        //                            @"audioBitrate": @((NSInteger) self.audioBitrate),
+        //                            @"videoBitrate": @((NSInteger) self.videoBitrate)
+        //                            };
+        WritableMap event = Arguments.createMap();
+        event.putInt("order", 1);
+        event.putString("path", "/some/path/segment");
+        event.putString("manifestPath", "/some/path/manifest.m3u8");
+        event.putString("filename", "file.ts");
+        event.putInt("height", 768);
+        event.putInt("width", 1080);
+        event.putInt("audioBitrate", 64);
+        event.putInt("videoBitrate", 512);
+
+        ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
+        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("SegmentAndroid", event);
     }
 
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
