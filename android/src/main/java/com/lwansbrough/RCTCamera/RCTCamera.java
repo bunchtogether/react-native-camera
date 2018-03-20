@@ -26,6 +26,7 @@ public class RCTCamera {
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
     private int _adjustedDeviceOrientation = 0;
+    private boolean _captureSegmentsEnabled = false;
 
     public static RCTCamera getInstance() {
         return ourInstance;
@@ -343,6 +344,10 @@ public class RCTCamera {
             parameters.setFlashMode(value);
             camera.setParameters(parameters);
         }
+    }
+
+    public void setCaptureSegmentsEnabled(boolean captureSegmentsEnabled) {
+        this._captureSegmentsEnabled = captureSegmentsEnabled;
     }
 
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {

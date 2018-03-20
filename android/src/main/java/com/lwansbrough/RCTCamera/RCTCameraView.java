@@ -123,6 +123,10 @@ public class RCTCameraView extends ViewGroup {
         RCTCamera.getInstance().setBarCodeTypes(types);
     }
 
+    public void setCaptureSegmentsEnabled(boolean captureSegmentsEnabled) {
+        RCTCamera.getInstance().setCaptureSegmentsEnabled(captureSegmentsEnabled);
+    }
+
     private boolean setActualDeviceOrientation(Context context) {
         int actualDeviceOrientation = getDeviceOrientation(context);
         if (_actualDeviceOrientation != actualDeviceOrientation) {

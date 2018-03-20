@@ -86,4 +86,10 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         }
         view.setBarCodeTypes(result);
     }
+
+    @ReactProp(name = "captureSegments")
+    public void setCaptureSegmentsEnabled(RCTCameraView view, boolean captureSegmentsEnabled) {
+        view.setCaptureSegmentsEnabled(captureSegmentsEnabled);
+    }
+
 }
