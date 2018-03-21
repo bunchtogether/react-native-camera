@@ -13,6 +13,8 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import net.openwatch.ffmpegwrapper.FFmpegWrapper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -379,6 +381,12 @@ public class RCTCamera {
 
         ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
         reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("SegmentAndroid", event);
+
+        FFmpegWrapper.AVOptions hlsOptions = new FFmpegWrapper.AVOptions();
+        hlsOptions.outputFormatName = "hls";
+
+        FFmpegWrapper mFFmpeg = new FFmpegWrapper();
+        mFFmpeg.setAVOptions(hlsOptions);
     }
 
     public void adjustCameraRotationToDeviceOrientation(int type, int deviceOrientation) {
