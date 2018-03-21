@@ -15,7 +15,7 @@ android {
   buildToolsVersion "25.0.2"
 
   defaultConfig {
-    minSdkVersion 16
+    minSdkVersion 17
     targetSdkVersion 22
     versionCode 1
     versionName "1.0"
@@ -34,4 +34,14 @@ dependencies {
   compile "com.facebook.react:react-native:0.19.+"
   compile "com.google.zxing:core:3.2.1"
   compile "com.drewnoakes:metadata-extractor:2.9.1"
+
+  compile 'com.google.guava:guava:18.0'
+  compile files('libs/m3u8parser-0.2.jar')
+  compile 'com.amazonaws:aws-android-sdk-core:2.2.1'
+  compile 'com.amazonaws:aws-android-sdk-s3:2.2.1'
+  compile 'com.google.code.gson:gson:2.3.1'
+  compile 'com.google.http-client:google-http-client:1.19.0'
+  compile 'com.google.http-client:google-http-client-android:1.19.0'
+  compile 'com.google.http-client:google-http-client-jackson2:1.19.0'
+  compile 'com.google.oauth-client:google-oauth-client:1.19.0'
 }

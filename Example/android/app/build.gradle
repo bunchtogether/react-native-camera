@@ -88,13 +88,16 @@ android {
 
     defaultConfig {
         applicationId "com.example"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
+    }
+    dexOptions {
+        jumboMode true
     }
     splits {
         abi {
