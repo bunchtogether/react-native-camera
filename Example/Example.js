@@ -1,12 +1,5 @@
 import React from 'react';
-import Video from 'react-native-video';
-import {
-  Image,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Camera from 'react-native-camera';
 
 const styles = StyleSheet.create({
@@ -16,7 +9,7 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   overlay: {
     position: 'absolute',
@@ -53,13 +46,6 @@ const styles = StyleSheet.create({
   buttonsSpace: {
     width: 10,
   },
-  backgroundVideo: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-  },
 });
 
 export default class Example extends React.Component {
@@ -77,33 +63,38 @@ export default class Example extends React.Component {
         flashMode: Camera.constants.FlashMode.auto,
       },
       isRecording: false,
-      videoUri: null
     };
   }
 
-  takePicture = async () => {
+  takePicture = () => {
     if (this.camera) {
-      console.log(await this.camera.capture());
+      this.camera
+        .capture()
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
     }
-  }
+  };
 
-  startRecording = async () => {
+  startRecording = () => {
     if (this.camera) {
+      this.camera
+        .capture({ mode: Camera.constants.CaptureMode.video })
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
       this.setState({
-        isRecording: true
+        isRecording: true,
       });
-      console.log(await this.camera.capture({mode: Camera.constants.CaptureMode.video}));
     }
-  }
+  };
 
   stopRecording = () => {
     if (this.camera) {
-      this.setState({
-        isRecording: false
-      });
       this.camera.stopCapture();
+      this.setState({
+        isRecording: false,
+      });
     }
-  }
+  };
 
   switchType = () => {
     let newType;
@@ -121,7 +112,7 @@ export default class Example extends React.Component {
         type: newType,
       },
     });
-  }
+  };
 
   get typeIcon() {
     let icon;
@@ -154,25 +145,7 @@ export default class Example extends React.Component {
         flashMode: newFlashMode,
       },
     });
-  }
-
-  displaySegment = (data) => {
-    if(!this.state.isRecording){
-      return;
-    }
-    //console.log(data);
-    //this.stopRecording();
-    //this.setState({
-    //  videoUri: `file:${data.path}`
-    //});
-    console.log("SEGMENT DATA:", data);
-  }
-
-  clearSegment = () => {
-    this.setState({
-      videoUri: null
-    });  
-  }
+  };
 
   get flashIcon() {
     let icon;
@@ -190,36 +163,13 @@ export default class Example extends React.Component {
   }
 
   render() {
-    if(this.state.videoUri) {
-      return (<TouchableOpacity style={styles.backgroundVideo} onPress={this.clearSegment}>
-        <Video source={{uri: this.state.videoUri}}   // Can be a URL or a local file.
-          ref={(ref) => {
-            this.player = ref
-          }}                                      // Store reference
-          rate={1.0}                              // 0 is paused, 1 is normal.
-          volume={1.0}                            // 0 is muted, 1 is normal.
-          muted={false}                           // Mutes the audio entirely.
-          paused={false}                          // Pauses playback entirely.
-          resizeMode="cover"                      // Fill the whole screen at aspect ratio.*
-          repeat={true}                           // Repeat forever.
-          playInBackground={false}                // Audio continues to play when app entering background.
-          playWhenInactive={false}                // [iOS] Video continues to play when control or notification center are shown.
-          ignoreSilentSwitch={"ignore"}           // [iOS] ignore | obey - When 'ignore', audio will still play with the iOS hard silent switch set to silent. When 'obey', audio will toggle with the switch. When not specified, will inherit audio settings as usual.
-          progressUpdateInterval={250.0}          // [iOS] Interval to fire onProgress (default to ~250ms)
-          style={styles.backgroundVideo} />
-      </TouchableOpacity>);
-    }
     return (
       <View style={styles.container}>
-        <StatusBar
-          animated
-          hidden
-        />
+        <StatusBar animated hidden />
         <Camera
-          ref={(cam) => {
+          ref={cam => {
             this.camera = cam;
           }}
-          captureAudio={true}
           style={styles.preview}
           aspect={this.state.camera.aspect}
           captureTarget={this.state.camera.captureTarget}
@@ -229,64 +179,35 @@ export default class Example extends React.Component {
           onZoomChanged={() => {}}
           defaultTouchToFocus
           mirrorImage={false}
-          captureSegments={true}
-          onSegment={this.displaySegment}
+          cropToPreview={false}
+          permissionDialogTitle="Sample title"
+          permissionDialogMessage="Sample dialog message"
         />
         <View style={[styles.overlay, styles.topOverlay]}>
-          <TouchableOpacity
-            style={styles.typeButton}
-            onPress={this.switchType}
-          >
-            <Image
-              source={this.typeIcon}
-            />
+          <TouchableOpacity style={styles.typeButton} onPress={this.switchType}>
+            <Image source={this.typeIcon} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.flashButton}
-            onPress={this.switchFlash}
-          >
-            <Image
-              source={this.flashIcon}
-            />
+          <TouchableOpacity style={styles.flashButton} onPress={this.switchFlash}>
+            <Image source={this.flashIcon} />
           </TouchableOpacity>
         </View>
         <View style={[styles.overlay, styles.bottomOverlay]}>
-          {
-            !this.state.isRecording
-            &&
-            <TouchableOpacity
-                style={styles.captureButton}
-                onPress={this.takePicture}
-            >
-              <Image
-                  source={require('./assets/ic_photo_camera_36pt.png')}
-              />
+          {(!this.state.isRecording && (
+            <TouchableOpacity style={styles.captureButton} onPress={this.takePicture}>
+              <Image source={require('./assets/ic_photo_camera_36pt.png')} />
             </TouchableOpacity>
-            ||
-            null
-          }
+          )) ||
+            null}
           <View style={styles.buttonsSpace} />
-          {
-              !this.state.isRecording
-              &&
-              <TouchableOpacity
-                  style={styles.captureButton}
-                  onPress={this.startRecording}
-              >
-                <Image
-                    source={require('./assets/ic_videocam_36pt.png')}
-                />
-              </TouchableOpacity>
-              ||
-              <TouchableOpacity
-                  style={styles.captureButton}
-                  onPress={this.stopRecording}
-              >
-                <Image
-                    source={require('./assets/ic_stop_36pt.png')}
-                />
-              </TouchableOpacity>
-          }
+          {(!this.state.isRecording && (
+            <TouchableOpacity style={styles.captureButton} onPress={this.startRecording}>
+              <Image source={require('./assets/ic_videocam_36pt.png')} />
+            </TouchableOpacity>
+          )) || (
+            <TouchableOpacity style={styles.captureButton} onPress={this.stopRecording}>
+              <Image source={require('./assets/ic_stop_36pt.png')} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );

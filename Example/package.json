@@ -4,13 +4,21 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "start:clean": "watchman watch-del-all && rm -rf $TMPDIR/react-* && rm -rf node_modules/ && yarn cache clean && yarn install && react-native start --reset-cache",
-    "postinstall": "rm -rf node_modules/react-native-camera/Example"
+    "test": "jest",
+    "clear": "node node_modules/react-native/local-cli/cli.js start --reset-cache"
   },
   "dependencies": {
-    "react": "^16.0.0",
-    "react-native": "0.50.4",
-    "react-native-camera": "file:../",
-    "react-native-video": "^2.0.0"
+    "react": "16.0.0",
+    "react-native": "0.51.0",
+    "react-native-camera": "file:../"
+  },
+  "devDependencies": {
+    "babel-jest": "22.0.4",
+    "babel-preset-react-native": "4.0.0",
+    "jest": "22.0.4",
+    "react-test-renderer": "16.0.0"
+  },
+  "jest": {
+    "preset": "react-native"
   }
 }
