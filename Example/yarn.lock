@@ -3486,10 +3486,9 @@ react-devtools-core@^2.5.0:
     shell-quote "^1.6.1"
     ws "^2.0.3"
 
-"react-native-camera@file:..":
-  version "0.12.0"
-  dependencies:
-    prop-types "^15.5.10"
+"react-native-camera@link:..":
+  version "0.0.0"
+  uid ""
 
 react-native@0.51.0:
   version "0.51.0"

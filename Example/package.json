@@ -10,7 +10,7 @@
   "dependencies": {
     "react": "16.0.0",
     "react-native": "0.51.0",
-    "react-native-camera": "file:../"
+    "react-native-camera": "link:../"
   },
   "devDependencies": {
     "babel-jest": "22.0.4",

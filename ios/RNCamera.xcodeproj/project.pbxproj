@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */ = {isa = PBXBuildFile; fileRef = 0314E39C1B661A460092D183 /* CameraFocusSquare.m */; };
-		4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4107014A1ACB732B00C6AA39 /* RCTCameraManager.m */; };
 		454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 454EBCF31B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m */; };
 		7103647B20195C53009691D1 /* RNFaceDetectorManagerStub.m in Sources */ = {isa = PBXBuildFile; fileRef = 7103647A20195C53009691D1 /* RNFaceDetectorManagerStub.m */; };
@@ -22,15 +21,42 @@
 		71D5C72A201B8A2F0030A15E /* RNFaceDetectorPointTransformCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB8201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m */; };
 		71D5C72B201B8A320030A15E /* RNFaceDetectorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */; };
 		71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */; };
-		72A5BAEF20631E1F00715277 /* GoogleMobileVision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BACF20631E1F00715277 /* GoogleMobileVision.framework */; };
-		72A5BAF020631E1F00715277 /* FaceDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BAD320631E1F00715277 /* FaceDetector.framework */; };
-		72A5BAF120631E1F00715277 /* GoogleMVDataOutput.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BADF20631E1F00715277 /* GoogleMVDataOutput.framework */; };
-		72A5BAF220631E1F00715277 /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BAE420631E1F00715277 /* GoogleNetworkingUtilities.framework */; };
-		72A5BAF320631E1F00715277 /* GoogleInterchangeUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BAE920631E1F00715277 /* GoogleInterchangeUtilities.framework */; };
-		72A5BAF420631E1F00715277 /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BAEE20631E1F00715277 /* GoogleUtilities.framework */; };
+		728ABC4220632286007DC4F1 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
+		728ABC72206324EB007DC4F1 /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABC6F20632466007DC4F1 /* libHudlFFmpegProcessor.a */; };
+		728ABDE7206353E2007DC4F1 /* GoogleMobileVision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */; };
+		728ABDE8206353E2007DC4F1 /* FaceDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDC7206353E1007DC4F1 /* FaceDetector.framework */; };
+		728ABDE9206353E2007DC4F1 /* GoogleMVDataOutput.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDD3206353E1007DC4F1 /* GoogleMVDataOutput.framework */; };
+		728ABDEA206353E2007DC4F1 /* GoogleInterchangeUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDD8206353E1007DC4F1 /* GoogleInterchangeUtilities.framework */; };
+		728ABDEB206353E2007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDDD206353E1007DC4F1 /* GoogleNetworkingUtilities.framework */; };
+		728ABDEC206353E2007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDE1206353E1007DC4F1 /* GoogleSymbolUtilities.framework */; };
+		728ABDED206353E2007DC4F1 /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDE6206353E2007DC4F1 /* GoogleUtilities.framework */; };
 		72A5BAF620631E6100715277 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BAF520631E6000715277 /* AddressBook.framework */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		728ABC6E20632466007DC4F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = ED92E9D61A705CEF00E2C415;
+			remoteInfo = HudlFFmpegProcessor;
+		};
+		728ABC7020632466007DC4F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = ED92E9E11A705CEF00E2C415;
+			remoteInfo = HudlFFmpegProcessorTests;
+		};
+		728ABE5A20635903007DC4F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = ED92E9D51A705CEF00E2C415;
+			remoteInfo = HudlFFmpegProcessor;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		4107012D1ACB723B00C6AA39 /* CopyFiles */ = {
@@ -75,23 +101,26 @@
 		71C7FFD22013C817006EB75A /* RNImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImageUtils.m; sourceTree = "<group>"; };
 		71C7FFD42013C824006EB75A /* RNFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFileSystem.h; sourceTree = "<group>"; };
 		71C7FFD52013C824006EB75A /* RNFileSystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFileSystem.m; sourceTree = "<group>"; };
-		72A5BACC20631E1F00715277 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
-		72A5BACF20631E1F00715277 /* GoogleMobileVision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleMobileVision.framework; sourceTree = "<group>"; };
-		72A5BAD320631E1F00715277 /* FaceDetector.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FaceDetector.framework; sourceTree = "<group>"; };
-		72A5BAD520631E1F00715277 /* BCLjoy_100.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = BCLjoy_100.emd; sourceTree = "<group>"; };
-		72A5BAD620631E1F00715277 /* BCLlefteyeclosed_200.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = BCLlefteyeclosed_200.emd; sourceTree = "<group>"; };
-		72A5BAD720631E1F00715277 /* BCLrighteyeclosed_200.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = BCLrighteyeclosed_200.emd; sourceTree = "<group>"; };
-		72A5BAD820631E1F00715277 /* LMprec_600.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = LMprec_600.emd; sourceTree = "<group>"; };
-		72A5BAD920631E1F00715277 /* MFTprec_202.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = MFTprec_202.emd; sourceTree = "<group>"; };
-		72A5BADA20631E1F00715277 /* PFFprec_702.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = PFFprec_702.emd; sourceTree = "<group>"; };
-		72A5BADC20631E1F00715277 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
-		72A5BADF20631E1F00715277 /* GoogleMVDataOutput.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleMVDataOutput.framework; sourceTree = "<group>"; };
-		72A5BAE120631E1F00715277 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
-		72A5BAE420631E1F00715277 /* GoogleNetworkingUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleNetworkingUtilities.framework; sourceTree = "<group>"; };
-		72A5BAE620631E1F00715277 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
-		72A5BAE920631E1F00715277 /* GoogleInterchangeUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleInterchangeUtilities.framework; sourceTree = "<group>"; };
-		72A5BAEB20631E1F00715277 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
-		72A5BAEE20631E1F00715277 /* GoogleUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleUtilities.framework; sourceTree = "<group>"; };
+		728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = HudlFFmpegProcessor.xcodeproj; path = Submodules/HudlFFmpeg/HudlFFmpegProcessor.xcodeproj; sourceTree = SOURCE_ROOT; };
+		728ABDC0206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleMobileVision.framework; sourceTree = "<group>"; };
+		728ABDC7206353E1007DC4F1 /* FaceDetector.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FaceDetector.framework; sourceTree = "<group>"; };
+		728ABDC9206353E1007DC4F1 /* BCLjoy_100.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = BCLjoy_100.emd; sourceTree = "<group>"; };
+		728ABDCA206353E1007DC4F1 /* BCLlefteyeclosed_200.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = BCLlefteyeclosed_200.emd; sourceTree = "<group>"; };
+		728ABDCB206353E1007DC4F1 /* BCLrighteyeclosed_200.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = BCLrighteyeclosed_200.emd; sourceTree = "<group>"; };
+		728ABDCC206353E1007DC4F1 /* LMprec_600.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = LMprec_600.emd; sourceTree = "<group>"; };
+		728ABDCD206353E1007DC4F1 /* MFTprec_202.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = MFTprec_202.emd; sourceTree = "<group>"; };
+		728ABDCE206353E1007DC4F1 /* PFFprec_702.emd */ = {isa = PBXFileReference; lastKnownFileType = file; path = PFFprec_702.emd; sourceTree = "<group>"; };
+		728ABDD0206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		728ABDD3206353E1007DC4F1 /* GoogleMVDataOutput.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleMVDataOutput.framework; sourceTree = "<group>"; };
+		728ABDD5206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		728ABDD8206353E1007DC4F1 /* GoogleInterchangeUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleInterchangeUtilities.framework; sourceTree = "<group>"; };
+		728ABDDA206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		728ABDDD206353E1007DC4F1 /* GoogleNetworkingUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleNetworkingUtilities.framework; sourceTree = "<group>"; };
+		728ABDDF206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		728ABDE1206353E1007DC4F1 /* GoogleSymbolUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleSymbolUtilities.framework; sourceTree = "<group>"; };
+		728ABDE3206353E2007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
+		728ABDE6206353E2007DC4F1 /* GoogleUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleUtilities.framework; sourceTree = "<group>"; };
 		72A5BAF520631E6000715277 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.2.sdk/System/Library/Frameworks/AddressBook.framework; sourceTree = DEVELOPER_DIR; };
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
@@ -102,13 +131,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				728ABC72206324EB007DC4F1 /* libHudlFFmpegProcessor.a in Frameworks */,
+				728ABDED206353E2007DC4F1 /* GoogleUtilities.framework in Frameworks */,
+				728ABDEB206353E2007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */,
+				728ABDEC206353E2007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */,
 				72A5BAF620631E6100715277 /* AddressBook.framework in Frameworks */,
-				72A5BAF420631E1F00715277 /* GoogleUtilities.framework in Frameworks */,
-				72A5BAF220631E1F00715277 /* GoogleNetworkingUtilities.framework in Frameworks */,
-				72A5BAF120631E1F00715277 /* GoogleMVDataOutput.framework in Frameworks */,
-				72A5BAEF20631E1F00715277 /* GoogleMobileVision.framework in Frameworks */,
-				72A5BAF020631E1F00715277 /* FaceDetector.framework in Frameworks */,
-				72A5BAF320631E1F00715277 /* GoogleInterchangeUtilities.framework in Frameworks */,
+				728ABDE7206353E2007DC4F1 /* GoogleMobileVision.framework in Frameworks */,
+				728ABDEA206353E2007DC4F1 /* GoogleInterchangeUtilities.framework in Frameworks */,
+				728ABDE9206353E2007DC4F1 /* GoogleMVDataOutput.framework in Frameworks */,
+				728ABDE8206353E2007DC4F1 /* FaceDetector.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,189 +217,217 @@
 			path = FaceDetector;
 			sourceTree = "<group>";
 		};
-		72A5BA9E20631DAF00715277 /* Frameworks */ = {
+		728ABC6A20632466007DC4F1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAF520631E6000715277 /* AddressBook.framework */,
-				72A5BAE520631E1F00715277 /* GoogleInterchangeUtilities-1.2.2 */,
-				72A5BACA20631E1F00715277 /* GoogleMobileVision-1.1.0 */,
-				72A5BAE020631E1F00715277 /* GoogleNetworkingUtilities-1.2.2 */,
-				72A5BAEA20631E1F00715277 /* GoogleUtilities-1.3.2 */,
+				728ABC6F20632466007DC4F1 /* libHudlFFmpegProcessor.a */,
+				728ABC7120632466007DC4F1 /* HudlFFmpegProcessorTests.xctest */,
 			);
-			path = Frameworks;
+			name = Products;
 			sourceTree = "<group>";
 		};
-		72A5BACA20631E1F00715277 /* GoogleMobileVision-1.1.0 */ = {
+		728ABDBE206353E1007DC4F1 /* GoogleMobileVision-1.1.0 */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BACB20631E1F00715277 /* Detector */,
-				72A5BAD020631E1F00715277 /* FaceDetector */,
-				72A5BADB20631E1F00715277 /* MVDataOutput */,
+				728ABDBF206353E1007DC4F1 /* Detector */,
+				728ABDC4206353E1007DC4F1 /* FaceDetector */,
+				728ABDCF206353E1007DC4F1 /* MVDataOutput */,
 			);
 			path = "GoogleMobileVision-1.1.0";
 			sourceTree = "<group>";
 		};
-		72A5BACB20631E1F00715277 /* Detector */ = {
+		728ABDBF206353E1007DC4F1 /* Detector */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BACC20631E1F00715277 /* dummy.txt */,
-				72A5BACD20631E1F00715277 /* Frameworks */,
+				728ABDC0206353E1007DC4F1 /* dummy.txt */,
+				728ABDC1206353E1007DC4F1 /* Frameworks */,
 			);
 			path = Detector;
 			sourceTree = "<group>";
 		};
-		72A5BACD20631E1F00715277 /* Frameworks */ = {
+		728ABDC1206353E1007DC4F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BACE20631E1F00715277 /* frameworks */,
+				728ABDC2206353E1007DC4F1 /* frameworks */,
 			);
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BACE20631E1F00715277 /* frameworks */ = {
+		728ABDC2206353E1007DC4F1 /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BACF20631E1F00715277 /* GoogleMobileVision.framework */,
+				728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */,
 			);
 			path = frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAD020631E1F00715277 /* FaceDetector */ = {
+		728ABDC4206353E1007DC4F1 /* FaceDetector */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAD120631E1F00715277 /* Frameworks */,
-				72A5BAD420631E1F00715277 /* Resources */,
+				728ABDC5206353E1007DC4F1 /* Frameworks */,
+				728ABDC8206353E1007DC4F1 /* Resources */,
 			);
 			path = FaceDetector;
 			sourceTree = "<group>";
 		};
-		72A5BAD120631E1F00715277 /* Frameworks */ = {
+		728ABDC5206353E1007DC4F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAD220631E1F00715277 /* frameworks */,
+				728ABDC6206353E1007DC4F1 /* frameworks */,
 			);
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAD220631E1F00715277 /* frameworks */ = {
+		728ABDC6206353E1007DC4F1 /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAD320631E1F00715277 /* FaceDetector.framework */,
+				728ABDC7206353E1007DC4F1 /* FaceDetector.framework */,
 			);
 			path = frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAD420631E1F00715277 /* Resources */ = {
+		728ABDC8206353E1007DC4F1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAD520631E1F00715277 /* BCLjoy_100.emd */,
-				72A5BAD620631E1F00715277 /* BCLlefteyeclosed_200.emd */,
-				72A5BAD720631E1F00715277 /* BCLrighteyeclosed_200.emd */,
-				72A5BAD820631E1F00715277 /* LMprec_600.emd */,
-				72A5BAD920631E1F00715277 /* MFTprec_202.emd */,
-				72A5BADA20631E1F00715277 /* PFFprec_702.emd */,
+				728ABDC9206353E1007DC4F1 /* BCLjoy_100.emd */,
+				728ABDCA206353E1007DC4F1 /* BCLlefteyeclosed_200.emd */,
+				728ABDCB206353E1007DC4F1 /* BCLrighteyeclosed_200.emd */,
+				728ABDCC206353E1007DC4F1 /* LMprec_600.emd */,
+				728ABDCD206353E1007DC4F1 /* MFTprec_202.emd */,
+				728ABDCE206353E1007DC4F1 /* PFFprec_702.emd */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		72A5BADB20631E1F00715277 /* MVDataOutput */ = {
+		728ABDCF206353E1007DC4F1 /* MVDataOutput */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BADC20631E1F00715277 /* dummy.txt */,
-				72A5BADD20631E1F00715277 /* Frameworks */,
+				728ABDD0206353E1007DC4F1 /* dummy.txt */,
+				728ABDD1206353E1007DC4F1 /* Frameworks */,
 			);
 			path = MVDataOutput;
 			sourceTree = "<group>";
 		};
-		72A5BADD20631E1F00715277 /* Frameworks */ = {
+		728ABDD1206353E1007DC4F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BADE20631E1F00715277 /* frameworks */,
+				728ABDD2206353E1007DC4F1 /* frameworks */,
 			);
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BADE20631E1F00715277 /* frameworks */ = {
+		728ABDD2206353E1007DC4F1 /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BADF20631E1F00715277 /* GoogleMVDataOutput.framework */,
+				728ABDD3206353E1007DC4F1 /* GoogleMVDataOutput.framework */,
 			);
 			path = frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAE020631E1F00715277 /* GoogleNetworkingUtilities-1.2.2 */ = {
+		728ABDD4206353E1007DC4F1 /* GoogleInterchangeUtilities-1.2.2 */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAE120631E1F00715277 /* dummy.txt */,
-				72A5BAE220631E1F00715277 /* Frameworks */,
-			);
-			path = "GoogleNetworkingUtilities-1.2.2";
-			sourceTree = "<group>";
-		};
-		72A5BAE220631E1F00715277 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				72A5BAE320631E1F00715277 /* frameworks */,
-			);
-			path = Frameworks;
-			sourceTree = "<group>";
-		};
-		72A5BAE320631E1F00715277 /* frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				72A5BAE420631E1F00715277 /* GoogleNetworkingUtilities.framework */,
-			);
-			path = frameworks;
-			sourceTree = "<group>";
-		};
-		72A5BAE520631E1F00715277 /* GoogleInterchangeUtilities-1.2.2 */ = {
-			isa = PBXGroup;
-			children = (
-				72A5BAE620631E1F00715277 /* dummy.txt */,
-				72A5BAE720631E1F00715277 /* Frameworks */,
+				728ABDD5206353E1007DC4F1 /* dummy.txt */,
+				728ABDD6206353E1007DC4F1 /* Frameworks */,
 			);
 			path = "GoogleInterchangeUtilities-1.2.2";
 			sourceTree = "<group>";
 		};
-		72A5BAE720631E1F00715277 /* Frameworks */ = {
+		728ABDD6206353E1007DC4F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAE820631E1F00715277 /* frameworks */,
+				728ABDD7206353E1007DC4F1 /* frameworks */,
 			);
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAE820631E1F00715277 /* frameworks */ = {
+		728ABDD7206353E1007DC4F1 /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAE920631E1F00715277 /* GoogleInterchangeUtilities.framework */,
+				728ABDD8206353E1007DC4F1 /* GoogleInterchangeUtilities.framework */,
 			);
 			path = frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAEA20631E1F00715277 /* GoogleUtilities-1.3.2 */ = {
+		728ABDD9206353E1007DC4F1 /* GoogleNetworkingUtilities-1.2.2 */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAEB20631E1F00715277 /* dummy.txt */,
-				72A5BAEC20631E1F00715277 /* Frameworks */,
+				728ABDDA206353E1007DC4F1 /* dummy.txt */,
+				728ABDDB206353E1007DC4F1 /* Frameworks */,
+			);
+			path = "GoogleNetworkingUtilities-1.2.2";
+			sourceTree = "<group>";
+		};
+		728ABDDB206353E1007DC4F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				728ABDDC206353E1007DC4F1 /* frameworks */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		728ABDDC206353E1007DC4F1 /* frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				728ABDDD206353E1007DC4F1 /* GoogleNetworkingUtilities.framework */,
+			);
+			path = frameworks;
+			sourceTree = "<group>";
+		};
+		728ABDDE206353E1007DC4F1 /* GoogleSymbolUtilities-1.1.1 */ = {
+			isa = PBXGroup;
+			children = (
+				728ABDDF206353E1007DC4F1 /* dummy.txt */,
+				728ABDE0206353E1007DC4F1 /* Frameworks */,
+			);
+			path = "GoogleSymbolUtilities-1.1.1";
+			sourceTree = "<group>";
+		};
+		728ABDE0206353E1007DC4F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				728ABDE1206353E1007DC4F1 /* GoogleSymbolUtilities.framework */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		728ABDE2206353E2007DC4F1 /* GoogleUtilities-1.3.2 */ = {
+			isa = PBXGroup;
+			children = (
+				728ABDE3206353E2007DC4F1 /* dummy.txt */,
+				728ABDE4206353E2007DC4F1 /* Frameworks */,
 			);
 			path = "GoogleUtilities-1.3.2";
 			sourceTree = "<group>";
 		};
-		72A5BAEC20631E1F00715277 /* Frameworks */ = {
+		728ABDE4206353E2007DC4F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAED20631E1F00715277 /* frameworks */,
+				728ABDE5206353E2007DC4F1 /* frameworks */,
 			);
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		72A5BAED20631E1F00715277 /* frameworks */ = {
+		728ABDE5206353E2007DC4F1 /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				72A5BAEE20631E1F00715277 /* GoogleUtilities.framework */,
+				728ABDE6206353E2007DC4F1 /* GoogleUtilities.framework */,
 			);
 			path = frameworks;
+			sourceTree = "<group>";
+		};
+		72A5BA9E20631DAF00715277 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				728ABDD4206353E1007DC4F1 /* GoogleInterchangeUtilities-1.2.2 */,
+				728ABDBE206353E1007DC4F1 /* GoogleMobileVision-1.1.0 */,
+				728ABDD9206353E1007DC4F1 /* GoogleNetworkingUtilities-1.2.2 */,
+				728ABDDE206353E1007DC4F1 /* GoogleSymbolUtilities-1.1.1 */,
+				728ABDE2206353E2007DC4F1 /* GoogleUtilities-1.3.2 */,
+				728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */,
+				72A5BAF520631E6000715277 /* AddressBook.framework */,
+			);
+			path = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -385,6 +444,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				728ABE5B20635903007DC4F1 /* PBXTargetDependency */,
 			);
 			name = RNCamera;
 			productName = RCTCamera;
@@ -410,16 +470,40 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 410701241ACB719800C6AA39;
 			productRefGroup = 410701301ACB723B00C6AA39 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 728ABC6A20632466007DC4F1 /* Products */;
+					ProjectRef = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				4107012E1ACB723B00C6AA39 /* RNCamera */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		728ABC6F20632466007DC4F1 /* libHudlFFmpegProcessor.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libHudlFFmpegProcessor.a;
+			remoteRef = 728ABC6E20632466007DC4F1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		728ABC7120632466007DC4F1 /* HudlFFmpegProcessorTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = HudlFFmpegProcessorTests.xctest;
+			remoteRef = 728ABC7020632466007DC4F1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4107012B1ACB723B00C6AA39 /* Sources */ = {
@@ -432,9 +516,9 @@
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
 				71D5C729201B8A2D0030A15E /* RNFaceDetectorUtils.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
+				728ABC4220632286007DC4F1 /* RCTCamera.m in Sources */,
 				71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */,
 				7103647B20195C53009691D1 /* RNFaceDetectorManagerStub.m in Sources */,
-				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
 				71D5C72A201B8A2F0030A15E /* RNFaceDetectorPointTransformCalculator.m in Sources */,
 				71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */,
 				7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */,
@@ -447,16 +531,28 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		728ABE5B20635903007DC4F1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HudlFFmpegProcessor;
+			targetProxy = 728ABE5A20635903007DC4F1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		410701291ACB719800C6AA39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Debug;
 		};
 		4107012A1ACB719800C6AA39 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Release;
 		};
@@ -478,16 +574,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../ios/**",
 					"${BUILT_PRODUCTS_DIR}/**",
-					"$(PROJECT_DIR)/Frameworks/GoogleMobileVision-1.1.0/Detector/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleMobileVision-1.1.0/FaceDetector/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleMobileVision-1.1.0/MVDataOutput/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleNetworkingUtilities-1.2.2/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleInterchangeUtilities-1.2.2/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleUtilities-1.3.2/Frameworks/frameworks",
+					"$(PROJECT_DIR)/Frameworks/**",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -507,15 +599,22 @@
 					"$(SRCROOT)/../../../ios/**",
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
+					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../ios/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../ios/**",
+					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor",
+					"$(PROJECT_DIR)/Frameworks/**",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 					"-lz",
+					"-liconv",
+					"-lbz2",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -541,17 +640,13 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../ios/**",
 					"${BUILT_PRODUCTS_DIR}/**",
-					"$(PROJECT_DIR)/Frameworks/GoogleMobileVision-1.1.0/Detector/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleMobileVision-1.1.0/FaceDetector/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleMobileVision-1.1.0/MVDataOutput/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleNetworkingUtilities-1.2.2/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleInterchangeUtilities-1.2.2/Frameworks/frameworks",
-					"$(PROJECT_DIR)/Frameworks/GoogleUtilities-1.3.2/Frameworks/frameworks",
+					"$(PROJECT_DIR)/Frameworks/**",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -564,14 +659,22 @@
 					"$(SRCROOT)/../../../ios/**",
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
+					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../ios/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../ios/**",
+					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor",
+					"$(PROJECT_DIR)/Frameworks/**",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 					"-lz",
+					"-liconv",
+					"-lbz2",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
