@@ -11,6 +11,7 @@ import {
   View,
   ActivityIndicator,
   Text,
+  NativeEventEmitter,
 } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
@@ -50,6 +51,7 @@ type PropsType = ViewPropTypes & {
   type?: number | string,
   onCameraReady?: Function,
   onBarCodeRead?: Function,
+  onSegment?: Function,
   faceDetectionMode?: number,
   flashMode?: number | string,
   barCodeTypes?: Array<string>,
@@ -61,6 +63,8 @@ type PropsType = ViewPropTypes & {
   captureAudio?: boolean,
   useCamera2Api?: boolean,
 };
+
+const eventEmitter = new NativeEventEmitter(NativeModules.RNCameraManager);
 
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
@@ -121,6 +125,7 @@ export default class Camera extends React.Component<PropsType> {
     onMountError: PropTypes.func,
     onCameraReady: PropTypes.func,
     onBarCodeRead: PropTypes.func,
+    onSegment: PropTypes.func,
     onFacesDetected: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
@@ -272,6 +277,27 @@ export default class Camera extends React.Component<PropsType> {
     }
   };
 
+  _addOnSegmentListener(props) {
+    const { onSegment } = props || this.props;
+    this._removeOnSegmentListener();
+    if (onSegment) {
+      this.cameraSegmentListener = eventEmitter.addListener('Segment', this._onSegment);
+    }
+  }
+
+  _removeOnSegmentListener() {
+    const listener = this.cameraSegmentListener;
+    if (listener) {
+      listener.remove();
+    }
+  }
+
+  _onSegment = data => {
+    if (this.props.onSegment) {
+      this.props.onSegment(data);
+    }
+  };
+
   async componentWillMount() {
     const hasVideoAndAudio = this.props.captureAudio;
     const isAuthorized = await requestPermissions(
@@ -294,6 +320,7 @@ export default class Camera extends React.Component<PropsType> {
           onMountError={this._onMountError}
           onCameraReady={this._onCameraReady}
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
+          onSegment={this._onObjectDetected(this.props.onSegment)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
         />
       );
@@ -306,6 +333,10 @@ export default class Camera extends React.Component<PropsType> {
 
   _convertNativeProps(props: PropsType) {
     const newProps = mapValues(props, this._convertProp);
+
+    if (props.onSegment) {
+      newProps.segmentCaptureEnabled = true;
+    }
 
     if (props.onBarCodeRead) {
       newProps.barCodeScannerEnabled = true;
@@ -339,9 +370,11 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     accessibilityLabel: true,
     accessibilityLiveRegion: true,
     barCodeScannerEnabled: true,
+    segmentCaptureEnabled: true,
     faceDetectorEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
+    onSegment: true,
     onCameraReady: true,
     onFaceDetected: true,
     onLayout: true,

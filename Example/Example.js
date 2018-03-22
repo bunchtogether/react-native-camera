@@ -1,6 +1,10 @@
 import React from 'react';
 import { Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { RNCamera } from 'react-native-camera';
+import Camera, { RNCamera } from 'react-native-camera';
+import StaticServer from 'react-native-static-server';
+import RNFS from 'react-native-fs';
+
+const playlistPath = `${RNFS.DocumentDirectoryPath}/playlist.m3u8`;
 
 const styles = StyleSheet.create({
   container: {
@@ -9,7 +13,7 @@ const styles = StyleSheet.create({
   preview: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   overlay: {
     position: 'absolute',
@@ -56,20 +60,32 @@ export default class Example extends React.Component {
 
     this.state = {
       camera: {
-        aspect: Camera.constants.Aspect.fill,
-        captureTarget: Camera.constants.CaptureTarget.cameraRoll,
-        type: Camera.constants.Type.back,
-        orientation: Camera.constants.Orientation.auto,
-        flashMode: Camera.constants.FlashMode.auto,
+        flashMode: RNCamera.Constants.FlashMode.on,
       },
       isRecording: false,
     };
   }
 
+  async componentWillMount() {
+    this.server = new StaticServer(8080, RNFS.DocumentDirectoryPath);
+    this.url = await this.server.start();
+    const helloPath = `${RNFS.DocumentDirectoryPath}/hello.text`;
+    if (await RNFS.exists(helloPath)) {
+      await RNFS.unlink(helloPath);
+    }
+    await RNFS.writeFile(helloPath, 'Hello from your phone!', 'utf8');
+    console.log(`Web server started, visit ${this.url}/hello.text to verify.`);
+    this.serveNotification = false;
+  }
+
+  componentWillUnmount() {
+    this.server.stop();
+  }
+
   takePicture = () => {
     if (this.camera) {
       this.camera
-        .capture()
+        .takePictureAsync()
         .then(data => console.log(data))
         .catch(err => console.error(err));
     }
@@ -78,7 +94,7 @@ export default class Example extends React.Component {
   startRecording = () => {
     if (this.camera) {
       this.camera
-        .capture({ mode: Camera.constants.CaptureMode.video })
+        .recordAsync({})
         .then(data => console.log(data))
         .catch(err => console.error(err));
       this.setState({
@@ -89,7 +105,7 @@ export default class Example extends React.Component {
 
   stopRecording = () => {
     if (this.camera) {
-      this.camera.stopCapture();
+      this.camera.stopRecording();
       this.setState({
         isRecording: false,
       });
@@ -129,7 +145,7 @@ export default class Example extends React.Component {
 
   switchFlash = () => {
     let newFlashMode;
-    const { auto, on, off } = Camera.constants.FlashMode;
+    const { auto, on, off } = RNCamera.Constants.FlashMode;
 
     if (this.state.camera.flashMode === auto) {
       newFlashMode = on;
@@ -149,7 +165,7 @@ export default class Example extends React.Component {
 
   get flashIcon() {
     let icon;
-    const { auto, on, off } = Camera.constants.FlashMode;
+    const { auto, on, off } = RNCamera.Constants.FlashMode;
 
     if (this.state.camera.flashMode === auto) {
       icon = require('./assets/ic_flash_auto_white.png');
@@ -162,6 +178,22 @@ export default class Example extends React.Component {
     return icon;
   }
 
+  handleSegment = async data => {
+    if (!this.state.isRecording) {
+      return;
+    }
+    if (!this.serveNotification) {
+      console.log('Serving at URL', `${this.url}/playlist.m3u8`);
+      this.serveNotification = true;
+    }
+    if (await RNFS.exists(playlistPath)) {
+      await RNFS.unlink(playlistPath);
+    }
+    await RNFS.copyFile(data.manifestPath, playlistPath);
+    await RNFS.moveFile(data.path, `${RNFS.DocumentDirectoryPath}/${data.filename}`);
+    console.log(JSON.stringify(data, null, 2));
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -171,17 +203,13 @@ export default class Example extends React.Component {
             this.camera = cam;
           }}
           style={styles.preview}
-          aspect={this.state.camera.aspect}
-          captureTarget={this.state.camera.captureTarget}
-          type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
-          onFocusChanged={() => {}}
-          onZoomChanged={() => {}}
-          defaultTouchToFocus
+          autoFocus={true}
           mirrorImage={false}
-          cropToPreview={false}
           permissionDialogTitle="Sample title"
           permissionDialogMessage="Sample dialog message"
+          segmentMode={true}
+          onSegment={this.handleSegment}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity style={styles.typeButton} onPress={this.switchType}>

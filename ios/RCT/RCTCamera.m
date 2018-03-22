@@ -15,7 +15,6 @@
 @property (nonatomic, weak) RCTCameraManager *manager;
 @property (nonatomic, weak) RCTBridge *bridge;
 
-
 @end
 
 @implementation RCTCamera

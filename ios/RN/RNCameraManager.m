@@ -15,6 +15,7 @@ RCT_EXPORT_MODULE(RNCameraManager);
 RCT_EXPORT_VIEW_PROPERTY(onCameraReady, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onSegment, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 + (BOOL)requiresMainQueueSetup
@@ -63,7 +64,7 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected"];
+    return @[@"onCameraReady", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onSegment"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -177,6 +178,13 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
     [view setupOrDisableBarcodeScanner];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(segmentCaptureEnabled, BOOL, RNCamera)
+{
+  
+  view.segmentCapture = [RCTConvert BOOL:json];
+  [view setupOrDisableSegmentCapture];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RNCamera)
 {
     [view setBarCodeTypes:[RCTConvert NSArray:json]];
@@ -235,14 +243,14 @@ RCT_REMAP_METHOD(record,
 
 RCT_REMAP_METHOD(stopRecording, reactTag:(nonnull NSNumber *)reactTag)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
-        RNCamera *view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RNCamera class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
-        } else {
-            [view stopRecording];
-        }
-    }];
+  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+    RNCamera *view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RNCamera class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RNCamera, got: %@", view);
+    } else {
+      [view stopRecording];
+    }
+  }];
 }
 
 RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve

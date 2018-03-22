@@ -2,6 +2,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
 #import <UIKit/UIKit.h>
+#import "KFRecorder.h"
 
 #if __has_include("RNFaceDetectorManager.h")
 #import "RNFaceDetectorManager.h"
@@ -22,6 +23,7 @@
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
+@property (nonatomic, assign) BOOL segmentCapture;
 
 @property(nonatomic, assign) NSInteger presetCamera;
 @property (assign, nonatomic) NSInteger flashMode;
@@ -31,6 +33,7 @@
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (nonatomic, assign, getter=isReadingBarCodes) BOOL barCodeReading;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
+@property (nonatomic, strong) KFRecorder *recorder;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
@@ -47,6 +50,7 @@
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)stopRecording;
 - (void)setupOrDisableBarcodeScanner;
+- (void)setupOrDisableSegmentCapture;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
