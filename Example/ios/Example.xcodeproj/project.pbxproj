@@ -36,6 +36,14 @@
 		2DCD954D1E0B4F2C00145EB5 /* ExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ExampleTests.m */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		728ABE5920635788007DC4F1 /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 720057F8206320EF00E5502B /* libRNCamera.a */; };
+		728ABE5C20635C0E007DC4F1 /* FaceDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE022063555C007DC4F1 /* FaceDetector.framework */; };
+		728ABE5D20635C47007DC4F1 /* GoogleMobileVision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDFE2063555C007DC4F1 /* GoogleMobileVision.framework */; };
+		728ABE5E20635C7C007DC4F1 /* GoogleMVDataOutput.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE0E2063555C007DC4F1 /* GoogleMVDataOutput.framework */; };
+		728ABE5F20635C8A007DC4F1 /* GoogleInterchangeUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE182063555C007DC4F1 /* GoogleInterchangeUtilities.framework */; };
+		728ABE6020635CA7007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE1C2063555C007DC4F1 /* GoogleSymbolUtilities.framework */; };
+		728ABE6120635CB9007DC4F1 /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE132063555C007DC4F1 /* GoogleUtilities.framework */; };
+		728ABE6220635CCF007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDF82063555C007DC4F1 /* GoogleNetworkingUtilities.framework */; };
+		728ABE6420635CEC007DC4F1 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE6320635CEB007DC4F1 /* AddressBook.framework */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 /* End PBXBuildFile section */
@@ -371,6 +379,7 @@
 		728ABE182063555C007DC4F1 /* GoogleInterchangeUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleInterchangeUtilities.framework; sourceTree = "<group>"; };
 		728ABE1A2063555C007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
 		728ABE1C2063555C007DC4F1 /* GoogleSymbolUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleSymbolUtilities.framework; sourceTree = "<group>"; };
+		728ABE6320635CEB007DC4F1 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
@@ -389,6 +398,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				728ABE6420635CEC007DC4F1 /* AddressBook.framework in Frameworks */,
+				728ABE6220635CCF007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */,
+				728ABE6120635CB9007DC4F1 /* GoogleUtilities.framework in Frameworks */,
+				728ABE6020635CA7007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */,
+				728ABE5F20635C8A007DC4F1 /* GoogleInterchangeUtilities.framework in Frameworks */,
+				728ABE5E20635C7C007DC4F1 /* GoogleMVDataOutput.framework in Frameworks */,
+				728ABE5D20635C47007DC4F1 /* GoogleMobileVision.framework in Frameworks */,
+				728ABE5C20635C0E007DC4F1 /* FaceDetector.framework in Frameworks */,
 				728ABE5920635788007DC4F1 /* libRNCamera.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */,
@@ -565,6 +582,7 @@
 		728ABC6720632389007DC4F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				728ABE6320635CEB007DC4F1 /* AddressBook.framework */,
 				728ABE142063555C007DC4F1 /* GoogleInterchangeUtilities-1.2.2 */,
 				728ABDF92063555C007DC4F1 /* GoogleMobileVision-1.1.0 */,
 				728ABDF42063555C007DC4F1 /* GoogleNetworkingUtilities-1.2.2 */,

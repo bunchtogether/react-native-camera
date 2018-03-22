@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Camera from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 
 const styles = StyleSheet.create({
   container: {
@@ -166,7 +166,7 @@ export default class Example extends React.Component {
     return (
       <View style={styles.container}>
         <StatusBar animated hidden />
-        <Camera
+        <RNCamera
           ref={cam => {
             this.camera = cam;
           }}
