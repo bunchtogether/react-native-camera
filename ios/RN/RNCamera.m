@@ -56,6 +56,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
         self.autoFocus = -1;
+        self.segmentCaptureActive = NO;
         //        [[NSNotificationCenter defaultCenter] addObserver:self
         //                                                 selector:@selector(bridgeDidForeground:)
         //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
@@ -398,10 +399,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         
         dispatch_async(self.sessionQueue, ^{
+            _segmentCaptureActive = YES;
             [self.recorder startRecording];
+            resolve(@{ @"success": @YES });
         });
-        
-        resolve(@{ @"success": @YES });
         return;
     }
     if (_movieFileOutput == nil) {
@@ -459,6 +460,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     if(_segmentCapture) {
         [self.recorder stopRecording];
+        _segmentCaptureActive = NO;
         return;
     }
     [self.movieFileOutput stopRecording];
@@ -591,7 +593,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             }
             [self.session commitConfiguration];
             if(_segmentCapture) {
+                for(AVCaptureOutput *output in self.session.outputs) {
+                    if([output isKindOfClass:[AVCaptureVideoDataOutput class]] || [output isKindOfClass:[AVCaptureMovieFileOutput class]] || [output isKindOfClass:[AVCaptureMetadataOutput class]]){
+                        RCTLog(@"Removing old video outputs.");
+                        [self.session removeOutput:output];
+                    }
+                }
                 AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                RCTLog(@"Orientation: %ld", (long)orientation);
                 if(orientation == AVCaptureVideoOrientationPortrait || orientation == AVCaptureVideoOrientationPortraitUpsideDown) {
                     if(preset == AVCaptureSessionPresetHigh || preset == AVCaptureSessionPresetPhoto) {
                         self.recorder.videoWidth = 720;
@@ -648,10 +657,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self.recorder setupVideoCapture];
                 AVCaptureConnection *connection = [self.recorder.videoOutput connectionWithMediaType:AVMediaTypeVideo];
                 if ([connection isVideoOrientationSupported]) {
+                    RCTLog(@"Setting orientation.");
                     [connection setVideoOrientation:orientation];
+                } else {
+                    RCTLog(@"Unable to set orientation.");
                 }
                 if (connection.supportsVideoStabilization) {
+                    RCTLog(@"Setting stabilization.");
                     connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeCinematic;
+                } else {
+                    RCTLog(@"Unable to set stabilization.");
                 }
             }
         });
@@ -717,8 +732,22 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)orientationChanged:(NSNotification *)notification
 {
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    [self changePreviewOrientation:orientation];
+    RCTLog(@"Orientation change.");
+    if(_segmentCaptureActive) {
+        [self.recorder stopRecording];
+    }
+    if(_segmentCapture) {
+        [self updateSessionPreset:self.session.sessionPreset];
+    } else {
+        UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+        [self changePreviewOrientation:orientation];
+    }
+    if(_segmentCaptureActive) {
+        dispatch_async(self.sessionQueue, ^{
+            [self.recorder startRecording];
+        });
+    }
+
 }
 
 - (void)changePreviewOrientation:(UIInterfaceOrientation)orientation

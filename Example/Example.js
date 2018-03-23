@@ -190,8 +190,16 @@ export default class Example extends React.Component {
       await RNFS.unlink(playlistPath);
     }
     await RNFS.copyFile(data.manifestPath, playlistPath);
-    await RNFS.moveFile(data.path, `${RNFS.DocumentDirectoryPath}/${data.filename}`);
+    const segmentPath = `${RNFS.DocumentDirectoryPath}/${data.filename}`;
+    if (await RNFS.exists(segmentPath)) {
+      await RNFS.unlink(segmentPath);
+    }
+    await RNFS.moveFile(data.path, segmentPath);
     console.log(JSON.stringify(data, null, 2));
+  };
+
+  handleStream = async () => {
+    console.log('NEW STREAM');
   };
 
   render() {
@@ -210,6 +218,7 @@ export default class Example extends React.Component {
           permissionDialogMessage="Sample dialog message"
           segmentMode={true}
           onSegment={this.handleSegment}
+          onStream={this.handleStream}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <TouchableOpacity style={styles.typeButton} onPress={this.switchType}>

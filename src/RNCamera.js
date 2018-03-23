@@ -11,7 +11,6 @@ import {
   View,
   ActivityIndicator,
   Text,
-  NativeEventEmitter,
 } from 'react-native';
 
 import type { FaceFeature } from './FaceDetector';
@@ -52,6 +51,7 @@ type PropsType = ViewPropTypes & {
   onCameraReady?: Function,
   onBarCodeRead?: Function,
   onSegment?: Function,
+  onStream?: Function,
   faceDetectionMode?: number,
   flashMode?: number | string,
   barCodeTypes?: Array<string>,
@@ -63,8 +63,6 @@ type PropsType = ViewPropTypes & {
   captureAudio?: boolean,
   useCamera2Api?: boolean,
 };
-
-const eventEmitter = new NativeEventEmitter(NativeModules.RNCameraManager);
 
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
@@ -126,6 +124,7 @@ export default class Camera extends React.Component<PropsType> {
     onCameraReady: PropTypes.func,
     onBarCodeRead: PropTypes.func,
     onSegment: PropTypes.func,
+    onStream: PropTypes.func,
     onFacesDetected: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
@@ -277,27 +276,6 @@ export default class Camera extends React.Component<PropsType> {
     }
   };
 
-  _addOnSegmentListener(props) {
-    const { onSegment } = props || this.props;
-    this._removeOnSegmentListener();
-    if (onSegment) {
-      this.cameraSegmentListener = eventEmitter.addListener('Segment', this._onSegment);
-    }
-  }
-
-  _removeOnSegmentListener() {
-    const listener = this.cameraSegmentListener;
-    if (listener) {
-      listener.remove();
-    }
-  }
-
-  _onSegment = data => {
-    if (this.props.onSegment) {
-      this.props.onSegment(data);
-    }
-  };
-
   async componentWillMount() {
     const hasVideoAndAudio = this.props.captureAudio;
     const isAuthorized = await requestPermissions(
@@ -321,6 +299,7 @@ export default class Camera extends React.Component<PropsType> {
           onCameraReady={this._onCameraReady}
           onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
           onSegment={this._onObjectDetected(this.props.onSegment)}
+          onStream={this._onObjectDetected(this.props.onStream)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
         />
       );
@@ -375,6 +354,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     importantForAccessibility: true,
     onBarCodeRead: true,
     onSegment: true,
+    onStream: true,
     onCameraReady: true,
     onFaceDetected: true,
     onLayout: true,

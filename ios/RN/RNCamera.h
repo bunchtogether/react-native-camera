@@ -23,7 +23,8 @@
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
-@property (nonatomic, assign) BOOL segmentCapture;
+@property(nonatomic, assign) BOOL segmentCapture;
+@property(nonatomic, assign) BOOL segmentCaptureActive;
 
 @property(nonatomic, assign) NSInteger presetCamera;
 @property (assign, nonatomic) NSInteger flashMode;
