@@ -23,6 +23,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onSegment;
+@property (nonatomic, copy) RCTDirectEventBlock onStream;
 
 @end
 
@@ -400,6 +401,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         dispatch_async(self.sessionQueue, ^{
             _segmentCaptureActive = YES;
+            NSDictionary *streamEvent = @{@"success" : @YES};
+            _onStream(streamEvent);
             [self.recorder startRecording];
             resolve(@{ @"success": @YES });
         });
@@ -587,11 +590,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #if !(TARGET_IPHONE_SIMULATOR)
     if (preset) {
         dispatch_async(self.sessionQueue, ^{
-            [self.session beginConfiguration];
-            if ([self.session canSetSessionPreset:preset]) {
-                self.session.sessionPreset = preset;
+            if(self.session.sessionPreset != preset) {
+                [self.session beginConfiguration];
+                if ([self.session canSetSessionPreset:preset]) {
+                    self.session.sessionPreset = preset;
+                }
+                [self.session commitConfiguration];
             }
-            [self.session commitConfiguration];
             if(_segmentCapture) {
                 for(AVCaptureOutput *output in self.session.outputs) {
                     if([output isKindOfClass:[AVCaptureVideoDataOutput class]] || [output isKindOfClass:[AVCaptureMovieFileOutput class]] || [output isKindOfClass:[AVCaptureMetadataOutput class]]){
@@ -656,17 +661,21 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 }
                 [self.recorder setupVideoCapture];
                 AVCaptureConnection *connection = [self.recorder.videoOutput connectionWithMediaType:AVMediaTypeVideo];
-                if ([connection isVideoOrientationSupported]) {
-                    RCTLog(@"Setting orientation.");
-                    [connection setVideoOrientation:orientation];
-                } else {
-                    RCTLog(@"Unable to set orientation.");
+                if(connection.videoOrientation != orientation) {
+                    if ([connection isVideoOrientationSupported]) {
+                        RCTLog(@"Setting orientation.");
+                        [connection setVideoOrientation:orientation];
+                    } else {
+                        RCTLog(@"Unable to set orientation.");
+                    }
                 }
-                if (connection.supportsVideoStabilization) {
-                    RCTLog(@"Setting stabilization.");
-                    connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeCinematic;
-                } else {
-                    RCTLog(@"Unable to set stabilization.");
+                if(connection.preferredVideoStabilizationMode != AVCaptureVideoStabilizationModeCinematic) {
+                    if (connection.supportsVideoStabilization) {
+                        RCTLog(@"Setting stabilization.");
+                        connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeCinematic;
+                    } else {
+                        RCTLog(@"Unable to set stabilization.");
+                    }
                 }
             }
         });
@@ -733,21 +742,25 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)orientationChanged:(NSNotification *)notification
 {
     RCTLog(@"Orientation change.");
-    if(_segmentCaptureActive) {
-        [self.recorder stopRecording];
-    }
-    if(_segmentCapture) {
-        [self updateSessionPreset:self.session.sessionPreset];
-    } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(_segmentCaptureActive) {
+            [self.recorder stopRecording];
+        }
         UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
         [self changePreviewOrientation:orientation];
-    }
-    if(_segmentCaptureActive) {
+    });
+    if(_segmentCapture) {
         dispatch_async(self.sessionQueue, ^{
-            [self.recorder startRecording];
+            [self updateSessionPreset:self.session.sessionPreset];
+            if(_segmentCaptureActive) {
+                dispatch_async(self.sessionQueue, ^{
+                    NSDictionary *streamEvent = @{@"success" : @YES};
+                    _onStream(streamEvent);
+                    [self.recorder startRecording];
+                });
+            }
         });
     }
-
 }
 
 - (void)changePreviewOrientation:(UIInterfaceOrientation)orientation
@@ -764,10 +777,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 # pragma mark - AVCaptureMetadataOutput
 
-- (void)setupOrDisableSegmentCapture
-{
-
-}
+- (void)setupOrDisableSegmentCapture {}
 
 - (void)setupOrDisableBarcodeScanner
 {

@@ -182,20 +182,29 @@ export default class Example extends React.Component {
     if (!this.state.isRecording) {
       return;
     }
-    if (!this.serveNotification) {
-      console.log('Serving at URL', `${this.url}/playlist.m3u8`);
-      this.serveNotification = true;
+    while (this.handlingSegment) {
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
-    if (await RNFS.exists(playlistPath)) {
-      await RNFS.unlink(playlistPath);
+    this.handlingSegment = true;
+    try {
+      if (!this.serveNotification) {
+        console.log('Serving at URL', `${this.url}/playlist.m3u8`);
+        this.serveNotification = true;
+      }
+      if (await RNFS.exists(playlistPath)) {
+        await RNFS.unlink(playlistPath);
+      }
+      await RNFS.copyFile(data.manifestPath, playlistPath);
+      const segmentPath = `${RNFS.DocumentDirectoryPath}/${data.filename}`;
+      if (await RNFS.exists(segmentPath)) {
+        await RNFS.unlink(segmentPath);
+      }
+      await RNFS.copyFile(data.path, segmentPath);
+      console.log(JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error(error);
     }
-    await RNFS.copyFile(data.manifestPath, playlistPath);
-    const segmentPath = `${RNFS.DocumentDirectoryPath}/${data.filename}`;
-    if (await RNFS.exists(segmentPath)) {
-      await RNFS.unlink(segmentPath);
-    }
-    await RNFS.moveFile(data.path, segmentPath);
-    console.log(JSON.stringify(data, null, 2));
+    this.handlingSegment = false;
   };
 
   handleStream = async () => {
@@ -212,7 +221,7 @@ export default class Example extends React.Component {
           }}
           style={styles.preview}
           flashMode={this.state.camera.flashMode}
-          autoFocus={true}
+          autoFocus={RNCamera.Constants.AutoFocus.on}
           mirrorImage={false}
           permissionDialogTitle="Sample title"
           permissionDialogMessage="Sample dialog message"
