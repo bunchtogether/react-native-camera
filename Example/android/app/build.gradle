@@ -96,9 +96,6 @@ android {
             abiFilters "armeabi-v7a", "x86"
         }
     }
-    dexOptions {
-        jumboMode true
-    }
     splits {
         abi {
             reset()
