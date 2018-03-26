@@ -7,7 +7,10 @@ package com.lwansbrough.RCTCamera;
 
 import android.content.ContentValues;
 import android.hardware.Camera;
-import android.media.*;
+import android.media.CamcorderProfile;
+import android.media.MediaActionSound;
+import android.media.MediaRecorder;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -16,6 +19,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
 
+import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -25,7 +29,11 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -76,6 +84,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     private MediaActionSound sound = new MediaActionSound();
 
     private MediaRecorder mMediaRecorder;
+    private LiveHLSRecorder mLiveHLSRecorder;
     private long MRStartTime;
     private File mVideoFile;
     private Camera mCamera = null;
@@ -337,6 +346,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
     }
 
     private void record(final ReadableMap options, final Promise promise) {
+        if (RCTCamera.getInstance().getCaptureSegmentsEnabled()) {
+            mLiveHLSRecorder = new LiveHLSRecorder(_reactContext);
+            mLiveHLSRecorder.startRecording(null);
+            MRStartTime = System.currentTimeMillis();
+            mRecordingOptions = options;
+            mRecordingPromise = promise;  // only got here if mediaRecorder or avRecorder started
+            return;
+        }
+
         if (mRecordingPromise != null) {
             return;
         }
@@ -355,9 +373,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
 
         try {
             mMediaRecorder.start();
-            MRStartTime =  System.currentTimeMillis();
+            MRStartTime = System.currentTimeMillis();
             mRecordingOptions = options;
-            mRecordingPromise = promise;  // only got here if mediaRecorder started
+            mRecordingPromise = promise;  // only got here if mediaRecorder or avRecorder started
         } catch (Exception ex) {
             Log.e(TAG, "Media recorder start error.", ex);
             promise.reject(ex);
@@ -371,6 +389,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule
      * a guideline of steps and more information in general.
      */
     private void releaseMediaRecorder() {
+        if (RCTCamera.getInstance().getCaptureSegmentsEnabled()) {
+            mLiveHLSRecorder.stopRecording();
+
+            WritableMap response = new WritableNativeMap();
+            mRecordingPromise.resolve(response);
+            mRecordingPromise = null;
+            return;
+        }
+
         // Must record at least a second or MediaRecorder throws exceptions on some platforms
         long duration = System.currentTimeMillis() - MRStartTime;
         if (duration < 1500) {

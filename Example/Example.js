@@ -171,7 +171,7 @@ export default class Example extends React.Component {
   clearSegment = () => {
     this.setState({
       videoUri: null
-    });  
+    });
   }
 
   get flashIcon() {
