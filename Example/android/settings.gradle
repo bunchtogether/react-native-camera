@@ -4,6 +4,6 @@ project(':react-native-fs').projectDir = new File(rootProject.projectDir, '../no
 include ':react-native-static-server'
 project(':react-native-static-server').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-static-server/android')
 include ':react-native-camera'
-project(':react-native-camera').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera/android')
+project(':react-native-camera').projectDir = new File(rootProject.projectDir, '../../android')
 
 include ':app'
