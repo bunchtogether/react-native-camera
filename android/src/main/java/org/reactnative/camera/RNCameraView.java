@@ -65,6 +65,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private int mFaceDetectionLandmarks = RNFaceDetector.NO_LANDMARKS;
   private int mFaceDetectionClassifications = RNFaceDetector.NO_CLASSIFICATIONS;
 
+  // HLS properties
+  private boolean mIsCapturingSegments = false;
+
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
     initBarcodeReader();
@@ -281,6 +284,15 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
     RNCameraViewHelper.emitFaceDetectionErrorEvent(this, faceDetector);
   }
+
+  public void setCaptureSegments(boolean captureSegments) {
+    this.mIsCapturingSegments = captureSegments;
+  }
+
+  public boolean isCapturingSegments() {
+    return this.mIsCapturingSegments;
+  }
+
 
   @Override
   public void onFaceDetectingTaskCompleted() {

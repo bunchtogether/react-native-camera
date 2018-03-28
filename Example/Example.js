@@ -69,12 +69,12 @@ export default class Example extends React.Component {
   async componentWillMount() {
     this.server = new StaticServer(8080, RNFS.DocumentDirectoryPath);
     this.url = await this.server.start();
-    const helloPath = `${RNFS.DocumentDirectoryPath}/hello.text`;
+    const helloPath = `${RNFS.DocumentDirectoryPath}/hello.txt`;
     if (await RNFS.exists(helloPath)) {
       await RNFS.unlink(helloPath);
     }
     await RNFS.writeFile(helloPath, 'Hello from your phone!', 'utf8');
-    console.log(`Web server started, visit ${this.url}/hello.text to verify.`);
+    console.log(`Web server started, visit ${this.url}/hello.txt to verify.`);
     this.serveNotification = false;
   }
 
@@ -225,7 +225,7 @@ export default class Example extends React.Component {
           mirrorImage={false}
           permissionDialogTitle="Sample title"
           permissionDialogMessage="Sample dialog message"
-          segmentMode={true}
+          captureSegments={true}
           onSegment={this.handleSegment}
           onStream={this.handleStream}
         />

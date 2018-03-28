@@ -1,6 +1,7 @@
 package org.reactnative.camera;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.common.MapBuilder;
@@ -19,7 +20,9 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_MOUNT_ERROR("onMountError"),
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
-    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError");
+    EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
+    EVENT_ON_HLS_SEGMENT("onSegment"),
+    EVENT_ON_HLS_STREAM("onStream");
 
     private final String mName;
 
@@ -137,5 +140,11 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   @ReactProp(name = "faceDetectionClassifications")
   public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);
+  }
+
+  @ReactProp(name = "captureSegments")
+  public void setCaptureSegments(RNCameraView view, boolean captureSegments) {
+    Log.d("CameraViewManager", "capturing segments: " + captureSegments);
+    view.setCaptureSegments(captureSegments);
   }
 }

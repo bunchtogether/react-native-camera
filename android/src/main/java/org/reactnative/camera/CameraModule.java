@@ -2,7 +2,9 @@ package org.reactnative.camera;
 
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.util.Log;
 
+import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -21,7 +23,6 @@ import org.reactnative.camera.utils.ScopedContext;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         }
       });
 
-  public CameraModule(ReactApplicationContext reactContext) {
+    public CameraModule(ReactApplicationContext reactContext) {
     super(reactContext);
     mScopedContext = new ScopedContext(reactContext);
   }
@@ -217,6 +218,9 @@ public class CameraModule extends ReactContextBaseJavaModule {
     });
   }
 
+  private LiveHLSRecorder mLiveHLSRecorder;
+  private Thread mRecordingThread;
+
   @ReactMethod
   public void record(final ReadableMap options, final int viewTag, final Promise promise) {
       final ReactApplicationContext context = getReactApplicationContext();
@@ -230,12 +234,30 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+
+                  if (cameraView.isCapturingSegments()) {
+                      mLiveHLSRecorder = new LiveHLSRecorder(context);
+                      Log.i("CameraModule", "cache dir is " + context.getCacheDir().toString());
+                      mRecordingThread = new Thread(new Runnable() {
+                          @Override
+                          public void run() {
+                              mLiveHLSRecorder.startRecording(context.getFilesDir().toString());
+                          }
+                      });
+                      mRecordingThread.start();
+                      //MRStartTime = System.currentTimeMillis();
+                      //mRecordingOptions = options;
+                      //mRecordingPromise = promise;  // only got here if mediaRecorder or avRecorder started
+                      return;
+                  }
+
                   if (cameraView.isCameraOpened()) {
                       cameraView.record(options, promise, cacheDirectory);
                   } else {
                       promise.reject("E_CAMERA_UNAVAILABLE", "Camera is not running");
                   }
               } catch (Exception e) {
+                  Log.e("CameraModule", "no camera component", e);
                   promise.reject("E_CAMERA_BAD_VIEWTAG", "recordAsync: Expected a Camera component");
               }
           }
@@ -253,6 +275,13 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
+
+                  if (mLiveHLSRecorder != null) {
+                      mLiveHLSRecorder.stopRecording();
+                      cameraView.start();
+                      return;
+                  }
+
                   if (cameraView.isCameraOpened()) {
                       cameraView.stopRecording();
                   }
