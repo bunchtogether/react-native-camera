@@ -13,13 +13,20 @@ public class HLSSegmentEvent extends Event<HLSSegmentEvent> {
   private static final Pools.SynchronizedPool<HLSSegmentEvent> EVENTS_POOL = new Pools.SynchronizedPool<>(3);
   private HLSSegmentEvent() {}
 
-  public static HLSSegmentEvent obtain(int viewTag) {
+  private WritableMap mArgs;
+
+  public static HLSSegmentEvent obtain(int viewTag, WritableMap args) {
     HLSSegmentEvent event = EVENTS_POOL.acquire();
     if (event == null) {
       event = new HLSSegmentEvent();
     }
-    event.init(viewTag);
+    event.init(viewTag, args);
     return event;
+  }
+
+  private void init(int viewTag, WritableMap args) {
+      super.init(viewTag);
+      mArgs = args;
   }
 
   @Override
@@ -38,6 +45,6 @@ public class HLSSegmentEvent extends Event<HLSSegmentEvent> {
   }
 
   private WritableMap serializeEventData() {
-    return Arguments.createMap();
+    return mArgs;
   }
 }

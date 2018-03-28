@@ -71,8 +71,8 @@ import com.example.ffmpegtest.recorder.FFmpegWrapper.AVOptions;
 public class HLSRecorder {
     // Debugging
     private static final String TAG = "HLSRecorder";
-    private static final boolean VERBOSE = true;           			// Lots of logging
-    private static final boolean TRACE = true; 							// Enable systrace markers
+    private static final boolean VERBOSE = false;           			// Lots of logging
+    private static final boolean TRACE = false; 							// Enable systrace markers
     int totalFrameCount = 0;											// Used to calculate realized FPS
     long startTime;
 
@@ -179,7 +179,7 @@ public class HLSRecorder {
      * outputDir/<UUID>/
      * @param outputDir
      */
-    public void startRecording(final String outputDir){
+    public void startRecording(final String outputDir) {
         /*
         if(outputDir != null)
             mRootStorageDirName = outputDir;
@@ -216,7 +216,7 @@ public class HLSRecorder {
      * @param outputDir
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void _startRecording(String outputDir){
+    private void _startRecording(String outputDir) {
         //int framesPerChunk = (int) CHUNK_DURATION_SEC * FRAME_RATE;
         Log.d(TAG, VIDEO_MIME_TYPE + " output " + VIDEO_WIDTH + "x" + VIDEO_HEIGHT + " @" + VIDEO_BIT_RATE);
 

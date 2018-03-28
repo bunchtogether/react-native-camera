@@ -236,12 +236,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
 
                   if (cameraView.isCapturingSegments()) {
-                      mLiveHLSRecorder = new LiveHLSRecorder(context);
-                      Log.i("CameraModule", "cache dir is " + context.getCacheDir().toString());
+                      mLiveHLSRecorder = new LiveHLSRecorder(context, cameraView);
                       mRecordingThread = new Thread(new Runnable() {
                           @Override
                           public void run() {
-                              mLiveHLSRecorder.startRecording(context.getFilesDir().toString());
+                              mLiveHLSRecorder.startRecording(cacheDirectory.toString());
                           }
                       });
                       mRecordingThread.start();

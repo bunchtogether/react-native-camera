@@ -23,6 +23,7 @@ import org.reactnative.camera.events.CameraMountErrorEvent;
 import org.reactnative.camera.events.CameraReadyEvent;
 import org.reactnative.camera.events.FaceDetectionErrorEvent;
 import org.reactnative.camera.events.FacesDetectedEvent;
+import org.reactnative.camera.events.HLSSegmentEvent;
 import org.reactnative.camera.utils.ImageDimensions;
 import org.reactnative.facedetector.RNFaceDetector;
 
@@ -213,6 +214,14 @@ public class RNCameraViewHelper {
 
   public static void emitBarCodeReadEvent(ViewGroup view, Result barCode) {
     BarCodeReadEvent event = BarCodeReadEvent.obtain(view.getId(), barCode);
+    ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+  }
+
+  // HLS Streaming events
+
+  public static void emitSegmentEvent(ViewGroup view, WritableMap args) {
+    HLSSegmentEvent event = HLSSegmentEvent.obtain(view.getId(), args);
     ReactContext reactContext = (ReactContext) view.getContext();
     reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
   }

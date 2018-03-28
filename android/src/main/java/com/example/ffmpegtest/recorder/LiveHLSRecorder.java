@@ -12,11 +12,15 @@ import com.example.ffmpegtest.FileUtils;
 import com.example.ffmpegtest.HLSFileObserver;
 import com.example.ffmpegtest.HLSFileObserver.HLSCallback;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.cameraview.CameraView;
 import com.lwansbrough.RCTCamera.RCTCameraModule;
+
+import org.reactnative.camera.CameraModule;
+import org.reactnative.camera.RNCameraViewHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +29,9 @@ public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
     private final boolean VERBOSE = true; 						// lots of logging
     private final boolean TRACE = true;							// Enable systrace markers
-    private final boolean UPLOAD_TO_S3 = true;					// live uploading
 
-    private Context c;
+    private CameraView cameraView;
+    private ReactApplicationContext reactContext;
     private String uuid;										// Recording UUID
     private HLSFileObserver observer;							// Must hold reference to observer to continue receiving events
 
@@ -38,10 +42,11 @@ public class LiveHLSRecorder extends HLSRecorder{
     private int lastSegmentWritten = 0;
     File temp;													// Temporary directory to store .m3u8s for each upload state
 
-    public LiveHLSRecorder(Context c){
-        super(c);
+    public LiveHLSRecorder(ReactApplicationContext reactContext, CameraView cameraView) {
+        super(reactContext);
+        this.cameraView = cameraView;
+        this.reactContext = reactContext;
         lastSegmentWritten = 0;
-        this.c = c;
     }
 
     /**
@@ -52,20 +57,21 @@ public class LiveHLSRecorder extends HLSRecorder{
      * is called when the underlying action has been negated by future (but uncalled) events
      */
     @Override
-    public void startRecording(final String outputDir){
+    public void startRecording(final String outputDir) {
         super.startRecording(outputDir);
         temp = new File(getOutputDirectory(), "temp");	// make temp directory for .m3u8s for each upload state
         temp.mkdirs();
         sentIsLiveBroadcast = false;
-        if (!UPLOAD_TO_S3) return;
         observer = new HLSFileObserver(outputDir, new HLSCallback(){
+            private String lastTSPath = "";
 
             @Override
             public void onSegmentComplete(final String path) {
                 lastSegmentWritten++;
                 if (VERBOSE) Log.i(TAG, ".ts segment written: " + path);
+                lastTSPath = path;
 
-                sendReactNotification();
+                //sendReactNotification();
             }
 
             @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -83,7 +89,7 @@ public class LiveHLSRecorder extends HLSRecorder{
                     e.printStackTrace();
                 }
                 if (TRACE) Trace.endSection();
-                sendReactNotification();
+                sendReactNotification(path, lastTSPath);
             }
 
         });
@@ -106,8 +112,8 @@ public class LiveHLSRecorder extends HLSRecorder{
         LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
     }
 
-    private void sendReactNotification() {
-        // TODO send correct Strings
+    private int fragmentOrder = 1;
+    private void sendReactNotification(String manifestPath, String tsPath) {
         // NSDictionary* fragment = @{
         //                            @"order": @((NSInteger) fragmentOrder++),
         //                            @"path": absolutePath,
@@ -119,16 +125,16 @@ public class LiveHLSRecorder extends HLSRecorder{
         //                            @"videoBitrate": @((NSInteger) self.videoBitrate)
         //                            };
         WritableMap event2 = Arguments.createMap();
-        event2.putInt("order", 1);
-        event2.putString("path", "/some/path/segment");
-        event2.putString("manifestPath", "/some/path/manifest.m3u8");
-        event2.putString("filename", "file.ts");
+        event2.putInt("order", fragmentOrder++);
+        event2.putString("path", tsPath);
+        event2.putString("manifestPath", manifestPath);
+        event2.putString("filename", "file.ts"); // TODO: what is this?
         event2.putInt("height", 768);
         event2.putInt("width", 1080);
         event2.putInt("audioBitrate", 64);
         event2.putInt("videoBitrate", 512);
 
-        ReactContext reactContext = RCTCameraModule.getReactContextSingleton();
-        reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("SegmentAndroid", event2);
+        Log.i("LiveHLSRecorder", "sending event for ts file " + tsPath + " manifest " + manifestPath);
+        RNCameraViewHelper.emitSegmentEvent(cameraView, event2);
     }
 }
