@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Camera, { RNCamera } from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 import StaticServer from 'react-native-static-server';
 import RNFS from 'react-native-fs';
 import indexString from './hls-index.html.js';
@@ -62,6 +62,7 @@ export default class Example extends React.Component {
 
     this.state = {
       camera: {
+        type: RNCamera.Constants.Type.back,
         flashMode: RNCamera.Constants.FlashMode.off,
       },
       isRecording: false,
@@ -124,7 +125,7 @@ export default class Example extends React.Component {
 
   switchType = () => {
     let newType;
-    const { back, front } = Camera.constants.Type;
+    const { back, front } = RNCamera.Constants.Type;
 
     if (this.state.camera.type === back) {
       newType = front;
@@ -142,7 +143,7 @@ export default class Example extends React.Component {
 
   get typeIcon() {
     let icon;
-    const { back, front } = Camera.constants.Type;
+    const { back, front } = RNCamera.Constants.Type;
 
     if (this.state.camera.type === back) {
       icon = require('./assets/ic_camera_rear_white.png');
@@ -228,6 +229,7 @@ export default class Example extends React.Component {
             this.camera = cam;
           }}
           style={styles.preview}
+          type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
           autoFocus={RNCamera.Constants.AutoFocus.on}
           mirrorImage={false}

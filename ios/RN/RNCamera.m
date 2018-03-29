@@ -36,6 +36,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if ((self = [super init])) {
         self.bridge = bridge;
         self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
+        self.recorder.delegate = self;
         self.session = self.recorder.session;
         self.sessionQueue = self.recorder.videoQueue;
         self.faceDetectorManager = [self createFaceDetectorManager];
@@ -45,9 +46,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.previewLayer.needsDisplayOnBoundsChange = YES;
 #endif
         self.paused = NO;
-        [self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-        [self initializeCaptureSessionInput];
-        [self startSession];
+        self.autoFocus = RNCameraAutoFocusOn;
+        //[self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
+        //[self initializeCaptureSessionInput];
+        //[self startSession];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(newAssetGroupCreated:)
                                                      name:NotifNewAssetGroupCreated
@@ -56,19 +58,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                  selector:@selector(orientationChanged:)
                                                      name:UIDeviceOrientationDidChangeNotification
                                                    object:nil];
-        self.autoFocus = -1;
         self.segmentCaptureActive = NO;
         [self updateSessionAudioIsMuted:NO];
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidForeground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
-        //                                                   object:self.bridge];
-        //
-        //        [[NSNotificationCenter defaultCenter] addObserver:self
-        //                                                 selector:@selector(bridgeDidBackground:)
-        //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidBackgroundNotification")
-        //                                                   object:self.bridge];
-        
     }
     return self;
 }
@@ -123,14 +114,39 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
+
 -(void)updateType
 {
+    if(_segmentCaptureActive) {
+        [self.recorder stopRecording];
+    }
     dispatch_async(self.sessionQueue, ^{
+        if(_segmentCapture) {
+            for(AVCaptureOutput *output in self.session.outputs) {
+                if([output isKindOfClass:[AVCaptureVideoDataOutput class]] || [output isKindOfClass:[AVCaptureMovieFileOutput class]] || [output isKindOfClass:[AVCaptureMetadataOutput class]]){
+                    RCTLog(@"Removing video outputs.");
+                    [self.session removeOutput:output];
+                    self.recorder.isVideoCaptureSetup = NO;
+                }
+            }
+        }
         [self initializeCaptureSessionInput];
         if (!self.session.isRunning) {
             [self startSession];
         }
+        if(_segmentCaptureActive) {
+            [self.recorder startRecording];
+        }
     });
+}
+
+- (void)recorderDidStartRecording:recorder error:(NSError *)error {
+    if (error) {
+        RCTLogError(@"%s: %@", __func__, error);
+    } else {
+        NSDictionary *streamEvent = @{@"success" : @YES};
+        _onStream(streamEvent);
+    }
 }
 
 - (void)updateFlashMode
@@ -234,15 +250,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
     
-    if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff) {
-        RCTLog(@"Skipping focus depth configuration, autofocusing.");
-        return;
-    } else {
-        RCTLog(@"Setting focus depth.");
-    }
-    
     if (![device respondsToSelector:@selector(isLockingFocusWithCustomLensPositionSupported)] || ![device isLockingFocusWithCustomLensPositionSupported]) {
-        RCTLogWarn(@"%s: Setting focusDepth isn't supported for this camera device", __func__);
+        RCTLog(@"%s: Setting focusDepth isn't supported for this camera device", __func__);
         return;
     }
     
@@ -252,11 +261,21 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         return;
     }
-    
-    __weak __typeof__(device) weakDevice = device;
-    [device setFocusModeLockedWithLensPosition:self.focusDepth completionHandler:^(CMTime syncTime) {
-        [weakDevice unlockForConfiguration];
-    }];
+
+    if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff) {
+        RCTLog(@"Skipping focus depth configuration, autofocusing.");
+        return;
+    } else if (device.lensPosition == self.focusDepth) {
+        RCTLog(@"Skipping focus depth configuration.");
+        [device unlockForConfiguration];
+    } else {
+        RCTLog(@"Focus depth %ld, setting to %ld", (long)device.lensPosition, (long)self.focusDepth);
+        __weak __typeof__(device) weakDevice = device;
+        [device setFocusModeLockedWithLensPosition:self.focusDepth completionHandler:^(CMTime syncTime) {
+            [weakDevice unlockForConfiguration];
+        }];
+    }
+
 }
 
 - (void)updateZoom {
@@ -378,8 +397,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
             }
             
-            
-            
             if ([options[@"exif"] boolValue]) {
                 int imageRotation;
                 switch (takenImage.imageOrientation) {
@@ -430,8 +447,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         dispatch_async(self.sessionQueue, ^{
             _segmentCaptureActive = YES;
-            NSDictionary *streamEvent = @{@"success" : @YES};
-            _onStream(streamEvent);
             [self.recorder startRecording];
             resolve(@{ @"success": @YES });
         });
@@ -503,11 +518,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #if TARGET_IPHONE_SIMULATOR
     return;
 #endif
-    //    NSDictionary *cameraPermissions = [EXCameraPermissionRequester permissions];
-    //    if (![cameraPermissions[@"status"] isEqualToString:@"granted"]) {
-    //        [self onMountingError:@{@"message": @"Camera permissions not granted - component could not be rendered."}];
-    //        return;
-    //    }
     dispatch_async(self.sessionQueue, ^{
         if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
             return;
@@ -565,8 +575,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     
     if (self.videoCaptureDeviceInput.device.position == self.presetCamera) {
+        RCTLog(@"Skipping initialize capture session input.");
         return;
     }
+    
     __block UIInterfaceOrientation interfaceOrientation;
     
     void (^statusBlock)() = ^() {
@@ -581,16 +593,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
     dispatch_async(self.sessionQueue, ^{
         [self.session beginConfiguration];
-        
         NSError *error = nil;
         AVCaptureDevice *captureDevice = [RNCameraUtils deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
-        
         if (error || captureDeviceInput == nil) {
             RCTLog(@"%s: %@", __func__, error);
             return;
         }
-        
         [self.session removeInput:self.videoCaptureDeviceInput];
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
@@ -604,9 +613,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self _updateMetadataObjectsToRecognize];
         }
         [self.session commitConfiguration];
-        if(_segmentCapture) {
-            [self updateSessionPreset:AVCaptureSessionPresetHigh];
-        }
+        [self updateSessionPreset:AVCaptureSessionPresetHigh];
     });
     
 }
@@ -615,6 +622,19 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)updateSessionPreset:(NSString *)preset
 {
+    __block UIInterfaceOrientation interfaceOrientation;
+    
+    void (^statusBlock)() = ^() {
+        interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    };
+    if ([NSThread isMainThread]) {
+        statusBlock();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), statusBlock);
+    }
+    
+    AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:interfaceOrientation];
+
 #if !(TARGET_IPHONE_SIMULATOR)
     if (preset) {
         dispatch_async(self.sessionQueue, ^{
@@ -625,8 +645,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 }
             }
             if(_segmentCapture) {
-
-                AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
                 RCTLog(@"Orientation: %ld", (long)orientation);
                 if(orientation == AVCaptureVideoOrientationPortrait || orientation == AVCaptureVideoOrientationPortraitUpsideDown) {
                     if(preset == AVCaptureSessionPresetHigh || preset == AVCaptureSessionPresetPhoto) {
@@ -740,9 +758,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         [self.session commitConfiguration];
         
-        
         if(_segmentCapture) {
-            RCTLog(@"setupAudioCapture");
             [self.recorder setupAudioCapture];
         }
     });
@@ -771,22 +787,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)orientationChanged:(NSNotification *)notification
 {
-    
     RCTLog(@"Orientation change.");
     if(_segmentCaptureActive) {
         [self.recorder stopRecording];
     }
-    if(_segmentCapture) {
-        if(_segmentCaptureActive) {
+    if(_segmentCapture && _segmentCaptureActive) {
+        dispatch_async(self.sessionQueue, ^{
             [self updateSessionPreset:self.session.sessionPreset];
-            NSDictionary *streamEvent = @{@"success" : @YES};
-            _onStream(streamEvent);
             [self.recorder startRecording];
-        }
+        });
     }
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     [self changePreviewOrientation:orientation];
-    
 }
 
 - (void)changePreviewOrientation:(UIInterfaceOrientation)orientation
