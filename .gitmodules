@@ -1,3 +1,0 @@
-[submodule "ios/Submodules/HudlFFmpeg"]
-	path = ios/Submodules/HudlFFmpeg
-	url = https://github.com/wehriam/iOS-FFmpeg-processor.git

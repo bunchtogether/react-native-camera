@@ -21,8 +21,8 @@
 		71D5C72A201B8A2F0030A15E /* RNFaceDetectorPointTransformCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB8201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m */; };
 		71D5C72B201B8A320030A15E /* RNFaceDetectorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */; };
 		71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */; };
+		725FA0D4206DA58900E15BB2 /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 725FA0A4206DA45100E15BB2 /* libHudlFFmpegProcessor.a */; };
 		728ABC4220632286007DC4F1 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
-		728ABC72206324EB007DC4F1 /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABC6F20632466007DC4F1 /* libHudlFFmpegProcessor.a */; };
 		728ABDE7206353E2007DC4F1 /* GoogleMobileVision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */; };
 		728ABDE8206353E2007DC4F1 /* FaceDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDC7206353E1007DC4F1 /* FaceDetector.framework */; };
 		728ABDE9206353E2007DC4F1 /* GoogleMVDataOutput.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDD3206353E1007DC4F1 /* GoogleMVDataOutput.framework */; };
@@ -35,26 +35,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		728ABC6E20632466007DC4F1 /* PBXContainerItemProxy */ = {
+		725FA0A3206DA45100E15BB2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+			containerPortal = 725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = ED92E9D61A705CEF00E2C415;
 			remoteInfo = HudlFFmpegProcessor;
 		};
-		728ABC7020632466007DC4F1 /* PBXContainerItemProxy */ = {
+		725FA0A5206DA45100E15BB2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+			containerPortal = 725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = ED92E9E11A705CEF00E2C415;
 			remoteInfo = HudlFFmpegProcessorTests;
-		};
-		728ABE5A20635903007DC4F1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = ED92E9D51A705CEF00E2C415;
-			remoteInfo = HudlFFmpegProcessor;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -101,7 +94,7 @@
 		71C7FFD22013C817006EB75A /* RNImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImageUtils.m; sourceTree = "<group>"; };
 		71C7FFD42013C824006EB75A /* RNFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFileSystem.h; sourceTree = "<group>"; };
 		71C7FFD52013C824006EB75A /* RNFileSystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFileSystem.m; sourceTree = "<group>"; };
-		728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = HudlFFmpegProcessor.xcodeproj; path = Submodules/HudlFFmpeg/HudlFFmpegProcessor.xcodeproj; sourceTree = SOURCE_ROOT; };
+		725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = HudlFFmpegProcessor.xcodeproj; path = HudlFFmpeg/HudlFFmpegProcessor.xcodeproj; sourceTree = "<group>"; };
 		728ABDC0206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
 		728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleMobileVision.framework; sourceTree = "<group>"; };
 		728ABDC7206353E1007DC4F1 /* FaceDetector.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FaceDetector.framework; sourceTree = "<group>"; };
@@ -131,7 +124,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				728ABC72206324EB007DC4F1 /* libHudlFFmpegProcessor.a in Frameworks */,
+				725FA0D4206DA58900E15BB2 /* libHudlFFmpegProcessor.a in Frameworks */,
 				728ABDED206353E2007DC4F1 /* GoogleUtilities.framework in Frameworks */,
 				728ABDEB206353E2007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */,
 				728ABDEC206353E2007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */,
@@ -217,11 +210,11 @@
 			path = FaceDetector;
 			sourceTree = "<group>";
 		};
-		728ABC6A20632466007DC4F1 /* Products */ = {
+		725FA09F206DA45100E15BB2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				728ABC6F20632466007DC4F1 /* libHudlFFmpegProcessor.a */,
-				728ABC7120632466007DC4F1 /* HudlFFmpegProcessorTests.xctest */,
+				725FA0A4206DA45100E15BB2 /* libHudlFFmpegProcessor.a */,
+				725FA0A6206DA45100E15BB2 /* HudlFFmpegProcessorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -419,12 +412,12 @@
 		72A5BA9E20631DAF00715277 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */,
 				728ABDD4206353E1007DC4F1 /* GoogleInterchangeUtilities-1.2.2 */,
 				728ABDBE206353E1007DC4F1 /* GoogleMobileVision-1.1.0 */,
 				728ABDD9206353E1007DC4F1 /* GoogleNetworkingUtilities-1.2.2 */,
 				728ABDDE206353E1007DC4F1 /* GoogleSymbolUtilities-1.1.1 */,
 				728ABDE2206353E2007DC4F1 /* GoogleUtilities-1.3.2 */,
-				728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */,
 				72A5BAF520631E6000715277 /* AddressBook.framework */,
 			);
 			path = Frameworks;
@@ -444,7 +437,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				728ABE5B20635903007DC4F1 /* PBXTargetDependency */,
 			);
 			name = RNCamera;
 			productName = RCTCamera;
@@ -477,8 +469,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 728ABC6A20632466007DC4F1 /* Products */;
-					ProjectRef = 728ABC6920632466007DC4F1 /* HudlFFmpegProcessor.xcodeproj */;
+					ProductGroup = 725FA09F206DA45100E15BB2 /* Products */;
+					ProjectRef = 725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -489,18 +481,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		728ABC6F20632466007DC4F1 /* libHudlFFmpegProcessor.a */ = {
+		725FA0A4206DA45100E15BB2 /* libHudlFFmpegProcessor.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libHudlFFmpegProcessor.a;
-			remoteRef = 728ABC6E20632466007DC4F1 /* PBXContainerItemProxy */;
+			remoteRef = 725FA0A3206DA45100E15BB2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		728ABC7120632466007DC4F1 /* HudlFFmpegProcessorTests.xctest */ = {
+		725FA0A6206DA45100E15BB2 /* HudlFFmpegProcessorTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = HudlFFmpegProcessorTests.xctest;
-			remoteRef = 728ABC7020632466007DC4F1 /* PBXContainerItemProxy */;
+			remoteRef = 725FA0A5206DA45100E15BB2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -530,14 +522,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		728ABE5B20635903007DC4F1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = HudlFFmpegProcessor;
-			targetProxy = 728ABE5A20635903007DC4F1 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		410701291ACB719800C6AA39 /* Debug */ = {
@@ -599,13 +583,15 @@
 					"$(SRCROOT)/../../../ios/**",
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor/**",
+					"$(PROJECT_DIR)/Frameworks/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../ios/**",
 					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor",
 					"$(PROJECT_DIR)/Frameworks/**",
+					"$(PROJECT_DIR)/Frameworks/HudlFFmpeg/HudlFFmpegProcessor/FFmpeg/lib",
+					"$(PROJECT_DIR)/Frameworks/HudlFFmpeg/HudlFFmpegProcessor",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -659,13 +645,15 @@
 					"$(SRCROOT)/../../../ios/**",
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
-					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor/**",
+					"$(PROJECT_DIR)/Frameworks/**",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../ios/**",
 					"$(PROJECT_DIR)/Submodules/HudlFFmpeg/HudlFFmpegProcessor",
 					"$(PROJECT_DIR)/Frameworks/**",
+					"$(PROJECT_DIR)/Frameworks/HudlFFmpeg/HudlFFmpegProcessor/FFmpeg/lib",
+					"$(PROJECT_DIR)/Frameworks/HudlFFmpeg/HudlFFmpegProcessor",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
