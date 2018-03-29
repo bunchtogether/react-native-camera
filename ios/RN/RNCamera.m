@@ -37,7 +37,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
         self.session = self.recorder.session;
-        self.sessionQueue = dispatch_queue_create("cameraQueue", DISPATCH_QUEUE_SERIAL);
+        self.sessionQueue = self.recorder.videoQueue;
         self.faceDetectorManager = [self createFaceDetectorManager];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer = self.recorder.previewLayer;
@@ -140,6 +140,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if (self.flashMode == RNCameraFlashModeTorch) {
         if (![device hasTorch])
             return;
+        if(device.torchMode == AVCaptureTorchModeOn && device.flashMode == AVCaptureFlashModeOff) {
+            RCTLog(@"Skipping torch and flash configuration.");
+            return;
+        } else {
+            RCTLog(@"Torch mode %ld, setting to %ld", (long)device.torchMode, (long)AVCaptureTorchModeOn);
+            RCTLog(@"Flash mode %ld, setting to %ld", (long)device.flashMode, (long)AVCaptureFlashModeOff);
+        }
         if (![device lockForConfiguration:&error]) {
             if (error) {
                 RCTLogError(@"%s: %@", __func__, error);
@@ -162,6 +169,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     } else {
         if (![device hasFlash])
             return;
+        
+        if(device.torchMode == AVCaptureTorchModeOff && device.flashMode == self.flashMode) {
+            RCTLog(@"Skipping torch and flash configuration.");
+            return;
+        } else {
+            RCTLog(@"Torch mode %ld, setting to %ld", (long)device.torchMode, (long)AVCaptureTorchModeOff);
+            RCTLog(@"Flash mode %ld, setting to %ld", (long)device.flashMode, (long)self.flashMode);
+        }
         if (![device lockForConfiguration:&error]) {
             if (error) {
                 RCTLogError(@"%s: %@", __func__, error);
@@ -191,6 +206,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)updateFocusMode
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
+    
+    
+    if(device.focusMode == self.autoFocus) {
+        RCTLog(@"Skipping focus mode configuration.");
+        return;
+    } else {
+        RCTLog(@"Focus mode %ld, setting to %ld", (long)device.focusMode, (long)self.autoFocus);
+    }
+    
     NSError *error = nil;
     
     if (![device lockForConfiguration:&error]) {
@@ -219,7 +244,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     NSError *error = nil;
     
     if (self.autoFocus < 0 || device.focusMode != RNCameraAutoFocusOff) {
+        RCTLog(@"Skipping focus depth configuration, autofocusing.");
         return;
+    } else {
+        RCTLog(@"Setting focus depth.");
     }
     
     if (![device respondsToSelector:@selector(isLockingFocusWithCustomLensPositionSupported)] || ![device isLockingFocusWithCustomLensPositionSupported]) {
@@ -242,6 +270,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
+    double videoZoomFactor = (device.activeFormat.videoMaxZoomFactor - 1.0) * self.zoom + 1.0;
+    
+    
+    if(device.videoZoomFactor == videoZoomFactor) {
+        RCTLog(@"Skipping zoom configuration.");
+        return;
+    } else {
+        RCTLog(@"Zoom factor %f, setting to %f", device.videoZoomFactor, videoZoomFactor);
+    }
     NSError *error = nil;
     
     if (![device lockForConfiguration:&error]) {
@@ -251,7 +289,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
     
-    device.videoZoomFactor = (device.activeFormat.videoMaxZoomFactor - 1.0) * self.zoom + 1.0;
+    device.videoZoomFactor = videoZoomFactor;
     
     [device unlockForConfiguration];
 }
@@ -259,6 +297,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)updateWhiteBalance
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
+    
+    if (self.whiteBalance == RNCameraWhiteBalanceAuto) {
+        if(device.whiteBalanceMode == AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance) {
+            RCTLog(@"Skipping white balance configuration.");
+            return;
+        } else {
+            RCTLog(@"White balance: %ld - should be %ld", (long)device.whiteBalanceMode, (long)AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance);
+        }
+    }
+    
     NSError *error = nil;
     
     if (![device lockForConfiguration:&error]) {
@@ -565,7 +613,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self.session removeInput:self.videoCaptureDeviceInput];
         if ([self.session canAddInput:captureDeviceInput]) {
             [self.session addInput:captureDeviceInput];
-            
             self.videoCaptureDeviceInput = captureDeviceInput;
             [self updateFlashMode];
             [self updateZoom];
@@ -581,6 +628,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self.recorder setupAudioCapture];
         }
     });
+    
 }
 
 #pragma mark - internal
@@ -741,26 +789,22 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)orientationChanged:(NSNotification *)notification
 {
+    
     RCTLog(@"Orientation change.");
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if(_segmentCaptureActive) {
-            [self.recorder stopRecording];
-        }
-        UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-        [self changePreviewOrientation:orientation];
-    });
-    if(_segmentCapture) {
-        dispatch_async(self.sessionQueue, ^{
-            [self updateSessionPreset:self.session.sessionPreset];
-            if(_segmentCaptureActive) {
-                dispatch_async(self.sessionQueue, ^{
-                    NSDictionary *streamEvent = @{@"success" : @YES};
-                    _onStream(streamEvent);
-                    [self.recorder startRecording];
-                });
-            }
-        });
+    if(_segmentCaptureActive) {
+        [self.recorder stopRecording];
     }
+    if(_segmentCapture) {
+        if(_segmentCaptureActive) {
+            [self updateSessionPreset:self.session.sessionPreset];
+            NSDictionary *streamEvent = @{@"success" : @YES};
+            _onStream(streamEvent);
+            [self.recorder startRecording];
+        }
+    }
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    [self changePreviewOrientation:orientation];
+    
 }
 
 - (void)changePreviewOrientation:(UIInterfaceOrientation)orientation
@@ -803,7 +847,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)_updateMetadataObjectsToRecognize
 {
     if (_metadataOutput == nil) {
+        RCTLog(@"Skipping metadata object recognition configuration.");
         return;
+    } else {
+        RCTLog(@"Configuring metadata object recognition.");
     }
     
     NSArray<AVMetadataObjectType> *availableRequestedObjectTypes = [[NSArray alloc] init];

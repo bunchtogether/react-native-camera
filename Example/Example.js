@@ -3,6 +3,8 @@ import { Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-nati
 import Camera, { RNCamera } from 'react-native-camera';
 import StaticServer from 'react-native-static-server';
 import RNFS from 'react-native-fs';
+import indexString from './hls-index.html.js';
+import demoJsString from './hls-demo-string.js';
 
 const playlistPath = `${RNFS.DocumentDirectoryPath}/playlist.m3u8`;
 
@@ -68,13 +70,21 @@ export default class Example extends React.Component {
 
   async componentWillMount() {
     this.server = new StaticServer(8080, RNFS.DocumentDirectoryPath);
-    this.url = await this.server.start();
-    const helloPath = `${RNFS.DocumentDirectoryPath}/hello.text`;
-    if (await RNFS.exists(helloPath)) {
-      await RNFS.unlink(helloPath);
+    if (await RNFS.exists(playlistPath)) {
+      await RNFS.unlink(playlistPath);
     }
-    await RNFS.writeFile(helloPath, 'Hello from your phone!', 'utf8');
-    console.log(`Web server started, visit ${this.url}/hello.text to verify.`);
+    const indexPath = `${RNFS.DocumentDirectoryPath}/index.html`;
+    if (await RNFS.exists(indexPath)) {
+      await RNFS.unlink(indexPath);
+    }
+    await RNFS.writeFile(indexPath, indexString, 'utf8');
+    const demoJsPath = `${RNFS.DocumentDirectoryPath}/hls-demo.js`;
+    if (await RNFS.exists(demoJsPath)) {
+      await RNFS.unlink(demoJsPath);
+    }
+    await RNFS.writeFile(demoJsPath, demoJsString, 'utf8');
+    this.url = await this.server.start();
+    console.log(`Web server started, visit ${this.url} to verify.`);
     this.serveNotification = false;
   }
 
