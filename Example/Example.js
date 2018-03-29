@@ -62,7 +62,7 @@ export default class Example extends React.Component {
 
     this.state = {
       camera: {
-        flashMode: RNCamera.Constants.FlashMode.on,
+        flashMode: RNCamera.Constants.FlashMode.off,
       },
       isRecording: false,
     };
@@ -189,10 +189,8 @@ export default class Example extends React.Component {
   }
 
   handleSegment = async data => {
-    if (!this.state.isRecording) {
-      return;
-    }
     while (this.handlingSegment) {
+      console.log('Waiting to finish segment');
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     this.handlingSegment = true;

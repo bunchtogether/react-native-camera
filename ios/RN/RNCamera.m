@@ -207,15 +207,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     
-    
-    
-    if(device.focusMode == self.autoFocus) {
-        RCTLog(@"Skipping focus mode configuration.");
-        return;
-    } else {
-        RCTLog(@"Focus mode %ld, setting to %ld", (long)device.focusMode, (long)self.autoFocus);
-    }
-    
     NSError *error = nil;
     
     if (![device lockForConfiguration:&error]) {
@@ -225,13 +216,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
     
-    if ([device isFocusModeSupported:self.autoFocus]) {
-        if ([device lockForConfiguration:&error]) {
+    if(device.focusMode == self.autoFocus) {
+        RCTLog(@"Skipping focus mode configuration.");
+    } else {
+        RCTLog(@"Focus mode %ld, setting to %ld", (long)device.focusMode, (long)self.autoFocus);
+        if ([device isFocusModeSupported:self.autoFocus]) {
             [device setFocusMode:self.autoFocus];
-        } else {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
-            }
         }
     }
     
@@ -271,15 +261,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)updateZoom {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     
-    double videoZoomFactor = (device.activeFormat.videoMaxZoomFactor - 1.0) * self.zoom + 1.0;
-    
-    
-    if(device.videoZoomFactor == videoZoomFactor) {
-        RCTLog(@"Skipping zoom configuration.");
-        return;
-    } else {
-        RCTLog(@"Zoom factor %f, setting to %f", device.videoZoomFactor, videoZoomFactor);
-    }
     NSError *error = nil;
     
     if (![device lockForConfiguration:&error]) {
@@ -289,7 +270,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
     
-    device.videoZoomFactor = videoZoomFactor;
+    double videoZoomFactor = (device.activeFormat.videoMaxZoomFactor - 1.0) * self.zoom + 1.0;
+    
+    if(device.videoZoomFactor == videoZoomFactor) {
+        RCTLog(@"Skipping zoom configuration.");
+    } else {
+        RCTLog(@"Zoom factor %f, setting to %f of max %f", device.videoZoomFactor, videoZoomFactor, device.activeFormat.videoMaxZoomFactor);
+        device.videoZoomFactor = videoZoomFactor;
+    }
     
     [device unlockForConfiguration];
 }
@@ -298,15 +286,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     
-    if (self.whiteBalance == RNCameraWhiteBalanceAuto) {
-        if(device.whiteBalanceMode == AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance) {
-            RCTLog(@"Skipping white balance configuration.");
-            return;
-        } else {
-            RCTLog(@"White balance: %ld - should be %ld", (long)device.whiteBalanceMode, (long)AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance);
-        }
-    }
-    
     NSError *error = nil;
     
     if (![device lockForConfiguration:&error]) {
@@ -317,8 +296,13 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     
     if (self.whiteBalance == RNCameraWhiteBalanceAuto) {
-        [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
-        [device unlockForConfiguration];
+        if(device.whiteBalanceMode == AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance) {
+            RCTLog(@"Skipping white balance configuration.");
+        } else {
+            RCTLog(@"White balance: %ld - should be %ld", (long)device.whiteBalanceMode, (long)AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance);
+            [device setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+            [device unlockForConfiguration];
+        }
     } else {
         AVCaptureWhiteBalanceTemperatureAndTintValues temperatureAndTint = {
             .temperature = [RNCameraUtils temperatureForWhiteBalance:self.whiteBalance],
@@ -326,18 +310,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         };
         AVCaptureWhiteBalanceGains rgbGains = [device deviceWhiteBalanceGainsForTemperatureAndTintValues:temperatureAndTint];
         __weak __typeof__(device) weakDevice = device;
-        if ([device lockForConfiguration:&error]) {
-            [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
-                [weakDevice unlockForConfiguration];
-            }];
-        } else {
-            if (error) {
-                RCTLogError(@"%s: %@", __func__, error);
-            }
-        }
+        [device setWhiteBalanceModeLockedWithDeviceWhiteBalanceGains:rgbGains completionHandler:^(CMTime syncTime) {
+            [weakDevice unlockForConfiguration];
+        }];
     }
     
-    [device unlockForConfiguration];
 }
 
 - (void)updateFaceDetecting:(id)faceDetecting
@@ -446,6 +423,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if (options[@"quality"]) {
             [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
         }
+        
+        [self updateSessionAudioIsMuted:!!options[@"mute"]];
         
         dispatch_async(self.sessionQueue, ^{
             _segmentCaptureActive = YES;
@@ -625,7 +604,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self.session commitConfiguration];
         if(_segmentCapture) {
             [self updateSessionPreset:AVCaptureSessionPresetHigh];
-            [self.recorder setupAudioCapture];
         }
     });
     
@@ -646,12 +624,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 [self.session commitConfiguration];
             }
             if(_segmentCapture) {
+                /*
                 for(AVCaptureOutput *output in self.session.outputs) {
                     if([output isKindOfClass:[AVCaptureVideoDataOutput class]] || [output isKindOfClass:[AVCaptureMovieFileOutput class]] || [output isKindOfClass:[AVCaptureMetadataOutput class]]){
                         RCTLog(@"Removing old video outputs.");
                         [self.session removeOutput:output];
                     }
                 }
+                */
                 AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
                 RCTLog(@"Orientation: %ld", (long)orientation);
                 if(orientation == AVCaptureVideoOrientationPortrait || orientation == AVCaptureVideoOrientationPortraitUpsideDown) {
@@ -763,6 +743,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         
         [self.session commitConfiguration];
+        
+        
+        if(_segmentCapture) {
+            RCTLog(@"setupAudioCapture");
+            [self.recorder setupAudioCapture];
+        }
     });
 }
 
