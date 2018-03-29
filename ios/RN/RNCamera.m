@@ -58,6 +58,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                    object:nil];
         self.autoFocus = -1;
         self.segmentCaptureActive = NO;
+        [self updateSessionAudioIsMuted:NO];
         //        [[NSNotificationCenter defaultCenter] addObserver:self
         //                                                 selector:@selector(bridgeDidForeground:)
         //                                                     name:EX_UNVERSIONED(@"EXKernelBridgeDidForegroundNotification")
@@ -423,8 +424,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         if (options[@"quality"]) {
             [self updateSessionPreset:[RNCameraUtils captureSessionPresetForVideoResolution:(RNCameraVideoResolution)[options[@"quality"] integerValue]]];
         }
-        
-        [self updateSessionAudioIsMuted:!!options[@"mute"]];
+        if (options[@"mute"]) {
+            [self updateSessionAudioIsMuted:!!options[@"mute"]];
+        }
         
         dispatch_async(self.sessionQueue, ^{
             _segmentCaptureActive = YES;
@@ -616,22 +618,14 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #if !(TARGET_IPHONE_SIMULATOR)
     if (preset) {
         dispatch_async(self.sessionQueue, ^{
+            [self.session beginConfiguration];
             if(self.session.sessionPreset != preset) {
-                [self.session beginConfiguration];
                 if ([self.session canSetSessionPreset:preset]) {
                     self.session.sessionPreset = preset;
                 }
-                [self.session commitConfiguration];
             }
             if(_segmentCapture) {
-                /*
-                for(AVCaptureOutput *output in self.session.outputs) {
-                    if([output isKindOfClass:[AVCaptureVideoDataOutput class]] || [output isKindOfClass:[AVCaptureMovieFileOutput class]] || [output isKindOfClass:[AVCaptureMetadataOutput class]]){
-                        RCTLog(@"Removing old video outputs.");
-                        [self.session removeOutput:output];
-                    }
-                }
-                */
+
                 AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
                 RCTLog(@"Orientation: %ld", (long)orientation);
                 if(orientation == AVCaptureVideoOrientationPortrait || orientation == AVCaptureVideoOrientationPortraitUpsideDown) {
@@ -706,7 +700,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                     }
                 }
             }
+            [self.session commitConfiguration];
         });
+        
     }
 #endif
 }
