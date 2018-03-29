@@ -44,6 +44,8 @@
 		728ABE6120635CB9007DC4F1 /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE132063555C007DC4F1 /* GoogleUtilities.framework */; };
 		728ABE6220635CCF007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDF82063555C007DC4F1 /* GoogleNetworkingUtilities.framework */; };
 		728ABE6420635CEC007DC4F1 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE6320635CEB007DC4F1 /* AddressBook.framework */; };
+		72930D4F206DAE1D004A76BC /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72E77913206392C30085A03C /* libRNFS.a */; };
+		72930D77206DAE28004A76BC /* libFPStaticServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72E778D8206390FC0085A03C /* libFPStaticServer.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 /* End PBXBuildFile section */
@@ -457,6 +459,8 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
+				72930D77206DAE28004A76BC /* libFPStaticServer.a in Frameworks */,
+				72930D4F206DAE1D004A76BC /* libRNFS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

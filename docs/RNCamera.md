@@ -120,8 +120,6 @@ A string representing the camera ratio in the format 'height:width'. Default is 
 
 Use `getSupportedRatiosAsync` method to get ratio strings supported by your camera on Android.
 
-## Component instance methods
-
 #### `type`
 
 Values: `RNCamera.Constants.Type.front` or `RNCamera.Constants.Type.back` (default)
@@ -232,6 +230,16 @@ A landmark is a point of interest within a face. The left eye, right eye, and no
 Values: `RNCamera.Constants.FaceDetection.Classifications.all` or `RNCamera.Constants.FaceDetection.Classifications.none` (default)
 
 Classification is determining whether a certain facial characteristic is present. For example, a face can be classified with regards to whether its eyes are open or closed. Another example is whether the face is smiling or not.
+
+### Text Recognition Related props
+
+Only available in Android. RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
+
+#### `onTextRecognized`
+
+Method to be called when text is detected. Receives a Text Recognized Event object. The interesting value of this object is the `textBlocks` value, which is an array with objects of the [TextBlock](https://developers.google.com/android/reference/com/google/android/gms/vision/text/TextBlock) properties.
+
+## Component instance methods
 
 #### `takePictureAsync([options]): Promise`
 

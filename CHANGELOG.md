@@ -1,3 +1,33 @@
+#### 1.0.3-1 (2018-03-24)
+
+##### Chores
+
+*  restored original CameraModule.java ([7bea109e](https://github.com/react-native-community/react-native-camera/commit/7bea109e47a5b7302069f9774a4c7fb2d1652275))
+
+##### Documentation Changes
+
+* **rncamera:**
+  *  specifying onTextRecognized callback prototype ([48611212](https://github.com/react-native-community/react-native-camera/commit/48611212f56eed8d9594693c84fe3f00cbb8448b))
+  *  docs for text recognition usage ([68639b82](https://github.com/react-native-community/react-native-camera/commit/68639b82ed98ef53ac1a0cc1762c35c5941b61b6))
+* **codec:**  document ios codec option ([2b9d8db2](https://github.com/react-native-community/react-native-camera/commit/2b9d8db21389af624fd7ee3fe0eafa8348a3b776))
+
+##### New Features
+
+* **chore:**  try to automate changelog ([cc5f6e62](https://github.com/react-native-community/react-native-camera/commit/cc5f6e62eb78a7de884a3b770eaa12c03a626721))
+* **android:**
+  *  integrating Google Vision's text recognition ([fcaa9452](https://github.com/react-native-community/react-native-camera/commit/fcaa9452865247ba8aa63e6fd323bd86ea0f7401))
+
+* **Android:**
+* **types:**  update types for video recording codec ([f9252254](https://github.com/react-native-community/react-native-camera/commit/f925225484ca1599652039b612fc7deba635de6f))
+* **rn-camera:**  add codec option for ios ([c0d5aabf](https://github.com/react-native-community/react-native-camera/commit/c0d5aabf0b32f71326ff153d31e3cb5c588062da))
+
+##### Bug Fixes
+
+* **typo:**  fix typo on package.json ([706278d8](https://github.com/react-native-community/react-native-camera/commit/706278d807edac5bc9eb606e29b3326790d7816c))
+* **textrecognition:**  height of text block ([01e763b1](https://github.com/react-native-community/react-native-camera/commit/01e763b1430cdb65d82c78c08a5215da65706e6d))
+*  issue [#1246](https://github.com/react-native-community/react-native-camera/pull/1246) - torch will be disabled when starting the record ([8c696017](https://github.com/react-native-community/react-native-camera/commit/8c6960178922492bf49fc44fbab25b638209dc4e))
+* **ios-project:**  fix path to parent's ios project ([4496c321](https://github.com/react-native-community/react-native-camera/commit/4496c3217195853a36c261415f126140ddebbcc4))
+
 #### 1.0.2 (2018-03-10)
 
 ##### Chores
