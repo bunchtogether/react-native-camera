@@ -16,7 +16,7 @@ apply plugin: 'com.android.library'
 def DEFAULT_COMPILE_SDK_VERSION             = 26
 def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
 def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "10.2.0"
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
 def DEFAULT_SUPPORT_LIBRARY_VERSION         = "27.1.0"
 
 android {
@@ -54,5 +54,5 @@ dependencies {
   compile "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
   compile "com.android.support:exifinterface:$supportLibVersion"
 
-  compile 'com.github.react-native-community:cameraview:d529251d24c0a367a28eea28f0eac2269d12f772'
+  compile 'com.github.react-native-community:cameraview:eb9f726215bbbfcc03a54db92e480d4d02e0c001'
 }
