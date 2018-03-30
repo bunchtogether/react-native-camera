@@ -239,8 +239,8 @@ export default class Example extends React.Component {
     this.handlingSegment = false;
   };
 
-  handleStream = async () => {
-    console.log('NEW STREAM');
+  handleStream = async data => {
+    console.log(`Starting new stream: ${data.id}`);
   };
 
   render() {

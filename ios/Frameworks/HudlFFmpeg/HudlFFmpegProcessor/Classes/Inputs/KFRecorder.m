@@ -40,6 +40,7 @@ static int32_t fragmentOrder;
 @property (nonatomic, strong) dispatch_queue_t scanningQueue;
 @property (nonatomic, strong) dispatch_source_t fileMonitorSource;
 
+@property (nonatomic, copy) NSString *activeStreamId;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *folderName;
 @property (nonatomic, copy) NSString *hlsDirectoryPath;
@@ -49,6 +50,8 @@ static int32_t fragmentOrder;
 @property (nonatomic) CMTime latestSample;
 @property (nonatomic) double currentSegmentDuration;
 @property (nonatomic) NSDate *lastFragmentDate;
+@property (nonatomic, assign) BOOL activeVideoDisabled;
+
 
 @end
 
@@ -80,6 +83,7 @@ static int32_t fragmentOrder;
     self.videoQueue = dispatch_queue_create("Video Capture Queue", DISPATCH_QUEUE_SERIAL);
     self.isVideoCaptureSetup = NO;
     self.disableVideo = NO;
+    self.activeVideoDisabled = NO;
     return self;
 }
 
@@ -177,19 +181,20 @@ static int32_t fragmentOrder;
                 continue;
             }
             [self.processedFragments addObject:absolutePath];
-            
+            self.currentSegmentDuration += group.duration;
             NSDictionary* fragment = @{
                                        @"order": @((NSInteger) fragmentOrder++),
                                        @"path": absolutePath,
                                        @"manifestPath": manifestPath,
                                        @"filename": group.fileName,
-                                       @"height": @((NSInteger) self.videoHeight),
-                                       @"width": @((NSInteger) self.videoWidth),
+                                       @"height": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoHeight),
+                                       @"width": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoWidth),
                                        @"audioBitrate": @((NSInteger) self.audioBitrate),
-                                       @"videoBitrate": @((NSInteger) self.videoBitrate)
+                                       @"videoBitrate": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoBitrate),
+                                       @"duration": [NSNumber numberWithDouble:self.currentSegmentDuration],
+                                       @"id": [NSString stringWithString: _activeStreamId]
                                        };
             [[NSNotificationCenter defaultCenter] postNotificationName:NotifNewAssetGroupCreated object:fragment];
-            self.currentSegmentDuration += group.duration;
             self.lastFragmentDate = [NSDate date];
         }
     };
@@ -220,6 +225,7 @@ static int32_t fragmentOrder;
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath segmentCount:self.segmentIndex];
     [self.hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
     [self.hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];
+    self.activeVideoDisabled = self.disableVideo;
     if(self.disableVideo) {
         [self.hlsWriter disableVideo];
     }
@@ -350,7 +356,15 @@ static int32_t fragmentOrder;
 
 - (void)startRecording
 {
+    if(self.isRecording) {
+        [self performSelector:@selector(startRecording)
+                   withObject:self
+                   afterDelay:0.05];
+        return;
+    }
     dispatch_async(self.videoQueue, ^{
+        self.activeStreamId = [[[NSUUID UUID] UUIDString] lowercaseString];
+        self.isRecording = YES;
         self.lastFragmentDate = [NSDate date];
         self.currentSegmentDuration = 0;
         self.originalSample = CMTimeMakeWithSeconds(0, 0);
@@ -366,11 +380,10 @@ static int32_t fragmentOrder;
         {
             NSLog(@"Error preparing for writing: %@", error);
         }
-        self.isRecording = YES;
-        if (self.delegate && [self.delegate respondsToSelector:@selector(recorderDidStartRecording:error:)])
+        if (self.delegate && [self.delegate respondsToSelector:@selector(recorderDidStartRecording:error:activeStreamId:)])
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate recorderDidStartRecording:self error:nil];
+                [self.delegate recorderDidStartRecording:self error:error activeStreamId:self.activeStreamId];
             });
         }
     });
@@ -380,7 +393,6 @@ static int32_t fragmentOrder;
 - (void)stopRecording
 {
     dispatch_async(self.videoQueue, ^{ // put this on video queue so we don't accidentially write a frame while closing.
-        self.isRecording = NO;
         self.directoryWatcher = nil;
         NSError *error = nil;
         [self.hlsWriter finishWriting:&error];
@@ -409,9 +421,10 @@ static int32_t fragmentOrder;
         if (self.delegate && [self.delegate respondsToSelector:@selector(recorderDidFinishRecording:error:)])
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate recorderDidFinishRecording:self error:error];
+                [self.delegate recorderDidFinishRecording:self error:error activeStreamId:self.activeStreamId];
             });
         }
+        self.isRecording = NO;
     });
 }
 

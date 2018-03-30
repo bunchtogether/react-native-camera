@@ -19,8 +19,8 @@ extern NSString *const SegmentManifestName;
 @class KFRecorder, KFHLSWriter;
 
 @protocol KFRecorderDelegate <NSObject>
-- (void) recorderDidStartRecording:(KFRecorder*)recorder error:(NSError*)error;
-- (void) recorderDidFinishRecording:(KFRecorder*)recorder error:(NSError*)error;
+- (void) recorderDidStartRecording:(KFRecorder*)recorder error:(NSError*)error activeStreamId:(NSString*)activeStreamId;
+- (void) recorderDidFinishRecording:(KFRecorder*)recorder error:(NSError*)error  activeStreamId:(NSString*)activeStreamId;
 @end
 
 /**

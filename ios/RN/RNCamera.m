@@ -142,12 +142,18 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     });
 }
 
-- (void)recorderDidStartRecording:recorder error:(NSError *)error {
+- (void)recorderDidStartRecording:recorder error:(NSError *)error activeStreamId:(NSString *)activeStreamId {
     if (error) {
         RCTLogError(@"%s: %@", __func__, error);
     } else {
-        NSDictionary *streamEvent = @{@"success" : @YES};
+        NSDictionary *streamEvent = @{@"success" : @YES, @"id": activeStreamId};
         _onStream(streamEvent);
+    }
+}
+
+- (void)recorderDidStopRecording:recorder error:(NSError *)error activeStreamId:(NSString *)activeStreamId {
+    if (error) {
+        RCTLogError(@"%s: %@", __func__, error);
     }
 }
 

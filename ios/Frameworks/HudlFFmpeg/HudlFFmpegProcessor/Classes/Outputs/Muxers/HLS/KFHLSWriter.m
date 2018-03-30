@@ -144,7 +144,7 @@
 
         _packet->data = (uint8_t *)data.bytes;
         _packet->size = (int)data.length;
-        _packet->stream_index = streamIndex;
+        _packet->stream_index = (int)streamIndex;
         uint64_t scaledPTS = av_rescale_q(originalPTS, _videoTimeBase, _outputFile.formatContext->streams[_packet->stream_index]->time_base);
         /*
         if (streamIndex == 0) // log for video only
