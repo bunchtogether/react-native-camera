@@ -47,6 +47,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 #endif
         self.paused = NO;
         self.autoFocus = RNCameraAutoFocusOn;
+        self.disableVideo = NO;
         //[self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
         //[self initializeCaptureSessionInput];
         //[self startSession];
@@ -307,6 +308,20 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     
     [device unlockForConfiguration];
+}
+
+- (void)updateDisableVideo
+{
+    if(self.recorder.disableVideo == self.disableVideo) {
+        RCTLog(@"Skipping update disable video.");
+        return;
+    }
+    RCTLog(@"Disable video change.");
+    self.recorder.disableVideo = self.disableVideo;
+    if(_segmentCaptureActive) {
+        [self.recorder stopRecording];
+        [self.recorder startRecording];
+    }
 }
 
 - (void)updateWhiteBalance

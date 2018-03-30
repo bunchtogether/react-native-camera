@@ -3856,7 +3856,7 @@ react-devtools-core@3.1.0:
     ws "^2.0.3"
 
 "react-native-camera@file:..":
-  version "1.0.2"
+  version "1.0.3"
   dependencies:
     lodash "^4.17.5"
     prop-types "^15.6.1"

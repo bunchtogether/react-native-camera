@@ -45,6 +45,7 @@ extern NSString *const SegmentManifestName;
 @property (nonatomic) int audioBitrate;
 @property (nonatomic) int audioSampleRate;
 @property (nonatomic, strong) dispatch_queue_t videoQueue;
+@property (nonatomic, assign) BOOL disableVideo;
 
 @property (nonatomic) BOOL isRecording;
 

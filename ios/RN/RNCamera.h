@@ -23,6 +23,7 @@
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
+@property(nonatomic, assign) BOOL disableVideo;
 @property(nonatomic, assign) BOOL segmentCapture;
 @property(nonatomic, assign) BOOL segmentCaptureActive;
 
@@ -42,6 +43,7 @@
 - (void)updateFocusMode;
 - (void)updateFocusDepth;
 - (void)updateZoom;
+- (void)updateDisableVideo;
 - (void)updateWhiteBalance;
 - (void)updateFaceDetecting:(id)isDetectingFaces;
 - (void)updateFaceDetectionMode:(id)requestedMode;

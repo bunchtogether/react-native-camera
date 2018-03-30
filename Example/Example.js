@@ -49,6 +49,9 @@ const styles = StyleSheet.create({
   flashButton: {
     padding: 5,
   },
+  disableVideoButton: {
+    padding: 5,
+  },
   buttonsSpace: {
     width: 10,
   },
@@ -64,6 +67,7 @@ export default class Example extends React.Component {
       camera: {
         type: RNCamera.Constants.Type.back,
         flashMode: RNCamera.Constants.FlashMode.off,
+        disableVideo: false,
       },
       isRecording: false,
     };
@@ -189,6 +193,25 @@ export default class Example extends React.Component {
     return icon;
   }
 
+  switchDisableVideo = () => {
+    this.setState({
+      camera: {
+        ...this.state.camera,
+        disableVideo: !this.state.camera.disableVideo,
+      },
+    });
+  };
+
+  get disableVideoIcon() {
+    let icon;
+    if (this.state.camera.disableVideo === true) {
+      icon = require('./assets/ic_visibility_off_white.png');
+    } else {
+      icon = require('./assets/ic_visibility_white.png');
+    }
+    return icon;
+  }
+
   handleSegment = async data => {
     while (this.handlingSegment) {
       console.log('Waiting to finish segment');
@@ -236,6 +259,7 @@ export default class Example extends React.Component {
           permissionDialogTitle="Sample title"
           permissionDialogMessage="Sample dialog message"
           segmentMode={true}
+          disableVideo={this.state.camera.disableVideo}
           onSegment={this.handleSegment}
           onStream={this.handleStream}
         />
@@ -245,6 +269,9 @@ export default class Example extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity style={styles.flashButton} onPress={this.switchFlash}>
             <Image source={this.flashIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.disableVideoButton} onPress={this.switchDisableVideo}>
+            <Image source={this.disableVideoIcon} />
           </TouchableOpacity>
         </View>
         <View style={[styles.overlay, styles.bottomOverlay]}>

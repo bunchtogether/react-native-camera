@@ -61,6 +61,14 @@
     return self;
 }
 
+- (void)disableVideo {
+    _videoStream.stream->codec->codec_id = AV_CODEC_ID_NONE;
+}
+
+- (void)enableVideo {
+    _videoStream.stream->codec->codec_id = CODEC_ID_H264;
+}
+
 - (void)setupOutputFileSegmentCount:(NSUInteger)segmentCount
 {
     _manifestPath = [_directoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"%li-%@.m3u8", segmentCount, SegmentManifestName]];

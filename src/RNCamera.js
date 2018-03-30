@@ -78,6 +78,7 @@ type PropsType = ViewPropTypes & {
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
+  disableVideo?: boolean,
   useCamera2Api?: boolean,
 };
 
@@ -157,6 +158,7 @@ export default class Camera extends React.Component<PropsType> {
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
+    disableVideo: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
   };
 
@@ -204,6 +206,7 @@ export default class Camera extends React.Component<PropsType> {
       </View>
     ),
     captureAudio: false,
+    disableVideo: false,
     useCamera2Api: false,
   };
 

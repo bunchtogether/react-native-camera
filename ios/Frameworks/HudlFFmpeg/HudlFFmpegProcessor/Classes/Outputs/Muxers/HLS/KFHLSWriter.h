@@ -17,6 +17,9 @@
 
 - (id)initWithDirectoryPath:(NSString *)directoryPath segmentCount:(NSUInteger)segmentCount;
 
+- (void) disableVideo;
+- (void) enableVideo;
+
 - (void)addVideoStreamWithWidth:(int)width height:(int)height;
 - (void)addAudioStreamWithSampleRate:(int)sampleRate;
 

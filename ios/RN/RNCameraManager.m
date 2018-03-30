@@ -177,6 +177,12 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
     [view updateFaceDetectionClassifications:json];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(disableVideo, BOOL, RNCamera)
+{
+    view.disableVideo = [RCTConvert BOOL:json];
+    [view updateDisableVideo];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
     

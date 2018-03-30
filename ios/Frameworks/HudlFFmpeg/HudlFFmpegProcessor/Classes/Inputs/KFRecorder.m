@@ -79,6 +79,7 @@ static int32_t fragmentOrder;
     self.scanningQueue = dispatch_queue_create("fsScanner", DISPATCH_QUEUE_SERIAL);
     self.videoQueue = dispatch_queue_create("Video Capture Queue", DISPATCH_QUEUE_SERIAL);
     self.isVideoCaptureSetup = NO;
+    self.disableVideo = NO;
     return self;
 }
 
@@ -219,6 +220,9 @@ static int32_t fragmentOrder;
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath segmentCount:self.segmentIndex];
     [self.hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
     [self.hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];
+    if(self.disableVideo) {
+        [self.hlsWriter disableVideo];
+    }
 }
 
 - (void)setupEncoders
