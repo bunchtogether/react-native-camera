@@ -82,6 +82,11 @@ type PropsType = ViewPropTypes & {
   useCamera2Api?: boolean,
 };
 
+type StateType = {
+  isAuthorized: boolean,
+  isAuthorizationChecked: boolean,
+};
+
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
     stubbed: true,
@@ -110,7 +115,7 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
 
 const EventThrottleMs = 500;
 
-export default class Camera extends React.Component<PropsType> {
+export default class Camera extends React.Component<PropsType, StateType> {
   static Constants = {
     Type: CameraManager.Type,
     FlashMode: CameraManager.FlashMode,
