@@ -31,6 +31,22 @@ type TrackedFaceFeature = FaceFeature & {
   faceID?: number,
 };
 
+type TrackedTextFeature = {
+  type: string,
+  bounds: {
+    size: {
+      width: number,
+      height: number,
+    },
+    origin: {
+      x: number,
+      y: number,
+    },
+  },
+  value: string,
+  components: Array<TrackedTextFeature>,
+};
+
 type RecordingOptions = {
   maxDuration?: number,
   maxFileSize?: number,
@@ -60,9 +76,15 @@ type PropsType = ViewPropTypes & {
   autoFocus?: string | boolean | number,
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
+  onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
-  captureSegments?: boolean,
+  disableVideo?: boolean,
   useCamera2Api?: boolean,
+};
+
+type StateType = {
+  isAuthorized: boolean,
+  isAuthorizationChecked: boolean,
 };
 
 const CameraManager: Object = NativeModules.RNCameraManager ||
@@ -93,7 +115,7 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
 
 const EventThrottleMs = 500;
 
-export default class Camera extends React.Component<PropsType> {
+export default class Camera extends React.Component<PropsType, StateType> {
   static Constants = {
     Type: CameraManager.Type,
     FlashMode: CameraManager.FlashMode,
@@ -111,9 +133,9 @@ export default class Camera extends React.Component<PropsType> {
     flashMode: CameraManager.FlashMode,
     autoFocus: CameraManager.AutoFocus,
     whiteBalance: CameraManager.WhiteBalance,
-    faceDetectionMode: CameraManager.FaceDetection.Mode,
-    faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks,
-    faceDetectionClassifications: CameraManager.FaceDetection.Classifications,
+    faceDetectionMode: (CameraManager.FaceDetection || {}).Mode,
+    faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
+    faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
   };
 
   static propTypes = {
@@ -127,6 +149,7 @@ export default class Camera extends React.Component<PropsType> {
     onSegment: PropTypes.func,
     onStream: PropTypes.func,
     onFacesDetected: PropTypes.func,
+    onTextRecognized: PropTypes.func,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
     faceDetectionClassifications: PropTypes.number,
@@ -140,7 +163,7 @@ export default class Camera extends React.Component<PropsType> {
     notAuthorizedView: PropTypes.element,
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
-    captureSegments: PropTypes.bool,
+    disableVideo: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
   };
 
@@ -152,10 +175,10 @@ export default class Camera extends React.Component<PropsType> {
     autoFocus: CameraManager.AutoFocus.on,
     flashMode: CameraManager.FlashMode.off,
     whiteBalance: CameraManager.WhiteBalance.auto,
-    faceDetectionMode: CameraManager.FaceDetection.fast,
+    faceDetectionMode: (CameraManager.FaceDetection || {}).fast,
     barCodeTypes: Object.values(CameraManager.BarCodeType),
-    faceDetectionLandmarks: CameraManager.FaceDetection.Landmarks.none,
-    faceDetectionClassifications: CameraManager.FaceDetection.Classifications.none,
+    faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
+    faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
     notAuthorizedView: (
@@ -188,6 +211,7 @@ export default class Camera extends React.Component<PropsType> {
       </View>
     ),
     captureAudio: false,
+    disableVideo: false,
     useCamera2Api: false,
   };
 
@@ -303,6 +327,7 @@ export default class Camera extends React.Component<PropsType> {
           onSegment={this._onObjectDetected(this.props.onSegment)}
           onStream={this._onObjectDetected(this.props.onStream)}
           onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+          onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
         />
       );
     } else if (!this.state.isAuthorizationChecked) {
@@ -327,8 +352,13 @@ export default class Camera extends React.Component<PropsType> {
       newProps.faceDetectorEnabled = true;
     }
 
+    if (props.onTextRecognized) {
+      newProps.textRecognizerEnabled = true;
+    }
+
     if (Platform.OS === 'ios') {
       delete newProps.ratio;
+      delete newProps.textRecognizerEnabled;
     }
 
     return newProps;
@@ -353,6 +383,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     barCodeScannerEnabled: true,
     segmentCaptureEnabled: true,
     faceDetectorEnabled: true,
+    textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
     onSegment: true,

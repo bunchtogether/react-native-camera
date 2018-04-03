@@ -9,7 +9,6 @@ import {
   findNodeHandle,
   requireNativeComponent,
   ViewPropTypes,
-  PermissionsAndroid,
   ActivityIndicator,
   View,
   Text,
@@ -93,11 +92,9 @@ export default class Camera extends Component {
     captureTarget: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     defaultOnFocusComponent: PropTypes.bool,
     flashMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    captureSegments: PropTypes.bool,
     zoom: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     keepAwake: PropTypes.bool,
     onBarCodeRead: PropTypes.func,
-    onSegment: PropTypes.func,
     barcodeScannerEnabled: PropTypes.bool,
     cropToPreview: PropTypes.bool,
     clearWindowBackground: PropTypes.bool,
@@ -125,7 +122,6 @@ export default class Camera extends Component {
     captureMode: CameraManager.CaptureMode.still,
     captureTarget: CameraManager.CaptureTarget.cameraRoll,
     captureQuality: CameraManager.CaptureQuality.high,
-    captureSegments: false,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
     zoom: 0,
@@ -189,7 +185,6 @@ export default class Camera extends Component {
   }
 
   async componentWillMount() {
-    this._addOnSegmentListener();
     this._addOnBarCodeReadListener();
     this._addOnFocusChanged();
     this._addOnZoomChanged();
@@ -198,12 +193,16 @@ export default class Camera extends Component {
     let hasVideoAndAudio =
       this.props.captureAudio && captureMode === Camera.constants.CaptureMode.video;
 
-    const isAuthorized = await requestPermissions(hasVideoAndAudio, Camera, this.props.permissionDialogTitle, this.props.permissionDialogMessage);
+    const isAuthorized = await requestPermissions(
+      hasVideoAndAudio,
+      Camera,
+      this.props.permissionDialogTitle,
+      this.props.permissionDialogMessage,
+    );
     this.setState({ isAuthorized, isAuthorizationChecked: true });
   }
 
   componentWillUnmount() {
-    this._removeOnSegmentListener();
     this._removeOnBarCodeReadListener();
     this._removeOnFocusChanged();
     this._removeOnZoomChanged();
@@ -213,18 +212,15 @@ export default class Camera extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    const { onSegment, onBarCodeRead, onFocusChanged, onZoomChanged } = this.props
+    const { onBarCodeRead, onFocusChanged, onZoomChanged } = this.props;
     if (onBarCodeRead !== newProps.onBarCodeRead) {
       this._addOnBarCodeReadListener(newProps);
     }
     if (onFocusChanged !== !newProps.onFocusChanged) {
-      this._addOnFocusChanged(newProps)
+      this._addOnFocusChanged(newProps);
     }
     if (onZoomChanged !== !newProps.onZoomChanged) {
-      this._addOnZoomChanged(newProps)
-    }
-    if (onSegment !== newProps.onSegment) {
-      this._addOnSegmentListener(newProps)
+      this._addOnZoomChanged(newProps);
     }
   }
 
@@ -241,14 +237,14 @@ export default class Camera extends Component {
   _addOnFocusChanged(props) {
     if (Platform.OS === 'ios') {
       const { onFocusChanged } = props || this.props;
-      this.focusListener = NativeAppEventEmitter.addListener('focusChanged', onFocusChanged)
+      this.focusListener = NativeAppEventEmitter.addListener('focusChanged', onFocusChanged);
     }
   }
 
   _addOnZoomChanged(props) {
     if (Platform.OS === 'ios') {
       const { onZoomChanged } = props || this.props;
-      this.zoomListener = NativeAppEventEmitter.addListener('zoomChanged', onZoomChanged)
+      this.zoomListener = NativeAppEventEmitter.addListener('zoomChanged', onZoomChanged);
     }
   }
   _removeOnBarCodeReadListener() {
@@ -258,15 +254,15 @@ export default class Camera extends Component {
     }
   }
   _removeOnFocusChanged() {
-    const listener = this.focusListener
+    const listener = this.focusListener;
     if (listener) {
-      listener.remove()
+      listener.remove();
     }
   }
   _removeOnZoomChanged() {
-    const listener = this.zoomListener
+    const listener = this.zoomListener;
     if (listener) {
-      listener.remove()
+      listener.remove();
     }
   }
 
@@ -388,30 +384,6 @@ export default class Camera extends Component {
 
     return CameraManager.setZoom(zoom);
   }
-
-  _addOnSegmentListener(props) {
-    const { onSegment } = props || this.props
-    this._removeOnSegmentListener()
-    if (onSegment) {
-      this.cameraSegmentListener = Platform.select({
-        ios: NativeAppEventEmitter.addListener('Segment', this._onSegment),
-        android: DeviceEventEmitter.addListener('SegmentAndroid',  this._onSegment)
-      })
-    }
-  }
-  
-  _removeOnSegmentListener() {
-    const listener = this.cameraSegmentListener
-    if (listener) {
-      listener.remove()
-    }
-  }
-  _onSegment = (data) => {
-    if (this.props.onSegment) {
-      this.props.onSegment(data)
-    }
-  };
-
 }
 
 export const constants = Camera.constants;

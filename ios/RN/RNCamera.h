@@ -12,7 +12,7 @@
 
 @class RNCamera;
 
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate>
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, KFRecorderDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
@@ -23,10 +23,11 @@
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
+@property(nonatomic, assign) BOOL disableVideo;
 @property(nonatomic, assign) BOOL segmentCapture;
 @property(nonatomic, assign) BOOL segmentCaptureActive;
 
-@property(nonatomic, assign) NSInteger presetCamera;
+@property (assign, nonatomic) NSInteger presetCamera;
 @property (assign, nonatomic) NSInteger flashMode;
 @property (assign, nonatomic) CGFloat zoom;
 @property (assign, nonatomic) NSInteger autoFocus;
@@ -42,6 +43,7 @@
 - (void)updateFocusMode;
 - (void)updateFocusDepth;
 - (void)updateZoom;
+- (void)updateDisableVideo;
 - (void)updateWhiteBalance;
 - (void)updateFaceDetecting:(id)isDetectingFaces;
 - (void)updateFaceDetectionMode:(id)requestedMode;
@@ -56,6 +58,5 @@
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
-
 @end
 

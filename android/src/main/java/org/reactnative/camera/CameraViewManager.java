@@ -22,7 +22,8 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
     EVENT_ON_HLS_SEGMENT("onSegment"),
-    EVENT_ON_HLS_STREAM("onStream");
+    EVENT_ON_HLS_STREAM("onStream"),
+    EVENT_ON_TEXT_RECOGNIZED("onTextRecognized");
 
     private final String mName;
 
@@ -142,9 +143,18 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     view.setFaceDetectionClassifications(classifications);
   }
 
-  @ReactProp(name = "captureSegments")
+  @ReactProp(name = "segmentCaptureEnabled")
   public void setCaptureSegments(RNCameraView view, boolean captureSegments) {
-    Log.d("CameraViewManager", "capturing segments: " + captureSegments);
     view.setCaptureSegments(captureSegments);
+  }
+
+  @ReactProp(name = "disableVideo")
+  public void setDisableVideo(RNCameraView view, boolean disableVideo) {
+    view.setDisableVideo(disableVideo);
+  }
+
+  @ReactProp(name = "textRecognizerEnabled")
+  public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
+    view.setShouldRecognizeText(textRecognizerEnabled);
   }
 }

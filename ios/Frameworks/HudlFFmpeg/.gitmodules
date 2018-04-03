@@ -1,0 +1,3 @@
+[submodule "Sample/HudlFFmpegSample/Submodules/HudlFFmpeg"]
+	path = Sample/HudlFFmpegSample/Submodules/HudlFFmpeg
+	url = https://github.com/hudl/iOS-FFmpeg-processor.git

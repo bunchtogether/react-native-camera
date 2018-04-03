@@ -1,8 +1,10 @@
 import React from 'react';
 import { Image, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Camera, { RNCamera } from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 import StaticServer from 'react-native-static-server';
 import RNFS from 'react-native-fs';
+import indexString from './hls-index.html.js';
+import demoJsString from './hls-demo-string.js';
 
 const playlistPath = `${RNFS.DocumentDirectoryPath}/playlist.m3u8`;
 
@@ -47,6 +49,9 @@ const styles = StyleSheet.create({
   flashButton: {
     padding: 5,
   },
+  disableVideoButton: {
+    padding: 5,
+  },
   buttonsSpace: {
     width: 10,
   },
@@ -60,7 +65,9 @@ export default class Example extends React.Component {
 
     this.state = {
       camera: {
-        flashMode: RNCamera.Constants.FlashMode.on,
+        type: RNCamera.Constants.Type.back,
+        flashMode: RNCamera.Constants.FlashMode.off,
+        disableVideo: false,
       },
       isRecording: false,
     };
@@ -68,13 +75,21 @@ export default class Example extends React.Component {
 
   async componentWillMount() {
     this.server = new StaticServer(8080, RNFS.DocumentDirectoryPath);
-    this.url = await this.server.start();
-    const helloPath = `${RNFS.DocumentDirectoryPath}/hello.txt`;
-    if (await RNFS.exists(helloPath)) {
-      await RNFS.unlink(helloPath);
+    if (await RNFS.exists(playlistPath)) {
+      await RNFS.unlink(playlistPath);
     }
-    await RNFS.writeFile(helloPath, 'Hello from your phone!', 'utf8');
-    console.log(`Web server started, visit ${this.url}/hello.txt to verify.`);
+    const indexPath = `${RNFS.DocumentDirectoryPath}/index.html`;
+    if (await RNFS.exists(indexPath)) {
+      await RNFS.unlink(indexPath);
+    }
+    await RNFS.writeFile(indexPath, indexString, 'utf8');
+    const demoJsPath = `${RNFS.DocumentDirectoryPath}/hls-demo.js`;
+    if (await RNFS.exists(demoJsPath)) {
+      await RNFS.unlink(demoJsPath);
+    }
+    await RNFS.writeFile(demoJsPath, demoJsString, 'utf8');
+    this.url = await this.server.start();
+    console.log(`Web server started, visit ${this.url} to verify.`);
     this.serveNotification = false;
   }
 
@@ -114,7 +129,7 @@ export default class Example extends React.Component {
 
   switchType = () => {
     let newType;
-    const { back, front } = Camera.constants.Type;
+    const { back, front } = RNCamera.Constants.Type;
 
     if (this.state.camera.type === back) {
       newType = front;
@@ -132,7 +147,7 @@ export default class Example extends React.Component {
 
   get typeIcon() {
     let icon;
-    const { back, front } = Camera.constants.Type;
+    const { back, front } = RNCamera.Constants.Type;
 
     if (this.state.camera.type === back) {
       icon = require('./assets/ic_camera_rear_white.png');
@@ -178,11 +193,28 @@ export default class Example extends React.Component {
     return icon;
   }
 
-  handleSegment = async data => {
-    if (!this.state.isRecording) {
-      return;
+  switchDisableVideo = () => {
+    this.setState({
+      camera: {
+        ...this.state.camera,
+        disableVideo: !this.state.camera.disableVideo,
+      },
+    });
+  };
+
+  get disableVideoIcon() {
+    let icon;
+    if (this.state.camera.disableVideo === true) {
+      icon = require('./assets/ic_visibility_off_white.png');
+    } else {
+      icon = require('./assets/ic_visibility_white.png');
     }
+    return icon;
+  }
+
+  handleSegment = async data => {
     while (this.handlingSegment) {
+      console.log('Waiting to finish segment');
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     this.handlingSegment = true;
@@ -207,8 +239,8 @@ export default class Example extends React.Component {
     this.handlingSegment = false;
   };
 
-  handleStream = async () => {
-    console.log('NEW STREAM');
+  handleStream = async data => {
+    console.log(`Starting new stream: ${data.id}`);
   };
 
   render() {
@@ -220,12 +252,14 @@ export default class Example extends React.Component {
             this.camera = cam;
           }}
           style={styles.preview}
+          type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
           autoFocus={RNCamera.Constants.AutoFocus.on}
           mirrorImage={false}
           permissionDialogTitle="Sample title"
           permissionDialogMessage="Sample dialog message"
-          captureSegments={true}
+          segmentMode={true}
+          disableVideo={this.state.camera.disableVideo}
           onSegment={this.handleSegment}
           onStream={this.handleStream}
         />
@@ -235,6 +269,9 @@ export default class Example extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity style={styles.flashButton} onPress={this.switchFlash}>
             <Image source={this.flashIcon} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.disableVideoButton} onPress={this.switchDisableVideo}>
+            <Image source={this.disableVideoIcon} />
           </TouchableOpacity>
         </View>
         <View style={[styles.overlay, styles.bottomOverlay]}>

@@ -13,7 +13,6 @@
 		00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302DC1ABCB9D200DB3ED1 /* libRCTNetwork.a */; };
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* ExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ExampleTests.m */; };
-		12EB7AECD2F94C2EB0ABC6BA /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1EF6626204A4DE58807B0E0 /* libRNFS.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -35,7 +34,6 @@
 		2D02E4C81E0B4AEC006451C7 /* libRCTWebSocket-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3E991DF850E9000B6D8A /* libRCTWebSocket-tvOS.a */; };
 		2D02E4C91E0B4AEC006451C7 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3EA31DF850E9000B6D8A /* libReact.a */; };
 		2DCD954D1E0B4F2C00145EB5 /* ExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ExampleTests.m */; };
-		31A6AAAFEA1442FEBFEA1214 /* libFPStaticServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E7DA269853940ECB6D4BDE2 /* libFPStaticServer.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		728ABE5920635788007DC4F1 /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 720057F8206320EF00E5502B /* libRNCamera.a */; };
 		728ABE5C20635C0E007DC4F1 /* FaceDetector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE022063555C007DC4F1 /* FaceDetector.framework */; };
@@ -46,6 +44,8 @@
 		728ABE6120635CB9007DC4F1 /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE132063555C007DC4F1 /* GoogleUtilities.framework */; };
 		728ABE6220635CCF007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDF82063555C007DC4F1 /* GoogleNetworkingUtilities.framework */; };
 		728ABE6420635CEC007DC4F1 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABE6320635CEB007DC4F1 /* AddressBook.framework */; };
+		72930D4F206DAE1D004A76BC /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72E77913206392C30085A03C /* libRNFS.a */; };
+		72930D77206DAE28004A76BC /* libFPStaticServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72E778D8206390FC0085A03C /* libFPStaticServer.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 /* End PBXBuildFile section */
@@ -390,7 +390,6 @@
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* Example-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Example-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* Example-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Example-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2E7DA269853940ECB6D4BDE2 /* libFPStaticServer.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libFPStaticServer.a; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		728ABCDB20634A82007DC4F1 /* GoogleUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleUtilities.framework; path = ../../ios/Frameworks/GoogleUtilities.framework; sourceTree = "<group>"; };
 		728ABCDC20634A82007DC4F1 /* GoogleNetworkingUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleNetworkingUtilities.framework; path = ../../ios/Frameworks/GoogleNetworkingUtilities.framework; sourceTree = "<group>"; };
@@ -422,7 +421,6 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		99B3ABD30AC8462BB63B41C5 /* FPStaticServer.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = FPStaticServer.xcodeproj; path = "../node_modules/react-native-static-server/ios/FPStaticServer.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
-		D1EF6626204A4DE58807B0E0 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
 		E98C64D805164D15A2946122 /* RNFS.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -461,8 +459,8 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
-				31A6AAAFEA1442FEBFEA1214 /* libFPStaticServer.a in Frameworks */,
-				12EB7AECD2F94C2EB0ABC6BA /* libRNFS.a in Frameworks */,
+				72930D77206DAE28004A76BC /* libFPStaticServer.a in Frameworks */,
+				72930D4F206DAE1D004A76BC /* libRNFS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,8 +839,6 @@
 		72E778A9206390FA0085A03C /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				2E7DA269853940ECB6D4BDE2 /* libFPStaticServer.a */,
-				D1EF6626204A4DE58807B0E0 /* libRNFS.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";

@@ -86,6 +86,7 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
     }
 }
 
+
 + (NSDictionary *)validBarCodeTypes
 {
     return @{
@@ -107,10 +108,14 @@ RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
 
 + (NSDictionary *)faceDetectorConstants
 {
+#if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
 #if __has_include("RNFaceDetectorManager.h")
     return [RNFaceDetectorManager constants];
 #else
     return [RNFaceDetectorManagerStub constants];
+#endif
+#else
+    return [NSDictionary new];
 #endif
 }
 
@@ -170,6 +175,12 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionLandmarks, NSString, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 {
     [view updateFaceDetectionClassifications:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(disableVideo, BOOL, RNCamera)
+{
+    view.disableVideo = [RCTConvert BOOL:json];
+    [view updateDisableVideo];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)

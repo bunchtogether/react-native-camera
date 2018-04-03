@@ -57,10 +57,15 @@ export interface RNCameraProps {
     // -- BARCODE PROPS
     barCodeTypes?: Array<keyof BarCodeType>;
     onBarCodeRead?(event: {
-        data: string
-        type: keyof BarCodeType
+        data: string,
+        type: keyof BarCodeType,
+        /**
+         * @description For Android use `[Point<string>, Point<string>]`
+         * @description For iOS use `{ origin: Point<string>, size: Size<string> }`
+         */
+        bounds: [Point<string>, Point<string>] | { origin: Point<string>, size: Size<string> }
     }): void;
-
+    
     // -- FACE DETECTION PROPS
 
     onFacesDetected?(response: { faces: Face[] }): void;
@@ -70,7 +75,8 @@ export interface RNCameraProps {
     faceDetectionClassifications?: keyof FaceDetectionClassifications;
 
     // -- ANDROID ONLY PROPS
-
+    /** Android only */
+    onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
     /** Android only */
     ratio?: string;
     /** Android only */
@@ -85,18 +91,20 @@ export interface RNCameraProps {
 
 }
 
-interface Point {
-    x: number,
-    y: number
+interface Point<T = number> {
+    x: T,
+    y: T
+}
+
+interface Size<T = number> {
+    width: T;
+    height: T;
 }
 
 interface Face {
     faceID?: number,
     bounds: {
-        size: {
-            width: number;
-            height: number;
-        };
+        size: Size;
         origin: Point;
     };
     smilingProbability?: number;
@@ -115,6 +123,16 @@ interface Face {
     noseBasePosition?: Point;
     yawAngle?: number;
     rollAngle?: number;
+}
+
+interface TrackedTextFeature {
+    type: 'block' | 'line' | 'element';
+    bounds: {
+        size: Size;
+        origin: Point;
+    },
+    value: string;
+    components: TrackedTextFeature[];
 }
 
 interface TakePictureOptions {
