@@ -12,14 +12,9 @@ import com.example.ffmpegtest.FileUtils;
 import com.example.ffmpegtest.HLSFileObserver;
 import com.example.ffmpegtest.HLSFileObserver.HLSCallback;
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.cameraview.CameraView;
-import com.lwansbrough.RCTCamera.RCTCameraModule;
 
-import org.reactnative.camera.CameraModule;
 import org.reactnative.camera.RNCameraViewHelper;
 
 import java.io.File;
@@ -27,8 +22,8 @@ import java.io.IOException;
 
 public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
-    private final boolean VERBOSE = true; 						// lots of logging
-    private final boolean TRACE = true;							// Enable systrace markers
+    private final boolean VERBOSE = false; 						// lots of logging
+    private final boolean TRACE = false;						// Enable systrace markers
 
     private CameraView cameraView;
     private String uuid;										// Recording UUID
@@ -126,13 +121,13 @@ public class LiveHLSRecorder extends HLSRecorder{
         event2.putInt("order", fragmentOrder++);
         event2.putString("path", tsPath);
         event2.putString("manifestPath", manifestPath);
-        event2.putString("filename", "file.ts"); // TODO: what is this?
-        event2.putInt("height", 768);
-        event2.putInt("width", 1080);
-        event2.putInt("audioBitrate", 64);
-        event2.putInt("videoBitrate", 512);
+        event2.putString("filename", tsPath.substring(tsPath.lastIndexOf('/')+1));
+        event2.putInt("height", VIDEO_HEIGHT);
+        event2.putInt("width", VIDEO_WIDTH);
+        event2.putInt("audioBitrate", AUDIO_BIT_RATE);
+        event2.putInt("videoBitrate", VIDEO_BIT_RATE);
 
-        Log.i("LiveHLSRecorder", "sending event for ts file " + tsPath + " manifest " + manifestPath);
+        if (VERBOSE) Log.i("LiveHLSRecorder", "sending event for ts file " + tsPath + " manifest " + manifestPath);
         RNCameraViewHelper.emitSegmentEvent(cameraView, event2);
     }
 }

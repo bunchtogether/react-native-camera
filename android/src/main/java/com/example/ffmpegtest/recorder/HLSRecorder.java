@@ -62,7 +62,7 @@ import com.example.ffmpegtest.recorder.FFmpegWrapper.AVOptions;
 public class HLSRecorder {
     // Debugging
     private static final String TAG = "HLSRecorder";
-    private static final boolean VERBOSE = true;           			// Lots of logging
+    private static final boolean VERBOSE = false;           			// Lots of logging
     private static final boolean TRACE = false; 							// Enable systrace markers
     int totalFrameCount = 0;											// Used to calculate realized FPS
 
@@ -76,7 +76,7 @@ public class HLSRecorder {
     private MediaCodec mVideoEncoder;
     private static final String VIDEO_MIME_TYPE = "video/avc";    		// H.264 Advanced Video Coding
     private static final String AUDIO_MIME_TYPE = "audio/mp4a-latm";    // AAC Low Overhead Audio Transport Multiplex
-    private static final int VIDEO_BIT_RATE		= 125000;				// Bits per second
+    int VIDEO_BIT_RATE		= 125000;				// Bits per second
     int VIDEO_WIDTH;
     int VIDEO_HEIGHT;
     private static final int FRAME_RATE 		= 30;					// Frames per second.
@@ -84,7 +84,7 @@ public class HLSRecorder {
 
     // Audio Encoder and Configuration
     private MediaCodec mAudioEncoder;
-    private static final int AUDIO_BIT_RATE		= 96000;				// Bits per second
+    int AUDIO_BIT_RATE		= 96000;				// Bits per second
     private static final int SAMPLE_RATE 		= 44100;				// Samples per second
     private static final int SAMPLES_PER_FRAME 	= 1024; 				// AAC frame size. Audio encoder input size is a multiple of this
     private static final int CHANNEL_CONFIG 	= AudioFormat.CHANNEL_IN_MONO;
@@ -190,6 +190,7 @@ public class HLSRecorder {
         opts.videoWidth 		= VIDEO_WIDTH;
         opts.audioSampleRate 	= SAMPLE_RATE;
         opts.numAudioChannels 	= (CHANNEL_CONFIG == AudioFormat.CHANNEL_IN_STEREO) ? 2 : 1;
+        opts.hlsSegmentDurationSec = 2;
         ffmpeg.setAVOptions(opts);
         ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath());
 
@@ -377,9 +378,6 @@ public class HLSRecorder {
     }
 
 
-    // DEBUGGING
-    boolean sawFirstVideoKeyFrame = false;
-
     // Variables Recycled on each call to drainEncoder
     final int TIMEOUT_USEC = 100;
 
@@ -495,18 +493,14 @@ public class HLSRecorder {
                     encodedData.limit(bufferInfo.offset + bufferInfo.size);
 
                     if(encoder == mVideoEncoder && (bufferInfo.flags & MediaCodec.BUFFER_FLAG_SYNC_FRAME) != 0){
-                        if (VERBOSE) Log.i(TAG, "video and sync");
-                        // A hack! Preceed every keyframe with the Sequence Parameter Set and Picture Parameter Set generated
+                        Log.i(TAG, "video and sync");
+                        // A hack? Preceed every keyframe with the Sequence Parameter Set and Picture Parameter Set generated
                         // by MediaCodec in the CODEC_CONFIG buffer.
 
-                        if(!sawFirstVideoKeyFrame){
-                            if (VERBOSE) Log.i(TAG, "saw first video key frame");
-                            // Write SPS + PPS
-                            if (TRACE) Trace.beginSection("writeSPSandPPS");
-                            ffmpeg.writeAVPacketFromEncodedData(videoSPSandPPS, 1, 0, videoSPSandPPS.capacity(), bufferInfo.flags, (bufferInfo.presentationTimeUs-1159));
-                            if (TRACE) Trace.endSection();
-                        }
-                        sawFirstVideoKeyFrame = true;
+                        // Write SPS + PPS
+                        if (TRACE) Trace.beginSection("writeSPSandPPS");
+                        ffmpeg.writeAVPacketFromEncodedData(videoSPSandPPS, 1, 0, videoSPSandPPS.capacity(), bufferInfo.flags, (bufferInfo.presentationTimeUs-1159));
+                        if (TRACE) Trace.endSection();
 
                         // Write Keyframe
                         if (TRACE) Trace.beginSection("writeFrame");

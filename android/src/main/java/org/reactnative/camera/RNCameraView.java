@@ -137,7 +137,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
                 mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, height, width);
               else
                 mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
-            mLiveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera/");
+            mLiveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera");
           }
 
           byte[] rotatedData = data;
