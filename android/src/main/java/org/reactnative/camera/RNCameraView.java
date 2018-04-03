@@ -10,7 +10,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
-import com.example.ffmpegtest.recorder.FFmpegWrapper;
 import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
@@ -132,13 +131,61 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (mVideoRecordedPromise != null && isCapturingSegments()) {
           if (mLiveHLSRecorder == null) {
-            mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
+              if (correctRotation == 90 || correctRotation == 270)
+                mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, height, width);
+              else
+                mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
             mLiveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera/");
           }
-          mLiveHLSRecorder.sendVideoToEncoder(data, false);
+
+          Log.i("RNCameraView", "correctRotation: " + correctRotation);
+          byte[] rotatedData = data;
+          if (correctRotation == 90)
+            rotatedData = rotateYUV420Degree90(data, width, height);
+          else if (correctRotation == 180)
+            rotatedData = rotateYUV420Degree180(data, width, height);
+          else if (correctRotation == 270)
+            rotatedData = rotateYUV420Degree90(rotateYUV420Degree180(data, width, height), width, height);
+          mLiveHLSRecorder.sendVideoToEncoder(rotatedData, false);
         }
       }
     });
+  }
+
+  private static byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight)
+  {
+    byte[] yuv = new byte[data.length];
+
+    // Rotate the Y luma
+    int i = 0;
+    for (int x = 0; x < imageWidth; x++)
+      for (int y = imageHeight-1; y >= 0; y--,i++)
+        yuv[i] = data[y*imageWidth+x];
+
+    // Rotate the U and V color components
+    int uvStart = imageWidth*imageHeight;
+    i = imageWidth * imageHeight * 3/2 - 1;
+    for (int x = imageWidth-1; x > 0; x = x-2)
+    {
+      for (int y = 0; y < imageHeight/2; y++, i-=2)
+      {
+        yuv[i]   = data[uvStart+(y*imageWidth)+x];
+        yuv[i-1] = data[uvStart+(y*imageWidth)+(x-1)];
+      }
+    }
+    return yuv;
+  }
+
+  private static byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
+    byte[] yuv = new byte[data.length];
+    int count = 0;
+    for (int i = imageWidth * imageHeight - 1; i >= 0; i--, count++)
+      yuv[count] = data[i];
+    for (int i = imageWidth * imageHeight * 3 / 2 - 1; i >= imageWidth * imageHeight; i -= 2) {
+      yuv[count++] = data[i - 1];
+      yuv[count++] = data[i];
+    }
+    return yuv;
   }
 
   private LiveHLSRecorder mLiveHLSRecorder = null;
