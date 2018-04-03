@@ -57,13 +57,13 @@ public class FFmpegWrapper {
      *
      */
     static public class AVOptions{
-        int videoHeight = 1280;
-        int videoWidth = 720;
+        public int videoHeight = 1280;
+        public int videoWidth = 720;
 
-        int audioSampleRate = 44100;
-        int numAudioChannels = 1;
+        public int audioSampleRate = 44100;
+        public int numAudioChannels = 1;
 
-        int hlsSegmentDurationSec = 10;
+        public int hlsSegmentDurationSec = 10;
     }
 
 }

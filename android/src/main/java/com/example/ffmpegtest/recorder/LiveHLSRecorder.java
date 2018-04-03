@@ -31,7 +31,6 @@ public class LiveHLSRecorder extends HLSRecorder{
     private final boolean TRACE = true;							// Enable systrace markers
 
     private CameraView cameraView;
-    private ReactApplicationContext reactContext;
     private String uuid;										// Recording UUID
     private HLSFileObserver observer;							// Must hold reference to observer to continue receiving events
 
@@ -42,10 +41,9 @@ public class LiveHLSRecorder extends HLSRecorder{
     private int lastSegmentWritten = 0;
     File temp;													// Temporary directory to store .m3u8s for each upload state
 
-    public LiveHLSRecorder(ReactApplicationContext reactContext, CameraView cameraView) {
-        super(reactContext);
+    public LiveHLSRecorder(Context reactContext, CameraView cameraView, int videoWidth, int videoHeight) {
+        super(reactContext, videoWidth, videoHeight);
         this.cameraView = cameraView;
-        this.reactContext = reactContext;
         lastSegmentWritten = 0;
     }
 

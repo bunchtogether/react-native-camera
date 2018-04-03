@@ -234,22 +234,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-
-                  if (cameraView.isCapturingSegments()) {
-                      mLiveHLSRecorder = new LiveHLSRecorder(context, cameraView);
-                      mRecordingThread = new Thread(new Runnable() {
-                          @Override
-                          public void run() {
-                              mLiveHLSRecorder.startRecording(cacheDirectory.toString());
-                          }
-                      });
-                      mRecordingThread.start();
-                      //MRStartTime = System.currentTimeMillis();
-                      //mRecordingOptions = options;
-                      //mRecordingPromise = promise;  // only got here if mediaRecorder or avRecorder started
-                      return;
-                  }
-
                   if (cameraView.isCameraOpened()) {
                       cameraView.record(options, promise, cacheDirectory);
                   } else {

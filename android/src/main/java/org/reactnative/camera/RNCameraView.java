@@ -6,9 +6,12 @@ import android.graphics.Color;
 import android.media.CamcorderProfile;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
+import com.example.ffmpegtest.recorder.FFmpegWrapper;
+import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
@@ -32,6 +35,8 @@ import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -106,6 +111,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             mVideoRecordedPromise.reject("E_RECORDING", "Couldn't stop recording - there is none in progress");
           }
           mVideoRecordedPromise = null;
+
+          if (mLiveHLSRecorder != null) {
+            mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
+            mLiveHLSRecorder.stopRecording();
+            mLiveHLSRecorder = null;
+          }
         }
       }
 
@@ -124,9 +135,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           FaceDetectorAsyncTaskDelegate delegate = (FaceDetectorAsyncTaskDelegate) cameraView;
           new FaceDetectorAsyncTask(delegate, mFaceDetector, data, width, height, correctRotation).execute();
         }
+
+        if (mVideoRecordedPromise != null && isCapturingSegments()) {
+          if (mLiveHLSRecorder == null) {
+            mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
+            mLiveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera/");
+          }
+          mLiveHLSRecorder.sendVideoToEncoder(data, false);
+        }
       }
     });
   }
+
+  private LiveHLSRecorder mLiveHLSRecorder = null;
 
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
@@ -167,6 +188,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void record(ReadableMap options, final Promise promise, File cacheDirectory) {
+    mVideoRecordedPromise = promise;
+    /*
     try {
       String path = RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
       int maxDuration = options.hasKey("maxDuration") ? options.getInt("maxDuration") : -1;
@@ -187,6 +210,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     } catch (IOException e) {
       promise.reject("E_RECORDING_FAILED", "Starting video recording failed - could not create video file.");
     }
+    */
   }
 
   /**
@@ -213,7 +237,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
     this.mShouldScanBarCodes = shouldScanBarCodes;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes);
+    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mIsCapturingSegments);
   }
 
   public void onBarCodeRead(Result barCode) {
@@ -263,7 +287,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setShouldDetectFaces(boolean shouldDetectFaces) {
     this.mShouldDetectFaces = shouldDetectFaces;
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes);
+    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mIsCapturingSegments);
   }
 
   public void onFacesDetected(SparseArray<Face> facesReported, int sourceWidth, int sourceHeight, int sourceRotation) {
@@ -287,6 +311,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setCaptureSegments(boolean captureSegments) {
     this.mIsCapturingSegments = captureSegments;
+    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mIsCapturingSegments);
   }
 
   public boolean isCapturingSegments() {
