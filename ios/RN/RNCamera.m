@@ -240,7 +240,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         return;
     }
-    
     if(device.focusMode == self.autoFocus) {
         RCTLog(@"Skipping focus mode configuration.");
     } else {
@@ -342,7 +341,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
         return;
     }
-    
+    if(device.automaticallyEnablesLowLightBoostWhenAvailable == NO) {
+        if(device.isLowLightBoostSupported) {
+            RCTLog(@"Enabling low light boost.");
+            device.automaticallyEnablesLowLightBoostWhenAvailable = YES;
+        }
+    }
     if (self.whiteBalance == RNCameraWhiteBalanceAuto) {
         if(device.whiteBalanceMode == AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance) {
             RCTLog(@"Skipping white balance configuration.");
@@ -599,7 +603,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         // (see comment in -record), we go ahead and add the AVCaptureMovieFileOutput
         // to avoid an exposure rack on some devices that can cause the first few
         // frames of the recorded output to be underexposed.
-        [self setupMovieFileCapture];
+        // [self setupMovieFileCapture];
 #endif
         [self setupOrDisableBarcodeScanner];
         
@@ -685,11 +689,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];
         }
-        
         [self.session commitConfiguration];
         [self updateSessionPreset:AVCaptureSessionPresetHigh];
     });
-    
 }
 
 #pragma mark - internal

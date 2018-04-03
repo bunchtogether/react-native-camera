@@ -27,7 +27,7 @@
 @property(nonatomic, assign) BOOL segmentCapture;
 @property(nonatomic, assign) BOOL segmentCaptureActive;
 
-@property(nonatomic, assign) NSInteger presetCamera;
+@property (assign, nonatomic) NSInteger presetCamera;
 @property (assign, nonatomic) NSInteger flashMode;
 @property (assign, nonatomic) CGFloat zoom;
 @property (assign, nonatomic) NSInteger autoFocus;
