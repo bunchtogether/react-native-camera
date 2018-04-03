@@ -45,6 +45,7 @@ import android.content.Context;
 import android.media.*;
 import android.os.Build;
 import android.os.Trace;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
@@ -182,40 +183,19 @@ public class HLSRecorder {
         //int framesPerChunk = (int) CHUNK_DURATION_SEC * FRAME_RATE;
         Log.d(TAG, VIDEO_MIME_TYPE + " output " + VIDEO_WIDTH + "x" + VIDEO_HEIGHT + " @" + VIDEO_BIT_RATE);
 
-        try {
-            AVOptions opts = new AVOptions();
-            opts.videoHeight 		= VIDEO_HEIGHT;
-            opts.videoWidth 		= VIDEO_WIDTH;
-            opts.audioSampleRate 	= SAMPLE_RATE;
-            opts.numAudioChannels 	= (CHANNEL_CONFIG == AudioFormat.CHANNEL_IN_STEREO) ? 2 : 1;
-            ffmpeg.setAVOptions(opts);
-            ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath());
+        startWhen = System.nanoTime();
 
-            prepareEncoder();
-            setupAudioRecord();
-            startAudioRecord();
+        AVOptions opts = new AVOptions();
+        opts.videoHeight 		= VIDEO_HEIGHT;
+        opts.videoWidth 		= VIDEO_WIDTH;
+        opts.audioSampleRate 	= SAMPLE_RATE;
+        opts.numAudioChannels 	= (CHANNEL_CONFIG == AudioFormat.CHANNEL_IN_STEREO) ? 2 : 1;
+        ffmpeg.setAVOptions(opts);
+        ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath());
 
-            startWhen = System.nanoTime();
-
-            // The video encoding loop:
-            /*
-            while (!fullStopReceived) {
-                synchronized (sync){
-                    if (TRACE) Trace.beginSection("drainVideo");
-                    drainEncoder(mVideoEncoder,  false);
-                    if (TRACE) Trace.endSection();
-                }
-            }
-
-            Log.i(TAG, "Exited video encode loop. Draining video encoder");
-            synchronized(sync){
-                drainEncoder(mVideoEncoder,  true);
-            }
-            */
-
-        } catch (Exception e){
-            Log.e(TAG, "Encoding loop exception!", e);
-        }
+        prepareEncoder();
+        setupAudioRecord();
+        startAudioRecord();
     }
 
     public void stopRecording(){
@@ -254,28 +234,17 @@ public class HLSRecorder {
                             continue;
                         }
 
-                        /*
-                        synchronized (sync){
-                            if (TRACE) Trace.beginSection("drainAudio");
-                            drainEncoder(mAudioEncoder, false);
-                            if (TRACE) Trace.endSection();
-                        }
-                        */
-
                         if (TRACE) Trace.beginSection("sendAudio");
                         sendAudioToEncoder(false);
                         if (TRACE) Trace.endSection();
 
                     }
 
+                    audioRecord.stop();
                     Log.i(TAG, "Exiting audio encode loop. Draining Audio Encoder");
                     if (TRACE) Trace.beginSection("sendAudio");
                     sendAudioToEncoder(true);
                     if (TRACE) Trace.endSection();
-                    audioRecord.stop();
-                    synchronized(sync){
-                        drainEncoder(mAudioEncoder, true);
-                    }
                 }
             }, "Audio");
             audioEncodingThread.setPriority(Thread.MAX_PRIORITY);
@@ -285,7 +254,6 @@ public class HLSRecorder {
     }
 
     public void sendVideoToEncoder(final byte[] bytes, final boolean endOfStream) {
-        Log.e(TAG, "got " + bytes.length + " video bytes 1");
         if (mVideoEncoder == null) {
             Log.e(TAG, "sent bytes to stopped video encoder");
             return;
@@ -294,7 +262,6 @@ public class HLSRecorder {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.e(TAG, "got " + bytes.length + " video bytes 2");
                 sendDataToEncoder(mVideoEncoder, bytes, bytes.length, endOfStream);
             }
         });
@@ -311,6 +278,8 @@ public class HLSRecorder {
     }
 
     private void sendDataToEncoder(final MediaCodec encoder, final byte[] bytes, int numBytes, final boolean endOfStream) {
+        String encoderType = getEncoderType(encoder);
+
         synchronized (sync) {
             try {
                 ByteBuffer[] inputBuffers = encoder.getInputBuffers();
@@ -322,16 +291,20 @@ public class HLSRecorder {
                 inputBuffer.clear();
                 inputBuffer.put(bytes);
                 long pts = (System.nanoTime() - startWhen) / 1000;
-                if (VERBOSE) Log.i(TAG, "queueing " + numBytes + " " + (encoder == mVideoEncoder ? "video" : "audio") + " bytes with pts " + pts);
+                if (VERBOSE) Log.i(TAG, "queueing " + numBytes + " " + encoderType + " bytes with pts " + pts);
 
-                int flags = 0;
-                if (endOfStream) {
-                    Log.i(TAG, "EOS received in sendVideoToEncoder");
-                    flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-                }
+                int flags = endOfStream ? MediaCodec.BUFFER_FLAG_END_OF_STREAM : 0;
                 encoder.queueInputBuffer(bufferIndex, 0, numBytes, pts, flags);
+                drainEncoder(encoder, endOfStream);
 
-                drainEncoder(encoder, false);
+                // if it's end of stream - drain the encoder until it outputs an end of stream
+                if (endOfStream) {
+                    Log.i(TAG, "draining " + encoderType + " encoder");
+                    boolean finished = false;
+                    while (!finished)
+                        finished = drainEncoder(encoder, true);
+                }
+
                 totalFrameCount++;
                 firstFrameReady = true;
             } catch (Throwable t) {
@@ -390,7 +363,6 @@ public class HLSRecorder {
 
 
     private void stopAndReleaseAudioEncoder(){
-        //audioFrameCount = 0;	// avoid setting this zero before all frames submitted to ffmpeg
         audioEncoderStopped = true;
         if (mAudioEncoder != null) {
             mAudioEncoder.stop();
@@ -405,15 +377,6 @@ public class HLSRecorder {
     }
 
 
-    /**
-     * Releases mAudioEncoder resources.
-     */
-    private void releaseEncodersAndMuxer() {
-        if (VERBOSE) Log.d(TAG, "releasing mAudioEncoder objects");
-        stopAndReleaseEncoders();
-        // TODO: Finalize ffmpeg
-    }
-
     // DEBUGGING
     boolean sawFirstVideoKeyFrame = false;
 
@@ -426,14 +389,11 @@ public class HLSRecorder {
      * If endOfStream is not set, this returns when there is no more data to drain.  If it
      * is set, we send EOS to the mAudioEncoder, and then iterate until we see EOS on the output.
      * Calling this with endOfStream set should be done once, right before stopping the muxer.
+     * @return whether the encoder returned an end of stream message
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void drainEncoder(MediaCodec encoder, boolean endOfStream) {
-        //if (VERBOSE) Log.d(TAG, "drain" + ((encoder == mVideoEncoder) ? "Video" : "Audio") + "Encoder(" + endOfStream + ")");
-        if (endOfStream && encoder == mVideoEncoder) {
-            if (VERBOSE) Log.d(TAG, "sending EOS to video mAudioEncoder");
-            encoder.signalEndOfInputStream();
-        }
+    private boolean drainEncoder(MediaCodec encoder, boolean endOfStream) {
+        String encoderType = getEncoderType(encoder);
 
         MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
         ByteBuffer[] encoderOutputBuffers = encoder.getOutputBuffers();
@@ -443,16 +403,13 @@ public class HLSRecorder {
                 // no output available yet
                 if (!endOfStream) {
                     if (VERBOSE)
-                        Log.d(TAG, String.format("no output available for %s. aborting drain", (encoder == mVideoEncoder) ? "video" : "audio"));
+                        Log.d(TAG, String.format("no output available for %s. aborting drain", encoderType));
                     break;      // out of while
                 } else {
                     if (VERBOSE) Log.d(TAG, "no output available, spinning to await EOS");
                 }
-                return;
-            }
-            Log.e(TAG, "GOT SOMETHING OTHER THAN TRY AGAIN LATER");
-
-            if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+                return false;
+            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                 if (VERBOSE) Log.d(TAG, "INFO_OUTPUT_BUFFERS_CHANGED");
                 // not expected for an mAudioEncoder
                 encoderOutputBuffers = encoder.getOutputBuffers();
@@ -477,7 +434,7 @@ public class HLSRecorder {
                 Log.w(TAG, "unexpected result from mAudioEncoder.dequeueOutputBuffer: " + encoderStatus);
                 // let's ignore it
             } else {
-                if (VERBOSE) Log.d(TAG, "got a output frame for " + ((encoder == mVideoEncoder) ? "video" : "audio"));
+                if (VERBOSE) Log.d(TAG, "got an output frame for " + encoderType);
                 ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
                 if (encodedData == null)
                     throw new RuntimeException("encoderOutputBuffer " + encoderStatus + " was null");
@@ -510,7 +467,7 @@ public class HLSRecorder {
                         if (TRACE) Trace.endSection();
                     }
 
-                    if (VERBOSE) Log.i(TAG, String.format("Writing codec_config for %s, pts %d size: %d", (encoder == mVideoEncoder) ? "video" : "audio", bufferInfo.presentationTimeUs,  bufferInfo.size));
+                    if (VERBOSE) Log.i(TAG, String.format("Writing codec_config for %s, pts %d size: %d", encoderType, bufferInfo.presentationTimeUs,  bufferInfo.size));
                     if (TRACE) Trace.beginSection("writeCodecConfig");
                     ffmpeg.writeAVPacketFromEncodedData(encodedData, (encoder == mVideoEncoder) ? 1 : 0, bufferInfo.offset, bufferInfo.size, bufferInfo.flags, bufferInfo.presentationTimeUs);
                     if (TRACE) Trace.endSection();
@@ -518,7 +475,7 @@ public class HLSRecorder {
                 }
 
                 if (bufferInfo.size != 0) {
-                    if (VERBOSE) Log.i(TAG, "buffer size != 0");
+                    //if (VERBOSE) Log.i(TAG, "buffer size != 0");
 
                     if(encoder == this.mAudioEncoder){
                         if (TRACE) Trace.beginSection("adtsHeader");
@@ -565,15 +522,15 @@ public class HLSRecorder {
                         Log.d(TAG, "sent " + bufferInfo.size + ((encoder == mVideoEncoder) ? " video" : " audio") + " bytes to muxer with pts " + bufferInfo.presentationTimeUs);
                 }
 
-                if (VERBOSE) Log.i(TAG, "releasing output buffer");
+                //if (VERBOSE) Log.i(TAG, "releasing output buffer");
                 encoder.releaseOutputBuffer(encoderStatus, false);
 
                 if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
                     if (!endOfStream) {
-                        Log.w(TAG, "reached end of stream unexpectedly");
+                        Log.w(TAG, "reached end of stream unexpectedly: " + encoderType);
                     } else {
-                        if (VERBOSE) Log.d(TAG, "end of " + ((encoder == mVideoEncoder) ? "video" : "audio") + " stream reached. ");
-                        Log.d(TAG, "end of " + ((encoder == mVideoEncoder) ? "video" : "audio") + " stream reached. ");
+                        if (VERBOSE) Log.d(TAG, "end of " + encoderType + " stream reached. ");
+                        Log.d(TAG, "end of " + encoderType + " stream reached. ");
                         if(encoder == mVideoEncoder){
                             stopAndReleaseVideoEncoder();
                         } else if(encoder == this.mAudioEncoder){
@@ -582,10 +539,16 @@ public class HLSRecorder {
                         if(videoEncoderStopped && audioEncoderStopped)
                             ffmpeg.finalizeAVFormatContext();
                     }
-                    break;      // break out of while
+                    return true;
                 }
             }
         }
+        return false;
+    }
+
+    @NonNull
+    private String getEncoderType(MediaCodec encoder) {
+        return (encoder == mVideoEncoder) ? "video" : "audio";
     }
 
     /**

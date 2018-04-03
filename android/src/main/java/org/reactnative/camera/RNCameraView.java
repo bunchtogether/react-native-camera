@@ -111,12 +111,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             mVideoRecordedPromise.reject("E_RECORDING", "Couldn't stop recording - there is none in progress");
           }
           mVideoRecordedPromise = null;
-
-          if (mLiveHLSRecorder != null) {
-            mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
-            mLiveHLSRecorder.stopRecording();
-            mLiveHLSRecorder = null;
-          }
         }
       }
 
@@ -148,6 +142,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   private LiveHLSRecorder mLiveHLSRecorder = null;
+
+  @Override
+  public void stopRecording() {
+    mVideoRecordedPromise = null;
+
+    if (mLiveHLSRecorder != null) {
+      mLiveHLSRecorder.stopRecording();
+      mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
+      mLiveHLSRecorder = null;
+    }
+
+    super.stopRecording();
+  }
 
   @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {

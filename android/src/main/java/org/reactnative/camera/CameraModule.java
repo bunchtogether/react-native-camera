@@ -218,9 +218,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
     });
   }
 
-  private LiveHLSRecorder mLiveHLSRecorder;
-  private Thread mRecordingThread;
-
   @ReactMethod
   public void record(final ReadableMap options, final int viewTag, final Promise promise) {
       final ReactApplicationContext context = getReactApplicationContext();
@@ -258,12 +255,6 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
               try {
                   cameraView = (RNCameraView) nativeViewHierarchyManager.resolveView(viewTag);
-
-                  if (mLiveHLSRecorder != null) {
-                      mLiveHLSRecorder.stopRecording();
-                      cameraView.start();
-                      return;
-                  }
 
                   if (cameraView.isCameraOpened()) {
                       cameraView.stopRecording();
