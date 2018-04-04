@@ -47,22 +47,11 @@ int AUDIO_SAMPLE_RATE = 44100;
 int AUDIO_CHANNELS = 1;
 
 AVFormatContext *outputFormatContext;
-AVStream *audioStream;
-AVStream *videoStream;
-AVCodec *audioCodec;
-AVCodec *videoCodec;
-AVRational *videoSourceTimeBase;
-AVRational *audioSourceTimeBase;
 
 AVPacket *packet; // recycled across calls to writeAVPacketFromEncodedData
 
-// Example h264 file: Used to configure AVFormatContext
-const char *sampleFilePath = "/sdcard/sample.ts";
-
 // Debugging
 int videoFrameCount = 0;
-
-FILE *raw_video;
 
 // FFmpeg Utilities
 
@@ -86,8 +75,6 @@ char* stringForAVErrorNumber(int errorNumber){
 void addVideoStream(AVFormatContext *dest){
 	// find the video encoder
 	AVCodec* codec = avcodec_find_encoder(VIDEO_CODEC_ID);
-	if (!codec)
-		LOGI("add_video_stream codec not found, as expected. No encoding necessary");
 
 	// add a video stream to the output
 	AVStream* stream = avformat_new_stream(dest, codec);
@@ -193,24 +180,16 @@ int writeFileTrailer(AVFormatContext *avfc){
  * Prepares an AVFormatContext for output.
  * Currently, the output format and codecs are hardcoded in this file.
  */
-JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_prepareAVFormatContext(JNIEnv *env, jobject obj, jstring jOutputPath){
+JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_prepareAVFormatContext(JNIEnv *env, jobject obj, jstring jOutputPath) {
 	init();
-
-	// Create AVRational that expects timestamps in microseconds
-	videoSourceTimeBase = (AVRational*) av_malloc(sizeof(AVRational));
-	videoSourceTimeBase->num = 1;
-	videoSourceTimeBase->den = 1000000;
-
-	audioSourceTimeBase = (AVRational*) av_malloc(sizeof(AVRational));
-	audioSourceTimeBase->num = 1;
-	audioSourceTimeBase->den = 1000000;
 
 	outputPath = (*env)->GetStringUTFChars(env, jOutputPath, NULL);
 
 	outputFormatContext = avFormatContextForOutputPath(outputPath, outputFormatName);
 
 	// For manually crafting AVFormatContext
-	addVideoStream(outputFormatContext);
+    if (VIDEO_WIDTH > 0 && VIDEO_HEIGHT > 0)
+		addVideoStream(outputFormatContext);
 	addAudioStream(outputFormatContext);
 	av_opt_set_int(outputFormatContext->priv_data, "hls_time", hlsSegmentDurationSec, 0);
 	av_opt_set_int(outputFormatContext->priv_data, "hls_list_size", 0, 0);
@@ -248,7 +227,8 @@ JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_setAVO
 
 	hlsSegmentDurationSec = (*env)->GetIntField(env, jOpts, jHlsSegmentDurationSec);
 
-	// that's how easy love can be!
+	if (VIDEO_WIDTH == 0 && VIDEO_HEIGHT == 0)
+        VIDEO_CODEC_ID = AV_CODEC_ID_NONE;
 }
 
 /*
@@ -267,12 +247,15 @@ JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_writeA
 	// Because the audo track of the resulting output mostly works, I'm inclined to rule out this data marshaling being an issue
 	uint8_t *data = (uint8_t*) (*env)->GetDirectBufferAddress(env, jData);
 
+	// Create AVRational that expects timestamps in microseconds
+    AVRational timebase = (AVRational) {1, 1000000};
+
 	av_init_packet(packet);
     packet->stream_index = isVideo ? videoStreamIndex : audioStreamIndex;
 	packet->size = (int) jSize;
 	packet->data = data;
 	packet->pts = (int) jPts;
-	packet->pts = av_rescale_q(packet->pts, *videoSourceTimeBase, (outputFormatContext->streams[packet->stream_index]->time_base));
+	packet->pts = av_rescale_q(packet->pts, timebase, (outputFormatContext->streams[packet->stream_index]->time_base));
 
 	int writeFrameResult = av_interleaved_write_frame(outputFormatContext, packet);
 	if (writeFrameResult < 0)

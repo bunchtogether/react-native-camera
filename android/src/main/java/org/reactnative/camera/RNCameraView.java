@@ -61,6 +61,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private Map<Promise, ReadableMap> mPictureTakenOptions = new ConcurrentHashMap<>();
   private Map<Promise, File> mPictureTakenDirectories = new ConcurrentHashMap<>();
   private Promise mVideoRecordedPromise;
+  private File mLastCacheDirectory;
   private List<String> mBarCodeTypes = null;
 
   private boolean mIsPaused = false;
@@ -156,10 +157,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (mVideoRecordedPromise != null && isCapturingSegments()) {
           if (mLiveHLSRecorder == null) {
-              if (correctRotation == 90 || correctRotation == 270)
-                mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, height, width);
-              else
-                mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
+            // create hls recorder
+            if (isVideoDisabled())
+              mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, 0, 0);
+            else if (correctRotation == 90 || correctRotation == 270)
+              mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, height, width);
+            else
+              mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
             mLiveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera");
           }
 
@@ -173,7 +177,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
               rotatedData = rotateYUV420Degree90(rotateYUV420Degree180(data, width, height), width, height);
             mLiveHLSRecorder.sendVideoToEncoder(rotatedData, false);
           }
-	}
+        }
       }
     });
   }
@@ -268,17 +272,19 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   public void record(ReadableMap options, final Promise promise, File cacheDirectory) {
     // force camera into high quality by recording a video and stopping immediately
     // do this once because it makes the camera lag
-    if (!mIsHighQuality) {
+    if (!mIsHighQuality && !isVideoDisabled()) {
       try {
         String path = RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
         CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
         super.record(path, 1000, 1000000, false, profile);
+        Thread.sleep(10);
         super.stopRecording();
         mIsHighQuality = true;
-      } catch (IOException e) {
+      } catch (Exception e) {
         Log.e("RNCameraView", "unable to start 1s recording at high quality", e);
       }
     }
+    mLastCacheDirectory = cacheDirectory;
     mVideoRecordedPromise = promise;
   }
 
@@ -393,6 +399,10 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setDisableVideo(boolean shouldDisableVideo) {
     mIsVideoDisabled = shouldDisableVideo;
+    if (mVideoRecordedPromise != null) {
+      stopRecording();
+      record(null, mVideoRecordedPromise, mLastCacheDirectory);
+    }
   }
 
   public boolean isVideoDisabled() {

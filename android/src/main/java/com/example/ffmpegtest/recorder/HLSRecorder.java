@@ -63,12 +63,10 @@ import com.example.ffmpegtest.recorder.FFmpegWrapper.AVOptions;
 public class HLSRecorder {
     // Debugging
     private static final String TAG = "HLSRecorder";
-    private static final boolean VERBOSE = false;           			// Lots of logging
+    private static final boolean VERBOSE = true;           			// Lots of logging
     private static final boolean TRACE = false; 							// Enable systrace markers
     int totalFrameCount = 0;											// Used to calculate realized FPS
 
-    // Output
-    private static String mRootStorageDirName = "HLSRecorder";			// Root storage directory
     private String mUUID;
     private File mOutputDir;											// Folder containing recording files. /path/to/externalStorage/mOutputDir/<mUUID>/
     private File mM3U8;													// .m3u8 playlist file
@@ -155,12 +153,8 @@ public class HLSRecorder {
      * @param outputDir
      */
     public void startRecording(final String outputDir) {
-        if(outputDir != null)
-            mRootStorageDirName = outputDir;
         mUUID = UUID.randomUUID().toString();
         mOutputDir = new File(outputDir);
-
-        // TODO: Create Base HWRecorder class and subclass to provide output format, codecs etc
         mM3U8 = new File(mOutputDir, System.currentTimeMillis() + ".m3u8");
 
         Thread encodingThread = new Thread(new Runnable(){
@@ -178,7 +172,6 @@ public class HLSRecorder {
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void _startRecording() {
-        //int framesPerChunk = (int) CHUNK_DURATION_SEC * FRAME_RATE;
         Log.d(TAG, VIDEO_MIME_TYPE + " output " + VIDEO_WIDTH + "x" + VIDEO_HEIGHT + " @" + VIDEO_BIT_RATE);
 
         startWhen = System.nanoTime();
@@ -227,7 +220,7 @@ public class HLSRecorder {
                 public void run() {
                     audioRecord.startRecording();
                     while(!fullStopReceived){
-                        if(!firstFrameReady) {
+                        if(hasVideo() && !firstFrameReady) {
                             try { Thread.sleep(10); } catch (InterruptedException ignored) { }
                             continue;
                         }
@@ -317,21 +310,23 @@ public class HLSRecorder {
         try {
             fullStopReceived = false;
 
-            MediaFormat mVideoFormat = MediaFormat.createVideoFormat(VIDEO_MIME_TYPE, VIDEO_WIDTH, VIDEO_HEIGHT);
-            // Failing to specify some of these can cause the MediaCodec
-            // configure() call to throw an unhelpful exception.
-            mVideoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
-            mVideoFormat.setInteger(MediaFormat.KEY_BIT_RATE, VIDEO_BIT_RATE);
-            mVideoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
-            mVideoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
-            if (VERBOSE) Log.d(TAG, "format: " + mVideoFormat);
+            if (hasVideo()) {
+                MediaFormat mVideoFormat = MediaFormat.createVideoFormat(VIDEO_MIME_TYPE, VIDEO_WIDTH, VIDEO_HEIGHT);
+                // Failing to specify some of these can cause the MediaCodec
+                // configure() call to throw an unhelpful exception.
+                mVideoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
+                mVideoFormat.setInteger(MediaFormat.KEY_BIT_RATE, VIDEO_BIT_RATE);
+                mVideoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
+                mVideoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
+                if (VERBOSE) Log.d(TAG, "format: " + mVideoFormat);
 
-            // Create a MediaCodec mAudioEncoder, and configure it with our format.
-            MediaCodec videoEncoder = MediaCodec.createEncoderByType(VIDEO_MIME_TYPE);
-            videoEncoder.configure(mVideoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-            videoEncoder.start();
-            videoEncoderStopped = false;
-            mVideoEncoder = videoEncoder;
+                // Create a MediaCodec mAudioEncoder, and configure it with our format.
+                MediaCodec videoEncoder = MediaCodec.createEncoderByType(VIDEO_MIME_TYPE);
+                videoEncoder.configure(mVideoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+                videoEncoder.start();
+                videoEncoderStopped = false;
+                mVideoEncoder = videoEncoder;
+            }
 
             MediaFormat mAudioFormat = new MediaFormat();
             mAudioFormat.setString(MediaFormat.KEY_MIME, AUDIO_MIME_TYPE);
@@ -348,6 +343,10 @@ public class HLSRecorder {
         } catch (Exception e) {
             Log.e(TAG, "got an exception while preparing decoders", e);
         }
+    }
+
+    private boolean hasVideo() {
+        return VIDEO_WIDTH > 0 && VIDEO_HEIGHT > 0;
     }
 
     private void stopAndReleaseVideoEncoder(){
@@ -397,39 +396,22 @@ public class HLSRecorder {
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 // no output available yet
                 if (!endOfStream) {
-                    if (VERBOSE)
-                        Log.d(TAG, String.format("no output available for %s. aborting drain", encoderType));
-                    break;      // out of while
+                    //if (VERBOSE) Log.d(TAG, String.format("no output available for %s. aborting drain", encoderType));
+                    break;
                 } else {
                     if (VERBOSE) Log.d(TAG, "no output available, spinning to await EOS");
                 }
                 return false;
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                if (VERBOSE) Log.d(TAG, "INFO_OUTPUT_BUFFERS_CHANGED");
-                // not expected for an mAudioEncoder
                 encoderOutputBuffers = encoder.getOutputBuffers();
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 // should happen before receiving buffers, and should only happen once
-                if (VERBOSE) Log.d(TAG, "INFO_OUTPUT_FORMAT_CHANGED");
-                if (VERBOSE) Log.d(TAG, "format: " + encoder.getOutputFormat());
-
-                // Previously, we fed newFormat to Android's MediaMuxer
-                // Perhaps this is where we should adapt Android's MediaFormat
-                // to FFmpeg's AVCodecContext
-
-                /* Old code for Android's MediaMuxer:
-
-                MediaFormat newFormat = mAudioEncoder.getOutputFormat();
-                trackInfo.index = muxerWrapper.addTrack(newFormat);
-                if(!muxerWrapper.allTracksAdded())
-                    break;
-                */
-
+                if (VERBOSE) Log.d(TAG, "new format: " + encoder.getOutputFormat());
             } else if (encoderStatus < 0) {
                 Log.w(TAG, "unexpected result from mAudioEncoder.dequeueOutputBuffer: " + encoderStatus);
                 // let's ignore it
             } else {
-                if (VERBOSE) Log.d(TAG, "got an output frame for " + encoderType);
+                //if (VERBOSE) Log.d(TAG, "got an output frame for " + encoderType);
                 ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
                 if (encodedData == null)
                     throw new RuntimeException("encoderOutputBuffer " + encoderStatus + " was null");
@@ -526,7 +508,7 @@ public class HLSRecorder {
                         } else if(encoder == this.mAudioEncoder){
                             stopAndReleaseAudioEncoder();
                         }
-                        if(videoEncoderStopped && audioEncoderStopped)
+                        if((!hasVideo() || videoEncoderStopped) && audioEncoderStopped)
                             ffmpeg.finalizeAVFormatContext();
                     }
                     return true;
