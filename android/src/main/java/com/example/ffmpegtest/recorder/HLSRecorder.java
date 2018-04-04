@@ -63,7 +63,7 @@ import com.example.ffmpegtest.recorder.FFmpegWrapper.AVOptions;
 public class HLSRecorder {
     // Debugging
     private static final String TAG = "HLSRecorder";
-    private static final boolean VERBOSE = false;           			// Lots of logging
+    private static final boolean VERBOSE = true;           			// Lots of logging
     private static final boolean TRACE = false; 							// Enable systrace markers
     int totalFrameCount = 0;											// Used to calculate realized FPS
 
