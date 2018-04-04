@@ -50,6 +50,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.UUID;
 
 import com.example.ffmpegtest.recorder.FFmpegWrapper.AVOptions;
 
@@ -76,11 +77,11 @@ public class HLSRecorder {
     private MediaCodec mVideoEncoder;
     private static final String VIDEO_MIME_TYPE = "video/avc";    		// H.264 Advanced Video Coding
     private static final String AUDIO_MIME_TYPE = "audio/mp4a-latm";    // AAC Low Overhead Audio Transport Multiplex
-    int VIDEO_BIT_RATE		= 125000;				// Bits per second
+    int VIDEO_BIT_RATE		= 500000;				// Bits per second
     int VIDEO_WIDTH;
     int VIDEO_HEIGHT;
     private static final int FRAME_RATE 		= 30;					// Frames per second.
-    private static final int IFRAME_INTERVAL 	= 5;           			// Seconds between I-frames
+    private static final int IFRAME_INTERVAL 	= 1;           			// Seconds between I-frames
 
     // Audio Encoder and Configuration
     private MediaCodec mAudioEncoder;
@@ -154,12 +155,9 @@ public class HLSRecorder {
      * @param outputDir
      */
     public void startRecording(final String outputDir) {
-        /*
         if(outputDir != null)
             mRootStorageDirName = outputDir;
         mUUID = UUID.randomUUID().toString();
-        mOutputDir = FileUtils.getStorageDirectory(FileUtils.getRootStorageDirectory(c, mRootStorageDirName), mUUID);
-        */
         mOutputDir = new File(outputDir);
 
         // TODO: Create Base HWRecorder class and subclass to provide output format, codecs etc
@@ -200,7 +198,6 @@ public class HLSRecorder {
     }
 
     public void stopRecording(){
-        Log.i(TAG, "stopRecording");
         fullStopReceived = true;
         double recordingDurationSec = (System.nanoTime() - startWhen) / 1000000000.0;
         Log.i(TAG, "Recorded " + recordingDurationSec + " s. Expected " + (FRAME_RATE * recordingDurationSec) + " frames. Got " + totalFrameCount + " for " + (totalFrameCount / recordingDurationSec) + " fps");
@@ -242,7 +239,7 @@ public class HLSRecorder {
                     }
 
                     audioRecord.stop();
-                    Log.i(TAG, "Exiting audio encode loop. Draining Audio Encoder");
+                    if (VERBOSE) Log.i(TAG, "Exiting audio encode loop. Draining Audio Encoder");
                     if (TRACE) Trace.beginSection("sendAudio");
                     sendAudioToEncoder(true);
                     if (TRACE) Trace.endSection();
@@ -300,7 +297,7 @@ public class HLSRecorder {
 
                 // if it's end of stream - drain the encoder until it outputs an end of stream
                 if (endOfStream) {
-                    Log.i(TAG, "draining " + encoderType + " encoder");
+                    if (VERBOSE) Log.i(TAG, "draining " + encoderType + " encoder");
                     boolean finished = false;
                     while (!finished)
                         finished = drainEncoder(encoder, true);
@@ -493,7 +490,7 @@ public class HLSRecorder {
                     encodedData.limit(bufferInfo.offset + bufferInfo.size);
 
                     if(encoder == mVideoEncoder && (bufferInfo.flags & MediaCodec.BUFFER_FLAG_SYNC_FRAME) != 0){
-                        Log.i(TAG, "video and sync");
+                        if (VERBOSE) Log.i(TAG, "video and sync");
                         // A hack? Preceed every keyframe with the Sequence Parameter Set and Picture Parameter Set generated
                         // by MediaCodec in the CODEC_CONFIG buffer.
 
@@ -524,7 +521,6 @@ public class HLSRecorder {
                         Log.w(TAG, "reached end of stream unexpectedly: " + encoderType);
                     } else {
                         if (VERBOSE) Log.d(TAG, "end of " + encoderType + " stream reached. ");
-                        Log.d(TAG, "end of " + encoderType + " stream reached. ");
                         if(encoder == mVideoEncoder){
                             stopAndReleaseVideoEncoder();
                         } else if(encoder == this.mAudioEncoder){

@@ -13,20 +13,20 @@ public class HLSStreamEvent extends Event<HLSStreamEvent> {
     private static final Pools.SynchronizedPool<HLSStreamEvent> EVENTS_POOL = new Pools.SynchronizedPool<>(3);
     private HLSStreamEvent() {}
 
-    private boolean mSuccess;
+    private String mUUID;
 
-    public static HLSStreamEvent obtain(int viewTag, boolean success) {
+    public static HLSStreamEvent obtain(int viewTag, String uuid) {
         HLSStreamEvent event = EVENTS_POOL.acquire();
         if (event == null) {
             event = new HLSStreamEvent();
         }
-        event.init(viewTag);
+        event.init(viewTag, uuid);
         return event;
     }
 
-    private void init(int viewTag, boolean success) {
+    private void init(int viewTag, String uuid) {
         super.init(viewTag);
-        mSuccess = success;
+        mUUID = uuid;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class HLSStreamEvent extends Event<HLSStreamEvent> {
     private WritableMap serializeEventData() {
         WritableMap args = Arguments.createMap();
         args.putInt("target", getViewTag());
-        args.putBoolean("success", mSuccess);
+        args.putString("id", mUUID);
         return args;
     }
 }

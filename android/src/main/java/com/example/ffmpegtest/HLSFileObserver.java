@@ -30,18 +30,19 @@ import android.util.Log;
  * @author davidbrodsky
  *
  */
-public class HLSFileObserver extends FileObserver{
+public class HLSFileObserver extends FileObserver {
     private final String TAG = "HLSFileObserver";
 
     private static final String M3U8_EXT = "m3u8";
+    private static final String TMP_EXT = "tmp";
     private static final String TS_EXT = "ts";
-    String targetDir;
+    private String targetDir;
 
     private HLSCallback callback;
 
-    public interface HLSCallback{
-        public void onSegmentComplete(String path);
-        public void onManifestUpdated(String path);
+    public interface HLSCallback {
+        void onSegmentComplete(String path);
+        void onManifestUpdated(String path);
     }
 
     /**
@@ -50,7 +51,7 @@ public class HLSFileObserver extends FileObserver{
      * @param path the absolute path to observe.
      * @param callback a callback to be notified when HLS files are modified
      */
-    public HLSFileObserver(String path, HLSCallback callback){
+    public HLSFileObserver(String path, HLSCallback callback) {
         super(path, CLOSE_WRITE);
         this.callback = callback;
         targetDir = path;
@@ -60,11 +61,12 @@ public class HLSFileObserver extends FileObserver{
     public void onEvent(int event, String path) {
         Log.i(TAG, path);
         String ext = path.substring(path.lastIndexOf('.') + 1);
-        if(ext.compareTo(M3U8_EXT) == 0){
+        if (ext.compareTo(M3U8_EXT) == 0)
             callback.onManifestUpdated(targetDir + File.separator + path);
-        }else if(ext.compareTo(TS_EXT) == 0){
+        else if (ext.compareTo(TMP_EXT) == 0)
+            callback.onManifestUpdated(targetDir + File.separator + path.substring(0, path.lastIndexOf('.')));
+        else if (ext.compareTo(TS_EXT) == 0)
             callback.onSegmentComplete(targetDir + File.separator + path);
-        }
     }
 
 }

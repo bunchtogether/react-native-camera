@@ -40,7 +40,7 @@ import java.nio.ByteBuffer;
 public class FFmpegWrapper {
 
     static {
-        System.loadLibrary("FFmpegWrapper");
+        System.loadLibrary("hls-recorder");
     }
 
     public native void setAVOptions(AVOptions jOpts);

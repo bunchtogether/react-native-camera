@@ -1,6 +1,9 @@
 package org.reactnative.camera;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.CamcorderProfile;
@@ -9,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.Arguments;
@@ -92,6 +96,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     setupFaceDetector();
     mTextRecognizer = new TextRecognizer.Builder(themedReactContext).build();
     themedReactContext.addLifecycleEventListener(this);
+
+    setKeepScreenOn(true);
 
     addCallback(new Callback() {
       @Override
