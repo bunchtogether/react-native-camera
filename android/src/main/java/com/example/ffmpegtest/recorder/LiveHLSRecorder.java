@@ -19,6 +19,12 @@ public class LiveHLSRecorder extends HLSRecorder{
 
     private HLSFileObserver observer; // needs to be class level so it isn't garbage collected
     private CameraView cameraView;
+    private boolean stopAfterNextEvent = false;
+
+    public interface StopHandler {
+        void onStopped();
+    }
+    private StopHandler stopHandler = null;
 
     public LiveHLSRecorder(Context reactContext, CameraView cameraView, int videoWidth, int videoHeight) {
         super(reactContext, videoWidth, videoHeight);
@@ -49,6 +55,13 @@ public class LiveHLSRecorder extends HLSRecorder{
             public void onManifestUpdated(String path) {
                 if (VERBOSE) Log.i(TAG, ".m3u8 written: " + path);
                 sendSegmentEvent(path, lastTSPath);
+
+                if (stopAfterNextEvent) {
+                    if (VERBOSE) Log.i(TAG, "Stopped watching " + getOutputDirectory() + " for changes");
+                    observer.stopWatching();
+                    if (stopHandler != null)
+                        stopHandler.onStopped();
+                }
             }
 
         });
@@ -60,8 +73,13 @@ public class LiveHLSRecorder extends HLSRecorder{
 
     @Override
     public void stopRecording() {
-        observer.stopWatching();
-        if (VERBOSE) Log.i(TAG, "Stopped watching " + getOutputDirectory() + " for changes");
+        stopRecording(null);
+    }
+
+    public void stopRecording(StopHandler handler) {
+        if (VERBOSE) Log.i(TAG, "stopping after next event");
+        stopAfterNextEvent = true;
+        stopHandler = handler;
         super.stopRecording();
     }
 

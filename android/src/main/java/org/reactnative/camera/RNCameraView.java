@@ -127,8 +127,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       }
 
       @Override
-      public void onFramePreview(CameraView cameraView, byte[] data, int width, int height, int rotation) {
-        int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing());
+      public void onFramePreview(CameraView cameraView, byte[] data, final int width, final int height, int rotation) {
+        final int correctRotation = RNCameraViewHelper.getCorrectCameraRotation(rotation, getFacing());
 
         if (mShouldScanBarCodes && !barCodeScannerTaskLock && cameraView instanceof BarCodeScannerAsyncTaskDelegate) {
           barCodeScannerTaskLock = true;
@@ -154,9 +154,14 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           } else if (mRecordingRotation != correctRotation) {
             // stop this recording, wait for it to finish, then restart with the new rotation
             mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
-            mLiveHLSRecorder.stopRecording();
-            try { Thread.sleep(200); } catch (InterruptedException e) { e.printStackTrace(); }
-            mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+            setCaptureSegments(false);
+            mLiveHLSRecorder.stopRecording(new LiveHLSRecorder.StopHandler() {
+              @Override
+              public void onStopped() {
+                mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+                setCaptureSegments(true);
+              }
+            });
           }
 
           if (!isVideoDisabled())
