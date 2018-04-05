@@ -58,9 +58,17 @@ public class LiveHLSRecorder extends HLSRecorder{
         if (VERBOSE) Log.i(TAG, "sending stream event with id " + getUUID());
     }
 
+    @Override
+    public void stopRecording() {
+        observer.stopWatching();
+        if (VERBOSE) Log.i(TAG, "Stopped watching " + getOutputDirectory() + " for changes");
+        super.stopRecording();
+    }
+
     private int fragmentOrder = 1;
     private void sendSegmentEvent(String manifestPath, String tsPath) {
         WritableMap event2 = Arguments.createMap();
+        event2.putString("id", getUUID());
         event2.putInt("order", fragmentOrder++);
         event2.putString("path", tsPath);
         event2.putString("manifestPath", manifestPath);

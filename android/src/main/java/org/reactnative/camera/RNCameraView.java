@@ -1,9 +1,6 @@
 package org.reactnative.camera;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.CamcorderProfile;
@@ -12,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.Arguments;
@@ -23,7 +19,6 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.google.android.cameraview.CameraView;
 import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.zxing.BarcodeFormat;
@@ -43,9 +38,6 @@ import org.reactnative.camera.utils.RNFileUtils;
 import org.reactnative.facedetector.RNFaceDetector;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
@@ -88,6 +80,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mIsVideoDisabled = false;
   private boolean mIsHighQuality = false;
   private LiveHLSRecorder mLiveHLSRecorder = null;
+  private int mRecordingRotation = -1;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
     super(themedReactContext, true);
@@ -157,65 +150,34 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (mVideoRecordedPromise != null && isCapturingSegments()) {
           if (mLiveHLSRecorder == null) {
-            // create hls recorder
-            if (isVideoDisabled())
-              mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, 0, 0);
-            else if (correctRotation == 90 || correctRotation == 270)
-              mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, height, width);
-            else
-              mLiveHLSRecorder = new LiveHLSRecorder(getContext(), RNCameraView.this, width, height);
-            mLiveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera");
+            mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+          } else if (mRecordingRotation != correctRotation) {
+            // stop this recording, wait for it to finish, then restart with the new rotation
+            mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
+            mLiveHLSRecorder.stopRecording();
+            try { Thread.sleep(200); } catch (InterruptedException e) { e.printStackTrace(); }
+            mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
           }
 
-          if (!isVideoDisabled()) {
-            byte[] rotatedData = data;
-            if (correctRotation == 90)
-              rotatedData = rotateYUV420Degree90(data, width, height);
-            else if (correctRotation == 180)
-              rotatedData = rotateYUV420Degree180(data, width, height);
-            else if (correctRotation == 270)
-              rotatedData = rotateYUV420Degree90(rotateYUV420Degree180(data, width, height), width, height);
-            mLiveHLSRecorder.sendVideoToEncoder(rotatedData, false);
-          }
+          if (!isVideoDisabled())
+            RNCameraViewHelper.sendVideoToRecorder(mLiveHLSRecorder, data, width, height, correctRotation);
         }
       }
     });
   }
 
-  private static byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight)
-  {
-    byte[] yuv = new byte[data.length];
-
-    // Rotate the Y luma
-    int i = 0;
-    for (int x = 0; x < imageWidth; x++)
-      for (int y = imageHeight-1; y >= 0; y--,i++)
-        yuv[i] = data[y*imageWidth+x];
-
-    // Rotate the U and V color components
-    int uvStart = imageWidth*imageHeight;
-    i = imageWidth * imageHeight * 3/2 - 1;
-    for (int x = imageWidth-1; x > 0; x = x-2)
-    {
-      for (int y = 0; y < imageHeight/2; y++, i-=2)
-      {
-        yuv[i]   = data[uvStart+(y*imageWidth)+x];
-        yuv[i-1] = data[uvStart+(y*imageWidth)+(x-1)];
-      }
-    }
-    return yuv;
-  }
-
-  private static byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
-    byte[] yuv = new byte[data.length];
-    int count = 0;
-    for (int i = imageWidth * imageHeight - 1; i >= 0; i--, count++)
-      yuv[count] = data[i];
-    for (int i = imageWidth * imageHeight * 3 / 2 - 1; i >= imageWidth * imageHeight; i -= 2) {
-      yuv[count++] = data[i - 1];
-      yuv[count++] = data[i];
-    }
-    return yuv;
+  private LiveHLSRecorder createHLSRecorder(int width, int height, int rotation) {
+    LiveHLSRecorder liveHLSRecorder;
+    // create hls recorder
+    if (isVideoDisabled())
+      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, 0, 0);
+    else if (rotation == 90 || rotation == 270)
+      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, height, width);
+    else
+      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, width, height);
+    liveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera");
+    mRecordingRotation = rotation;
+    return liveHLSRecorder;
   }
 
   @Override
@@ -223,8 +185,8 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     mVideoRecordedPromise = null;
 
     if (mLiveHLSRecorder != null) {
-      mLiveHLSRecorder.stopRecording();
       mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
+      mLiveHLSRecorder.stopRecording();
       mLiveHLSRecorder = null;
     }
 

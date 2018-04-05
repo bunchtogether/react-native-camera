@@ -10,6 +10,7 @@ import android.support.media.ExifInterface;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
+import com.example.ffmpegtest.recorder.LiveHLSRecorder;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
@@ -339,5 +340,52 @@ public class RNCameraViewHelper {
     canvas.drawText(simpleDateFormat.format(calendar.getTime()), width * 0.4f, height * 0.8f, textPaint);
 
     return fakePhoto;
+  }
+
+  static void sendVideoToRecorder(LiveHLSRecorder recorder, byte[] data, int width, int height, int correctRotation) {
+    byte[] rotatedData = data;
+    if (correctRotation == 90)
+      rotatedData = rotateYUV420Degree90(data, width, height);
+    else if (correctRotation == 180)
+      rotatedData = rotateYUV420Degree180(data, width, height);
+    else if (correctRotation == 270)
+      rotatedData = rotateYUV420Degree90(rotateYUV420Degree180(data, width, height), width, height);
+    recorder.sendVideoToEncoder(rotatedData, false);
+  }
+
+  private static byte[] rotateYUV420Degree90(byte[] data, int imageWidth, int imageHeight)
+  {
+    byte[] yuv = new byte[data.length];
+
+    // Rotate the Y luma
+    int i = 0;
+    for (int x = 0; x < imageWidth; x++)
+      for (int y = imageHeight-1; y >= 0; y--,i++)
+        yuv[i] = data[y*imageWidth+x];
+
+    // Rotate the U and V color components
+    int uvStart = imageWidth*imageHeight;
+    i = imageWidth * imageHeight * 3/2 - 1;
+    for (int x = imageWidth-1; x > 0; x = x-2)
+    {
+      for (int y = 0; y < imageHeight/2; y++, i-=2)
+      {
+        yuv[i]   = data[uvStart+(y*imageWidth)+x];
+        yuv[i-1] = data[uvStart+(y*imageWidth)+(x-1)];
+      }
+    }
+    return yuv;
+  }
+
+  private static byte[] rotateYUV420Degree180(byte[] data, int imageWidth, int imageHeight) {
+    byte[] yuv = new byte[data.length];
+    int count = 0;
+    for (int i = imageWidth * imageHeight - 1; i >= 0; i--, count++)
+      yuv[count] = data[i];
+    for (int i = imageWidth * imageHeight * 3 / 2 - 1; i >= imageWidth * imageHeight; i -= 2) {
+      yuv[count++] = data[i - 1];
+      yuv[count++] = data[i];
+    }
+    return yuv;
   }
 }
