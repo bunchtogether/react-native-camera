@@ -219,9 +219,8 @@ static int32_t fragmentOrder;
     NSString *hlsDirectoryPath = [basePath stringByAppendingPathComponent:self.folderName];
     self.hlsDirectoryPath = hlsDirectoryPath;
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
-    
     [self setupEncoders];
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:hlsDirectoryPath delegate:self];
     });
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath segmentCount:self.segmentIndex];
