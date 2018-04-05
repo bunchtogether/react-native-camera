@@ -134,6 +134,7 @@ static int32_t fragmentOrder;
     if (self.fileMonitorSource)
     {
         dispatch_source_cancel(self.fileMonitorSource);
+        self.fileMonitorSource = nil;
     }
     self.fileMonitorSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, fildes,
                                                     DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND |
@@ -149,9 +150,10 @@ static int32_t fragmentOrder;
         }
         [self bgPostNewFragmentsInManifest:path]; // update fragments after file modification
     });
+    __block dispatch_source_t previousFileMonitorSource = self.fileMonitorSource;
     dispatch_source_set_cancel_handler(self.fileMonitorSource, ^(void) {
         close(fildes);
-        self.fileMonitorSource = nil;
+        previousFileMonitorSource = nil;
     });
     dispatch_resume(self.fileMonitorSource);
     [self bgPostNewFragmentsInManifest:path]; // update fragments when initial monitoring begins.
