@@ -15,7 +15,7 @@ import org.reactnative.camera.RNCameraViewHelper;
 
 public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
-    private final boolean VERBOSE = true; 						// lots of logging
+    private final boolean VERBOSE = false; 						// lots of logging
 
     private HLSFileObserver observer; // needs to be class level so it isn't garbage collected
     private CameraView cameraView;

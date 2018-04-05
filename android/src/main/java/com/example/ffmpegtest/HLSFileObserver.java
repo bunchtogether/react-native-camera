@@ -59,7 +59,6 @@ public class HLSFileObserver extends FileObserver {
 
     @Override
     public void onEvent(int event, String path) {
-        Log.i(TAG, path);
         String ext = path.substring(path.lastIndexOf('.') + 1);
         if (ext.compareTo(M3U8_EXT) == 0)
             callback.onManifestUpdated(targetDir + File.separator + path);
