@@ -114,7 +114,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
       @Override
       public void onVideoRecorded(CameraView cameraView, String path) {
-        if (mVideoRecordedPromise != null) {
+        if (isRecording()) {
           if (path != null) {
             WritableMap result = Arguments.createMap();
             result.putString("uri", RNFileUtils.uriFromFile(new File(path)).toString());
@@ -148,7 +148,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
           new TextRecognizerAsyncTask(delegate, mTextRecognizer, data, width, height, correctRotation).execute();
         }
 
-        if (mVideoRecordedPromise != null && isCapturingSegments()) {
+        if (isRecording() && isCapturingSegments()) {
           if (mLiveHLSRecorder == null) {
             mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
           } else if (mRecordingRotation != correctRotation) {
@@ -188,6 +188,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   @Override
   public void stopRecording() {
     mVideoRecordedPromise = null;
+    fixScanning();
 
     if (mLiveHLSRecorder != null) {
       mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
@@ -253,6 +254,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     }
     mLastCacheDirectory = cacheDirectory;
     mVideoRecordedPromise = promise;
+    fixScanning();
   }
 
   /**
@@ -278,7 +280,13 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   private void fixScanning() {
-    setScanning(mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText || mIsCapturingSegments);
+    boolean shouldScan = mShouldDetectFaces || mShouldScanBarCodes || mShouldRecognizeText;
+    shouldScan |= mIsCapturingSegments && isRecording();
+    setScanning(shouldScan);
+  }
+
+  private boolean isRecording() {
+    return mVideoRecordedPromise != null;
   }
 
   public void setShouldScanBarCodes(boolean shouldScanBarCodes) {
@@ -366,7 +374,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
   public void setDisableVideo(boolean shouldDisableVideo) {
     mIsVideoDisabled = shouldDisableVideo;
-    if (mVideoRecordedPromise != null) {
+    if (isRecording()) {
       stopRecording();
       record(null, mVideoRecordedPromise, mLastCacheDirectory);
     }
