@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ED1FB9151A8A83D80072E6BC /* AssetGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA621A705D9800E2C415 /* AssetGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		ED1FB9151A8A83D80072E6BC /* AssetGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA621A705D9800E2C415 /* AssetGroup.h */; };
 		ED92E9E21A705CEF00E2C415 /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED92E9D61A705CEF00E2C415 /* libHudlFFmpegProcessor.a */; };
 		ED92EA2E1A705D8700E2C415 /* KFAACEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92E9F51A705D8700E2C415 /* KFAACEncoder.m */; };
 		ED92EA2F1A705D8700E2C415 /* KFAACEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92E9F51A705D8700E2C415 /* KFAACEncoder.m */; };
@@ -82,7 +82,7 @@
 		ED92EB361A705DAC00E2C415 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED92EB221A705DAC00E2C415 /* libswscale.a */; };
 		ED92EB391A705E3200E2C415 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EB381A705E3200E2C415 /* Utilities.m */; };
 		ED92EB3A1A705E3200E2C415 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EB381A705E3200E2C415 /* Utilities.m */; };
-		ED92EB461A705F8100E2C415 /* KFRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA251A705D8700E2C415 /* KFRecorder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		ED92EB461A705F8100E2C415 /* KFRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA251A705D8700E2C415 /* KFRecorder.h */; };
 		EDFA73751A8A86BC00FDC9F2 /* avcodec.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA691A705DAC00E2C415 /* avcodec.h */; };
 		EDFA73761A8A86BC00FDC9F2 /* avfft.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA6A1A705DAC00E2C415 /* avfft.h */; };
 		EDFA73771A8A86BC00FDC9F2 /* dv_profile.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA6B1A705DAC00E2C415 /* dv_profile.h */; };
