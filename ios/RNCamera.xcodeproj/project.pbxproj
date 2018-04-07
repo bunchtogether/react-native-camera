@@ -30,7 +30,7 @@
 		728ABDEB206353E2007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDDD206353E1007DC4F1 /* GoogleNetworkingUtilities.framework */; };
 		728ABDEC206353E2007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDE1206353E1007DC4F1 /* GoogleSymbolUtilities.framework */; };
 		728ABDED206353E2007DC4F1 /* GoogleUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDE6206353E2007DC4F1 /* GoogleUtilities.framework */; };
-		72A5BAF620631E6100715277 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A5BAF520631E6000715277 /* AddressBook.framework */; };
+		72DF1DA92078300500C2BFF8 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72DF1DA62078300500C2BFF8 /* AddressBook.framework */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
 
@@ -115,6 +115,7 @@
 		728ABDE3206353E2007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
 		728ABDE6206353E2007DC4F1 /* GoogleUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleUtilities.framework; sourceTree = "<group>"; };
 		72A5BAF520631E6000715277 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.2.sdk/System/Library/Frameworks/AddressBook.framework; sourceTree = DEVELOPER_DIR; };
+		72DF1DA62078300500C2BFF8 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.3.sdk/System/Library/Frameworks/AddressBook.framework; sourceTree = DEVELOPER_DIR; };
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -124,11 +125,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				72DF1DA92078300500C2BFF8 /* AddressBook.framework in Frameworks */,
 				725FA0D4206DA58900E15BB2 /* libHudlFFmpegProcessor.a in Frameworks */,
 				728ABDED206353E2007DC4F1 /* GoogleUtilities.framework in Frameworks */,
 				728ABDEB206353E2007DC4F1 /* GoogleNetworkingUtilities.framework in Frameworks */,
 				728ABDEC206353E2007DC4F1 /* GoogleSymbolUtilities.framework in Frameworks */,
-				72A5BAF620631E6100715277 /* AddressBook.framework in Frameworks */,
 				728ABDE7206353E2007DC4F1 /* GoogleMobileVision.framework in Frameworks */,
 				728ABDEA206353E2007DC4F1 /* GoogleInterchangeUtilities.framework in Frameworks */,
 				728ABDE9206353E2007DC4F1 /* GoogleMVDataOutput.framework in Frameworks */,
@@ -412,6 +413,7 @@
 		72A5BA9E20631DAF00715277 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				72DF1DA62078300500C2BFF8 /* AddressBook.framework */,
 				725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */,
 				728ABDD4206353E1007DC4F1 /* GoogleInterchangeUtilities-1.2.2 */,
 				728ABDBE206353E1007DC4F1 /* GoogleMobileVision-1.1.0 */,
