@@ -671,6 +671,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         NSError *error = nil;
         AVCaptureDevice *captureDevice = [RNCameraUtils deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+        
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (error || captureDeviceInput == nil) {

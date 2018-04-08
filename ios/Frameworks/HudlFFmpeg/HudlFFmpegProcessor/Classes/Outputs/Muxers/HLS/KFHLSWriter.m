@@ -54,7 +54,7 @@
         _videoTimeBase.den = 1000000000;
         _audioTimeBase.num = 1;
         _audioTimeBase.den = 1000000000;
-        _segmentDurationSeconds = 3;
+        _segmentDurationSeconds = 2;
         [self setupOutputFileSegmentCount:segmentCount];
         _conversionQueue = dispatch_queue_create("HLS Write queue", DISPATCH_QUEUE_SERIAL);
     }
@@ -84,7 +84,7 @@
 
     [_videoStream setupVideoContextWithWidth:width height:height];
     _videoStream.stream->codec->bit_rate = 3 * 1024 * 1024; // 3 mbps
-    _videoStream.stream->codec->gop_size = 30;
+    _videoStream.stream->codec->gop_size = 60;
     
     FFBitstreamFilter *bitstreamFilter = [[FFBitstreamFilter alloc] initWithFilterName:@"h264_mp4toannexb"];
     [_videoStream addBitstreamFilter:bitstreamFilter];

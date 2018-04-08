@@ -65,7 +65,7 @@
     c->width    = width;
     c->height   = height;
     c->bit_rate = 2000000;
-    c->profile = FF_PROFILE_H264_BASELINE;
+    c->profile = FF_PROFILE_H264_HIGH;
     c->time_base.den = 90000;
     c->time_base.num = 1;
     c->pix_fmt       = PIX_FMT_YUV420P;
@@ -93,7 +93,7 @@
     codecContext->time_base.den = 90000;
     codecContext->time_base.num = 1;
     codecContext->channel_layout = AV_CH_LAYOUT_MONO;
-    codecContext->profile = FF_PROFILE_AAC_LOW;
+    codecContext->profile = FF_PROFILE_AAC_MAIN;
     codecContext->bit_rate = 64 * 1000;
     //c->bit_rate    = bit_rate;
     codecContext->sample_rate = sampleRate;
