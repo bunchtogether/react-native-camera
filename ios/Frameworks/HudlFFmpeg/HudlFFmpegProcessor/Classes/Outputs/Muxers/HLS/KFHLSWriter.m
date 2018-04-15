@@ -84,7 +84,7 @@
 
     [_videoStream setupVideoContextWithWidth:width height:height];
     _videoStream.stream->codec->bit_rate = 3 * 1024 * 1024; // 3 mbps
-    _videoStream.stream->codec->gop_size = 30;
+    _videoStream.stream->codec->gop_size = 60;
     
     FFBitstreamFilter *bitstreamFilter = [[FFBitstreamFilter alloc] initWithFilterName:@"h264_mp4toannexb"];
     [_videoStream addBitstreamFilter:bitstreamFilter];
