@@ -671,6 +671,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         
         NSError *error = nil;
         AVCaptureDevice *captureDevice = [RNCameraUtils deviceWithMediaType:AVMediaTypeVideo preferringPosition:self.presetCamera];
+        
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (error || captureDeviceInput == nil) {
@@ -867,10 +868,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if(_segmentCaptureActive) {
         [self.recorder stopRecording];
     }
-    if(_segmentCapture && _segmentCaptureActive) {
+    if(_segmentCapture) {
         dispatch_async(self.sessionQueue, ^{
             [self updateSessionPreset:self.session.sessionPreset];
-            [self.recorder startRecording];
+            if(_segmentCaptureActive){
+                [self.recorder startRecording];
+            }
         });
     }
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];

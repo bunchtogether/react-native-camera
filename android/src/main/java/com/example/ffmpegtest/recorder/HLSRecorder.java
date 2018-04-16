@@ -186,7 +186,6 @@ public class HLSRecorder {
         ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath());
 
         prepareEncoder();
-        setupAudioRecord();
         startAudioRecord();
     }
 
@@ -196,7 +195,7 @@ public class HLSRecorder {
         Log.i(TAG, "Recorded " + recordingDurationSec + " s. Expected " + (FRAME_RATE * recordingDurationSec) + " frames. Got " + totalFrameCount + " for " + (totalFrameCount / recordingDurationSec) + " fps");
     }
 
-    private void setupAudioRecord(){
+    private void startAudioRecord(){
         int min_buffer_size = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
         int buffer_size = SAMPLES_PER_FRAME * 10;
         if (buffer_size < min_buffer_size)
@@ -208,43 +207,37 @@ public class HLSRecorder {
                 CHANNEL_CONFIG,                      // channels
                 AUDIO_FORMAT,                        // audio format
                 buffer_size);                        // buffer size (bytes)
-    }
 
-    private void startAudioRecord(){
-        if(audioRecord != null){
+        Thread audioEncodingThread = new Thread(new Runnable(){
 
-            Thread audioEncodingThread = new Thread(new Runnable(){
-
-                @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-                @Override
-                public void run() {
-                    audioRecord.startRecording();
-                    while(!fullStopReceived){
-                        if(hasVideo() && !firstFrameReady) {
-                            try { Thread.sleep(10); } catch (InterruptedException ignored) { }
-                            continue;
-                        }
-
-                        if (TRACE) Trace.beginSection("sendAudio");
-                        sendAudioToEncoder(false);
-                        if (TRACE) Trace.endSection();
-
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+            @Override
+            public void run() {
+                audioRecord.startRecording();
+                while(!fullStopReceived){
+                    if(hasVideo() && !firstFrameReady) {
+                        try { Thread.sleep(10); } catch (InterruptedException ignored) { }
+                        continue;
                     }
 
-                    audioRecord.stop();
-                    if (VERBOSE) Log.i(TAG, "Exiting audio encode loop. Draining Audio Encoder");
                     if (TRACE) Trace.beginSection("sendAudio");
-                    sendAudioToEncoder(true);
+                    sendAudioToEncoder(false);
                     if (TRACE) Trace.endSection();
-                }
-            }, "Audio");
-            audioEncodingThread.setPriority(Thread.MAX_PRIORITY);
-            audioEncodingThread.start();
-        }
 
+                }
+
+                audioRecord.stop();
+                if (VERBOSE) Log.i(TAG, "Exiting audio encode loop. Draining Audio Encoder");
+                if (TRACE) Trace.beginSection("sendAudio");
+                sendAudioToEncoder(true);
+                if (TRACE) Trace.endSection();
+            }
+        }, "Audio");
+        audioEncodingThread.setPriority(Thread.MAX_PRIORITY);
+        audioEncodingThread.start();
     }
 
-    public void sendVideoToEncoder(final byte[] bytes, final boolean endOfStream) {
+    public void sendVideoToEncoder(final long nanoTime, final byte[] bytes, final boolean endOfStream) {
         if (mVideoEncoder == null) {
             Log.e(TAG, "sent bytes to stopped video encoder");
             return;
@@ -253,7 +246,7 @@ public class HLSRecorder {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                sendDataToEncoder(mVideoEncoder, bytes, bytes.length, endOfStream);
+                sendDataToEncoder(mVideoEncoder, nanoTime, bytes, bytes.length, endOfStream);
             }
         });
         thread.start();
@@ -265,10 +258,10 @@ public class HLSRecorder {
         int audioInputLength = audioRecord.read(bytes, 0, SAMPLES_PER_FRAME * 2);
         if (audioInputLength == AudioRecord.ERROR_INVALID_OPERATION)
             return;
-        sendDataToEncoder(mAudioEncoder, bytes, audioInputLength, endOfStream);
+        sendDataToEncoder(mAudioEncoder, System.nanoTime(), bytes, audioInputLength, endOfStream);
     }
 
-    private void sendDataToEncoder(final MediaCodec encoder, final byte[] bytes, int numBytes, final boolean endOfStream) {
+    private void sendDataToEncoder(final MediaCodec encoder, final long nanoTime, final byte[] bytes, int numBytes, final boolean endOfStream) {
         String encoderType = getEncoderType(encoder);
 
         synchronized (sync) {

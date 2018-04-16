@@ -252,6 +252,7 @@ export default class Example extends React.Component {
             this.camera = cam;
           }}
           style={styles.preview}
+          ratio="16:9"
           type={this.state.camera.type}
           flashMode={this.state.camera.flashMode}
           autoFocus={RNCamera.Constants.AutoFocus.on}

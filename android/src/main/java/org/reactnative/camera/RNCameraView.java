@@ -80,6 +80,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   private boolean mIsVideoDisabled = false;
   private boolean mIsHighQuality = false;
   private LiveHLSRecorder mLiveHLSRecorder = null;
+  private FrameSender mFrameSender = null;
   private int mRecordingRotation = -1;
 
   public RNCameraView(ThemedReactContext themedReactContext) {
@@ -151,9 +152,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
         if (isRecording() && isCapturingSegments()) {
           if (mLiveHLSRecorder == null) {
             mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+            mFrameSender = new FrameSender();
           } else if (mRecordingRotation != correctRotation) {
             // stop this recording, wait for it to finish, then restart with the new rotation
-            mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
+            mFrameSender.shutdown();
+            mFrameSender = null;
+            mLiveHLSRecorder.sendVideoToEncoder(System.nanoTime(), new byte[0], true);
             setCaptureSegments(false);
             mLiveHLSRecorder.stopRecording(new LiveHLSRecorder.StopHandler() {
               @Override
@@ -164,8 +168,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             });
           }
 
-          if (!isVideoDisabled())
-            RNCameraViewHelper.sendVideoToRecorder(mLiveHLSRecorder, data, width, height, correctRotation);
+          if (!isVideoDisabled()) {
+            mFrameSender.addFrame(mLiveHLSRecorder, data, width, height, correctRotation);
+          }
         }
       }
     });
@@ -191,7 +196,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     fixScanning();
 
     if (mLiveHLSRecorder != null) {
-      mLiveHLSRecorder.sendVideoToEncoder(new byte[0], true);
+      mLiveHLSRecorder.sendVideoToEncoder(System.nanoTime(), new byte[0], true);
       mLiveHLSRecorder.stopRecording();
       mLiveHLSRecorder = null;
     }
