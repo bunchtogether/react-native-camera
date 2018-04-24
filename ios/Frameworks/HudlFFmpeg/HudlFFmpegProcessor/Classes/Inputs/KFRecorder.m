@@ -196,7 +196,9 @@ static int32_t fragmentOrder;
                                        @"duration": [NSNumber numberWithDouble:self.currentSegmentDuration],
                                        @"id": [NSString stringWithString: _activeStreamId]
                                        };
-            [[NSNotificationCenter defaultCenter] postNotificationName:NotifNewAssetGroupCreated object:fragment];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NotifNewAssetGroupCreated object:fragment];
+            });
             self.lastFragmentDate = [NSDate date];
         }
     };
@@ -220,7 +222,7 @@ static int32_t fragmentOrder;
     self.hlsDirectoryPath = hlsDirectoryPath;
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
     [self setupEncoders];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), self.videoQueue, ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:hlsDirectoryPath delegate:self];
     });
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath segmentCount:self.segmentIndex];
