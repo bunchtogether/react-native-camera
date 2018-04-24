@@ -220,7 +220,7 @@ static int32_t fragmentOrder;
     self.hlsDirectoryPath = hlsDirectoryPath;
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
     [self setupEncoders];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), self.videoQueue, ^{
         self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:hlsDirectoryPath delegate:self];
     });
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath segmentCount:self.segmentIndex];
@@ -365,16 +365,13 @@ static int32_t fragmentOrder;
     }
     dispatch_async(self.videoQueue, ^{
         self.activeStreamId = [[[NSUUID UUID] UUIDString] lowercaseString];
-        self.isRecording = YES;
         self.lastFragmentDate = [NSDate date];
         self.currentSegmentDuration = 0;
         self.originalSample = CMTimeMakeWithSeconds(0, 0);
         self.latestSample = CMTimeMakeWithSeconds(0, 0);
-        
         NSString *segmentName = [self.name stringByAppendingPathComponent:[NSString stringWithFormat:@"segment-%lu-%@", (unsigned long)self.segmentIndex, [Utilities fileNameStringFromDate:[NSDate date]]]];
         [self setupHLSWriterWithName:segmentName];
         self.segmentIndex++;
-        
         NSError *error = nil;
         [self.hlsWriter prepareForWriting:&error];
         if (error)
@@ -387,6 +384,7 @@ static int32_t fragmentOrder;
                 [self.delegate recorderDidStartRecording:self error:error activeStreamId:self.activeStreamId];
             });
         }
+        self.isRecording = YES;
     });
     
 }
