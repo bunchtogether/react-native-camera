@@ -140,8 +140,9 @@ static int32_t fragmentOrder;
                                                     DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND |
                                                     DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_LINK | DISPATCH_VNODE_RENAME |
                                                     DISPATCH_VNODE_REVOKE, queue);
+    __block dispatch_source_t previousFileMonitorSource = self.fileMonitorSource;
     dispatch_source_set_event_handler(self.fileMonitorSource, ^{
-        unsigned long flags = dispatch_source_get_data(self.fileMonitorSource);
+        unsigned long flags = dispatch_source_get_data(previousFileMonitorSource);
         if(flags & DISPATCH_VNODE_DELETE)
         {
             close(fildes);
@@ -150,7 +151,6 @@ static int32_t fragmentOrder;
         }
         [self bgPostNewFragmentsInManifest:path]; // update fragments after file modification
     });
-    __block dispatch_source_t previousFileMonitorSource = self.fileMonitorSource;
     dispatch_source_set_cancel_handler(self.fileMonitorSource, ^(void) {
         close(fildes);
         previousFileMonitorSource = nil;
