@@ -13,6 +13,10 @@ import com.google.android.cameraview.CameraView;
 
 import org.reactnative.camera.RNCameraViewHelper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
     private final boolean VERBOSE = false; 						// lots of logging
@@ -54,7 +58,7 @@ public class LiveHLSRecorder extends HLSRecorder{
             @Override
             public void onManifestUpdated(String path) {
                 if (VERBOSE) Log.i(TAG, ".m3u8 written: " + path);
-                sendSegmentEvent(path, lastTSPath);
+                sendSegmentEvent(path, lastTSPath, getDuration(path));
 
                 if (stopAfterNextEvent) {
                     if (VERBOSE) Log.i(TAG, "Stopped watching " + getOutputDirectory() + " for changes");
@@ -62,6 +66,26 @@ public class LiveHLSRecorder extends HLSRecorder{
                     if (stopHandler != null)
                         stopHandler.onStopped();
                 }
+            }
+
+            private double getDuration(String path) {
+                double duration = 0.0;
+                try {
+                    // take a risk - read whole m3u8 file into memory, assume well formed
+                    Scanner scan = new Scanner(new File(path));
+                    scan.useDelimiter("\\Z");
+                    String content = scan.next();
+                    String[] lines = content.split("\n");
+                    for (int i = lines.length - 1; i >= 0; --i) {
+                        if (lines[i].startsWith("#EXTINF:")) {
+                            duration = Double.parseDouble(lines[i].substring(8, lines[i].indexOf(',')));
+                            break;
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "unable to find updated manifest file", e);
+                }
+                return duration;
             }
 
         });
@@ -84,7 +108,7 @@ public class LiveHLSRecorder extends HLSRecorder{
     }
 
     private int fragmentOrder = 1;
-    private void sendSegmentEvent(String manifestPath, String tsPath) {
+    private void sendSegmentEvent(String manifestPath, String tsPath, double duration) {
         WritableMap event2 = Arguments.createMap();
         event2.putString("id", getUUID());
         event2.putInt("order", fragmentOrder++);
@@ -95,6 +119,7 @@ public class LiveHLSRecorder extends HLSRecorder{
         event2.putInt("width", VIDEO_WIDTH);
         event2.putInt("audioBitrate", AUDIO_BIT_RATE);
         event2.putInt("videoBitrate", VIDEO_BIT_RATE);
+        event2.putDouble("duration", duration);
 
         if (VERBOSE) Log.i("LiveHLSRecorder", "sending event for ts file " + tsPath + " manifest " + manifestPath);
         RNCameraViewHelper.emitSegmentEvent(cameraView, event2);
