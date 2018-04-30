@@ -68,20 +68,18 @@ public class LiveHLSRecorder extends HLSRecorder{
                 }
             }
 
+            double duration = 0.0;
             private double getDuration(String path) {
-                double duration = 0.0;
                 try {
                     // take a risk - read whole m3u8 file into memory, assume well formed
                     Scanner scan = new Scanner(new File(path));
                     scan.useDelimiter("\\Z");
                     String content = scan.next();
-                    String[] lines = content.split("\n");
-                    for (int i = lines.length - 1; i >= 0; --i) {
-                        if (lines[i].startsWith("#EXTINF:")) {
-                            duration = Double.parseDouble(lines[i].substring(8, lines[i].indexOf(',')));
-                            break;
-                        }
-                    }
+                    int lastInfAt = content.lastIndexOf("#EXTINF:");
+                    int durationStart = content.indexOf(':', lastInfAt) + 1;
+                    int durationEnd = content.indexOf(',', durationStart);
+                    duration += Double.parseDouble(content.substring(durationStart, durationEnd));
+                    Log.e(TAG, "duration is now " + duration);
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "unable to find updated manifest file", e);
                 }
