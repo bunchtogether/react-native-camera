@@ -274,7 +274,7 @@ public class HLSRecorder {
                 ByteBuffer inputBuffer = inputBuffers[bufferIndex];
                 inputBuffer.clear();
                 inputBuffer.put(bytes);
-                long pts = (System.nanoTime() - startWhen) / 1000;
+                long pts = (nanoTime - startWhen) / 1000;
                 if (VERBOSE) Log.i(TAG, "queueing " + numBytes + " " + encoderType + " bytes with pts " + pts);
 
                 int flags = endOfStream ? MediaCodec.BUFFER_FLAG_END_OF_STREAM : 0;
