@@ -75,10 +75,10 @@ public class HLSRecorder {
     private MediaCodec mVideoEncoder;
     private static final String VIDEO_MIME_TYPE = "video/avc";    		// H.264 Advanced Video Coding
     private static final String AUDIO_MIME_TYPE = "audio/mp4a-latm";    // AAC Low Overhead Audio Transport Multiplex
-    int VIDEO_BIT_RATE		= 500000;				// Bits per second
+    int VIDEO_BIT_RATE		= 2000000;				// Bits per second
     int VIDEO_WIDTH;
     int VIDEO_HEIGHT;
-    private static final int FRAME_RATE 		= 30;					// Frames per second.
+    private static final int FRAME_RATE 		= 24;					// Frames per second.
     private static final int IFRAME_INTERVAL 	= 1;           			// Seconds between I-frames
 
     // Audio Encoder and Configuration
@@ -262,6 +262,8 @@ public class HLSRecorder {
     }
 
     private void sendDataToEncoder(final MediaCodec encoder, final long nanoTime, final byte[] bytes, int numBytes, final boolean endOfStream) {
+        if (fullStopReceived)
+            return;
         String encoderType = getEncoderType(encoder);
 
         synchronized (sync) {
@@ -289,7 +291,6 @@ public class HLSRecorder {
                         finished = drainEncoder(encoder, true);
                 }
 
-                totalFrameCount++;
                 firstFrameReady = true;
             } catch (Throwable t) {
                 Log.e(TAG, "sendDataToEncoder exception", t);
@@ -311,6 +312,10 @@ public class HLSRecorder {
                 mVideoFormat.setInteger(MediaFormat.KEY_BIT_RATE, VIDEO_BIT_RATE);
                 mVideoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
                 mVideoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
+                // MediaFormat.KEY_PROFILE requires API level 21
+                mVideoFormat.setInteger("profile", MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
+                // MediaFormat.KEY_LEVEL requires API level 23
+                mVideoFormat.setInteger("level", MediaCodecInfo.CodecProfileLevel.AVCLevel13);
                 if (VERBOSE) Log.d(TAG, "format: " + mVideoFormat);
 
                 // Create a MediaCodec mAudioEncoder, and configure it with our format.
@@ -408,6 +413,9 @@ public class HLSRecorder {
                 ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
                 if (encodedData == null)
                     throw new RuntimeException("encoderOutputBuffer " + encoderStatus + " was null");
+
+                if (encoder == mVideoEncoder)
+                    totalFrameCount++;
 
                 if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
                     if (VERBOSE) Log.d(TAG, "configging the codec");
