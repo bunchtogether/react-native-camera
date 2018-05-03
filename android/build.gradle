@@ -13,6 +13,12 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+def DEFAULT_COMPILE_SDK_VERSION             = 26
+def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
+def DEFAULT_TARGET_SDK_VERSION              = 26
+def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
+def DEFAULT_SUPPORT_LIBRARY_VERSION         = "26.1.0"
+
 ext {
   compileSdkVersion = 26
   buildToolsVersion = "26.0.2"
@@ -22,12 +28,12 @@ ext {
 }
 
 android {
-  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : compileSdkVersion
-  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.ext.buildToolsVersion : buildToolsVersion
+  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
+  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.ext.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
 
   defaultConfig {
     minSdkVersion 16
-    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : targetSdkVersion
+    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
 
     versionCode 1
     versionName "1.0.0"
@@ -49,14 +55,17 @@ repositories {
 }
 
 dependencies {
-  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.ext.googlePlayServicesVersion : googlePlayServicesVersion
-  def supportLibraryVersion = rootProject.hasProperty('supportLibraryVersion')  ? rootProject.ext.supportLibraryVersion : supportLibraryVersion
+  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.ext.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
+  def supportLibraryVersion = rootProject.hasProperty('supportLibraryVersion')  ? rootProject.ext.supportLibraryVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
 
   implementation 'com.facebook.react:react-native:+'
   implementation "com.google.zxing:core:3.2.1"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
   implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
   implementation "com.android.support:exifinterface:$supportLibraryVersion"
+  implementation "com.android.support:support-annotations:$supportLibraryVersion"
+  implementation "com.android.support:support-v4:$supportLibraryVersion"
 
-  implementation project(':cameraview:library')
+  // implementation 'com.github.react-native-community:cameraview:eb9f726215bbbfcc03a54db92e480d4d02e0c001'
+  implementation 'com.github.bunchtogether:cameraview:1977dafad065e66c198deb2d2159af79788ff3d3'
 }
