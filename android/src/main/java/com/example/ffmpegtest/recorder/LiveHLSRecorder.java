@@ -79,7 +79,7 @@ public class LiveHLSRecorder extends HLSRecorder{
                     int durationStart = content.indexOf(':', lastInfAt) + 1;
                     int durationEnd = content.indexOf(',', durationStart);
                     duration += Double.parseDouble(content.substring(durationStart, durationEnd));
-                    Log.e(TAG, "duration is now " + duration);
+                    if (VERBOSE) Log.e(TAG, "duration is now " + duration);
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "unable to find updated manifest file", e);
                 }

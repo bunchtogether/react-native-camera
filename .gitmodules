@@ -1,0 +1,4 @@
+[submodule "android/cameraview"]
+	path = android/cameraview
+	url = https://github.com/thasmin/cameraview.git
+	branch = bunch
