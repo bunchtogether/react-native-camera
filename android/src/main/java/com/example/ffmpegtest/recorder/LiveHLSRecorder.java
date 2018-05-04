@@ -19,7 +19,7 @@ import java.util.Scanner;
 
 public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
-    private final boolean VERBOSE = false; 						// lots of logging
+    private final boolean VERBOSE = true; 						// lots of logging
 
     private HLSFileObserver observer; // needs to be class level so it isn't garbage collected
     private CameraView cameraView;
@@ -62,6 +62,7 @@ public class LiveHLSRecorder extends HLSRecorder{
 
                 if (stopAfterNextEvent) {
                     if (VERBOSE) Log.i(TAG, "Stopped watching " + getOutputDirectory() + " for changes");
+
                     observer.stopWatching();
                     if (stopHandler != null)
                         stopHandler.onStopped();
@@ -79,7 +80,7 @@ public class LiveHLSRecorder extends HLSRecorder{
                     int durationStart = content.indexOf(':', lastInfAt) + 1;
                     int durationEnd = content.indexOf(',', durationStart);
                     duration += Double.parseDouble(content.substring(durationStart, durationEnd));
-                    if (VERBOSE) Log.e(TAG, "duration is now " + duration);
+                    if (VERBOSE) Log.i(TAG, "duration is now " + duration);
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "unable to find updated manifest file", e);
                 }

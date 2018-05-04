@@ -190,6 +190,8 @@ public class HLSRecorder {
     }
 
     public void stopRecording(){
+        // audio will end stream based on stop flag but video won't
+        sendEOStoVideoEncoder();
         fullStopReceived = true;
         double recordingDurationSec = (System.nanoTime() - startWhen) / 1000000000.0;
         Log.i(TAG, "Recorded " + recordingDurationSec + " s. Expected " + (FRAME_RATE * recordingDurationSec) + " frames. Got " + totalFrameCount + " for " + (totalFrameCount / recordingDurationSec) + " fps");
@@ -221,7 +223,7 @@ public class HLSRecorder {
                     }
 
                     if (TRACE) Trace.beginSection("sendAudio");
-                    sendAudioToEncoder(false);
+                    sendAudioToEncoder();
                     if (TRACE) Trace.endSection();
 
                 }
@@ -229,7 +231,7 @@ public class HLSRecorder {
                 audioRecord.stop();
                 if (VERBOSE) Log.i(TAG, "Exiting audio encode loop. Draining Audio Encoder");
                 if (TRACE) Trace.beginSection("sendAudio");
-                sendAudioToEncoder(true);
+                sendEOStoAudioEncoder();
                 if (TRACE) Trace.endSection();
             }
         }, "Audio");
@@ -237,7 +239,11 @@ public class HLSRecorder {
         audioEncodingThread.start();
     }
 
-    public void sendVideoToEncoder(final long nanoTime, final byte[] bytes, final boolean endOfStream) {
+    private void sendEOStoVideoEncoder() {
+        sendDataToEncoder(mVideoEncoder, System.nanoTime(), new byte[] { }, 0, true);
+    }
+
+    public void sendVideoToEncoder(final long nanoTime, final byte[] bytes) {
         if (mVideoEncoder == null) {
             Log.e(TAG, "sent bytes to stopped video encoder");
             return;
@@ -246,23 +252,28 @@ public class HLSRecorder {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                sendDataToEncoder(mVideoEncoder, nanoTime, bytes, bytes.length, endOfStream);
+                sendDataToEncoder(mVideoEncoder, nanoTime, bytes, bytes.length, false);
             }
         });
         thread.start();
         thread.setPriority(Thread.MAX_PRIORITY);
     }
 
-    private void sendAudioToEncoder(boolean endOfStream) {
+    private void sendEOStoAudioEncoder() {
+        if (VERBOSE) Log.e(TAG, "sending eos to audio encoder");
+        sendDataToEncoder(mAudioEncoder, System.nanoTime(), new byte[] { }, 0, true);
+    }
+
+    private void sendAudioToEncoder() {
         byte[] bytes = new byte[SAMPLES_PER_FRAME * 2];
         int audioInputLength = audioRecord.read(bytes, 0, SAMPLES_PER_FRAME * 2);
         if (audioInputLength == AudioRecord.ERROR_INVALID_OPERATION)
             return;
-        sendDataToEncoder(mAudioEncoder, System.nanoTime(), bytes, audioInputLength, endOfStream);
+        sendDataToEncoder(mAudioEncoder, System.nanoTime(), bytes, audioInputLength, false);
     }
 
     private void sendDataToEncoder(final MediaCodec encoder, final long nanoTime, final byte[] bytes, int numBytes, final boolean endOfStream) {
-        if (fullStopReceived)
+        if (fullStopReceived && !endOfStream)
             return;
         String encoderType = getEncoderType(encoder);
 
@@ -293,7 +304,8 @@ public class HLSRecorder {
 
                 firstFrameReady = true;
             } catch (Throwable t) {
-                Log.e(TAG, "sendDataToEncoder exception", t);
+                if (!fullStopReceived)
+                    Log.e(TAG, "sendDataToEncoder exception on " + encoderType, t);
             }
         }
     }
@@ -509,8 +521,10 @@ public class HLSRecorder {
                         } else if(encoder == this.mAudioEncoder){
                             stopAndReleaseAudioEncoder();
                         }
-                        if((!hasVideo() || videoEncoderStopped) && audioEncoderStopped)
+                        if((!hasVideo() || videoEncoderStopped) && audioEncoderStopped) {
+                            if (VERBOSE) Log.e(TAG, "finalizing ffmpeg");
                             ffmpeg.finalizeAVFormatContext();
+                        }
                     }
                     return true;
                 }

@@ -157,7 +157,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             // stop this recording, wait for it to finish, then restart with the new rotation
             mFrameSender.shutdown();
             mFrameSender = null;
-            mLiveHLSRecorder.sendVideoToEncoder(System.nanoTime(), new byte[0], true);
             setCaptureSegments(false);
             mLiveHLSRecorder.stopRecording(new LiveHLSRecorder.StopHandler() {
               @Override
@@ -196,7 +195,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     fixScanning();
 
     if (mLiveHLSRecorder != null) {
-      mLiveHLSRecorder.sendVideoToEncoder(System.nanoTime(), new byte[0], true);
       mLiveHLSRecorder.stopRecording();
       mLiveHLSRecorder = null;
     }

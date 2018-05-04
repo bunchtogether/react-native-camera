@@ -39,7 +39,7 @@ class FrameSender {
         return false;
 
       //log("sending frame " + frameNumber + " with time " + frame.nanoTime);
-      recorder.sendVideoToEncoder(frame.nanoTime, frame.bytes, false);
+      recorder.sendVideoToEncoder(frame.nanoTime, frame.bytes);
       waitingFrames.remove(frameNumber);
       nextInsertNum = frameNumber + 1;
       return true;
