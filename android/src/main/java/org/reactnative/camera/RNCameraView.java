@@ -3,10 +3,8 @@ package org.reactnative.camera;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.media.CamcorderProfile;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -78,7 +76,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   // HLS properties
   private boolean mIsCapturingSegments = false;
   private boolean mIsVideoDisabled = false;
-  private boolean mIsHighQuality = false;
   private LiveHLSRecorder mLiveHLSRecorder = null;
   private FrameSender mFrameSender = null;
   private int mRecordingRotation = -1;
@@ -157,7 +154,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             // stop this recording, wait for it to finish, then restart with the new rotation
             mFrameSender.shutdown();
             mFrameSender = null;
-            mLiveHLSRecorder.sendVideoToEncoder(System.nanoTime(), new byte[0], true);
             setCaptureSegments(false);
             mLiveHLSRecorder.stopRecording(new LiveHLSRecorder.StopHandler() {
               @Override
@@ -196,7 +192,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     fixScanning();
 
     if (mLiveHLSRecorder != null) {
-      mLiveHLSRecorder.sendVideoToEncoder(System.nanoTime(), new byte[0], true);
       mLiveHLSRecorder.stopRecording();
       mLiveHLSRecorder = null;
     }
@@ -243,20 +238,6 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   public void record(ReadableMap options, final Promise promise, File cacheDirectory) {
-    // force camera into high quality by recording a video and stopping immediately
-    // do this once because it makes the camera lag
-    if (!mIsHighQuality && !isVideoDisabled()) {
-      try {
-        String path = RNFileUtils.getOutputFilePath(cacheDirectory, ".mp4");
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-        super.record(path, 1000, 1000000, false, profile);
-        Thread.sleep(10);
-        super.stopRecording();
-        mIsHighQuality = true;
-      } catch (Exception e) {
-        Log.e("RNCameraView", "unable to start 1s recording at high quality", e);
-      }
-    }
     mLastCacheDirectory = cacheDirectory;
     mVideoRecordedPromise = promise;
     fixScanning();
