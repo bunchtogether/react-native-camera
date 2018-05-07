@@ -67,5 +67,5 @@ dependencies {
   implementation "com.android.support:support-v4:$supportLibraryVersion"
 
   // implementation 'com.github.react-native-community:cameraview:eb9f726215bbbfcc03a54db92e480d4d02e0c001'
-  implementation 'com.github.bunchtogether:cameraview:1977dafad065e66c198deb2d2159af79788ff3d3'
+  implementation 'com.github.bunchtogether:cameraview:4f5c82b9b1ff04d24bb18f4615cedf8f98583698'
 }
