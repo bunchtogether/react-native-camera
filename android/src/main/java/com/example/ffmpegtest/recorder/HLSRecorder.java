@@ -176,6 +176,7 @@ public class HLSRecorder {
         opts.audioSampleRate 	= SAMPLE_RATE;
         opts.numAudioChannels 	= (CHANNEL_CONFIG == AudioFormat.CHANNEL_IN_STEREO) ? 2 : 1;
         opts.hlsSegmentDurationSec = 2;
+        opts.hlsListSize = 5;
         ffmpeg.setAVOptions(opts);
         ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath());
 
