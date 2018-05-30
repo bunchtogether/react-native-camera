@@ -43,6 +43,7 @@
 - (void)updateFocusMode;
 - (void)updateFocusDepth;
 - (void)updateZoom;
+- (void)updateBitrate:(NSInteger)bitrate;
 - (void)updateDisableVideo;
 - (void)updateWhiteBalance;
 - (void)updateFaceDetecting:(id)isDetectingFaces;

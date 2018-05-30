@@ -373,6 +373,16 @@ export default class Camera extends React.Component<PropsType, StateType> {
   }
 }
 
+Camera.updateBitrate = (bitrate: number) => {
+  if(!bitrate) {
+    throw new Error("Missing required argument 'bitrate'");
+  }
+  if (CameraManager && CameraManager.updateBitrate) {
+    return CameraManager.updateBitrate(bitrate);
+  }
+  return;
+}
+
 export const Constants = Camera.Constants;
 
 const RNCamera = requireNativeComponent('RNCamera', Camera, {
