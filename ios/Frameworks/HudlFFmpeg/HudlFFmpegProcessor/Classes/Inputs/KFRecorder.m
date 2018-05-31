@@ -174,6 +174,17 @@ static int32_t fragmentOrder;
     void (^postFragments)(void) = ^{
         NSArray *groups = [HlsManifestParser parseAssetGroupsForManifest:manifestPath];
         
+        NSString *manifest = [NSString stringWithContentsOfFile:manifestPath
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:NULL];
+        NSMutableArray *manifestLines = [[manifest componentsSeparatedByString:@"\n"] mutableCopy];
+        [manifestLines replaceObjectAtIndex:1 withObject:@"#EXT-X-VERSION:6"];
+        [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.1" atIndex: 4];
+        manifest = [manifestLines componentsJoinedByString:@"\n"];
+        [manifest writeToFile:manifestPath
+                   atomically:NO
+                     encoding:NSUTF8StringEncoding
+                        error:nil];
         for (AssetGroup *group in groups)
         {
             //NSString *relativePath = [self.folderName stringByAppendingPathComponent:group.fileName];
