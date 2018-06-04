@@ -173,7 +173,6 @@ static int32_t fragmentOrder;
 {
     void (^postFragments)(void) = ^{
         NSArray *groups = [HlsManifestParser parseAssetGroupsForManifest:manifestPath];
-        
         NSString *manifest = [NSString stringWithContentsOfFile:manifestPath
                                                        encoding:NSUTF8StringEncoding
                                                           error:NULL];

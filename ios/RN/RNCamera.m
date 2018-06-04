@@ -735,11 +735,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if (preset) {
         dispatch_async(self.sessionQueue, ^{
             [self.session beginConfiguration];
-            if(_segmentCapture && self.session.sessionPreset != AVCaptureSessionPreset1920x1080) {
-                if ([self.session canSetSessionPreset:AVCaptureSessionPreset1920x1080]) {
-                    self.session.sessionPreset = AVCaptureSessionPreset1920x1080;
-                }
-            } else if(self.session.sessionPreset != preset) {
+            if(self.session.sessionPreset != preset) {
                 if ([self.session canSetSessionPreset:preset]) {
                     self.session.sessionPreset = preset;
                 }

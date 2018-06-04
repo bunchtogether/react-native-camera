@@ -70,7 +70,7 @@
 }
 
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer
-{
+{    
     CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     if (!_timescale)
     {
