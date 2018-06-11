@@ -180,7 +180,7 @@ static int32_t fragmentOrder;
         [manifestLines replaceObjectAtIndex:1 withObject:@"#EXT-X-VERSION:6"];
         [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.1" atIndex: 4];
         manifest = [manifestLines componentsJoinedByString:@"\n"];
-        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.m3u8", [[NSUUID UUID] UUIDString]]];
         [manifest writeToFile:updatedManifestPath
                    atomically:NO
                      encoding:NSUTF8StringEncoding
