@@ -180,13 +180,13 @@ static int32_t fragmentOrder;
         [manifestLines replaceObjectAtIndex:1 withObject:@"#EXT-X-VERSION:6"];
         [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.1" atIndex: 4];
         manifest = [manifestLines componentsJoinedByString:@"\n"];
-        [manifest writeToFile:manifestPath
+        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+        [manifest writeToFile:updatedManifestPath
                    atomically:NO
                      encoding:NSUTF8StringEncoding
                         error:nil];
         for (AssetGroup *group in groups)
         {
-            //NSString *relativePath = [self.folderName stringByAppendingPathComponent:group.fileName];
             NSString *absolutePath =  [self.hlsDirectoryPath stringByAppendingPathComponent:group.fileName];
             if ([self.processedFragments containsObject:absolutePath])
             {
@@ -197,7 +197,7 @@ static int32_t fragmentOrder;
             NSDictionary* fragment = @{
                                        @"order": @((NSInteger) fragmentOrder++),
                                        @"path": absolutePath,
-                                       @"manifestPath": manifestPath,
+                                       @"manifestPath": updatedManifestPath,
                                        @"filename": group.fileName,
                                        @"height": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoHeight),
                                        @"width": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoWidth),
@@ -403,6 +403,7 @@ static int32_t fragmentOrder;
 
 - (void)stopRecording
 {
+    [self.h264Encoder clearBitrateChange];
     dispatch_async(self.videoQueue, ^{ // put this on video queue so we don't accidentially write a frame while closing.
         self.directoryWatcher = nil;
         NSError *error = nil;

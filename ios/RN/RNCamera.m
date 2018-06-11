@@ -126,13 +126,8 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if(!_recorder.h264Encoder) {
         return;
     }
-    if(bitrate > 4194304) {
-        bitrate = 4194304;
-    }
-    if(bitrate < 786432) {
-        bitrate = 786432;
-    }
     [_recorder.h264Encoder setBitrate:(int)bitrate];
+    _recorder.videoBitrate = bitrate;
 }
 
 -(void)updateType

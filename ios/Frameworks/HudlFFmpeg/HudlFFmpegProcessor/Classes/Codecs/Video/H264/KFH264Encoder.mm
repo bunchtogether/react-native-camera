@@ -69,6 +69,11 @@
     _encoder.bitrateChanged = YES;
 }
 
+- (void)clearBitrateChange
+{
+    _encoder.bitrateChanged = NO;
+}
+
 - (void)encodeSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {    
     CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
