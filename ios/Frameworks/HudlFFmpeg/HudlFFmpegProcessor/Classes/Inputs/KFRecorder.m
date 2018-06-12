@@ -178,9 +178,10 @@ static int32_t fragmentOrder;
                                                           error:NULL];
         NSMutableArray *manifestLines = [[manifest componentsSeparatedByString:@"\n"] mutableCopy];
         [manifestLines replaceObjectAtIndex:1 withObject:@"#EXT-X-VERSION:6"];
-        [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.1" atIndex: 4];
+        [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.0" atIndex: 4];
         manifest = [manifestLines componentsJoinedByString:@"\n"];
-        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.m3u8", [[NSUUID UUID] UUIDString]]];
+
+        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"playlist-%ld.m3u8", [[NSDate date] timeIntervalSince1970]]];
         [manifest writeToFile:updatedManifestPath
                    atomically:NO
                      encoding:NSUTF8StringEncoding
