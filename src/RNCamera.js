@@ -383,6 +383,13 @@ Camera.updateBitrate = (bitrate: number) => {
   return;
 }
 
+Camera.getHlsPath = () => {
+  if (CameraManager && CameraManager.getHlsPath) {
+    return CameraManager.getHlsPath();
+  }
+  throw new Error("RNCamera.getHlsPath() is not implemented");
+}
+
 export const Constants = Camera.Constants;
 
 const RNCamera = requireNativeComponent('RNCamera', Camera, {

@@ -304,5 +304,10 @@ RCT_EXPORT_METHOD(updateBitrate:(NSInteger)bitrate)
     }];
 }
 
+RCT_EXPORT_METHOD(getHlsPath:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    resolve([NSTemporaryDirectory() stringByAppendingPathComponent:@"react-native-camera"]);
+}
+
 @end
 
