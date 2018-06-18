@@ -215,6 +215,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
     useCamera2Api: false,
   };
 
+  static updateBitrate: (bitrate: number) => Promise<void>;
+  static getHlsPath: () => Promise<string>;
+  
+  getHlsPath: Function;
   _cameraRef: ?Object;
   _cameraHandle: ?number;
   _lastEvents: { [string]: string };
@@ -380,7 +384,7 @@ Camera.updateBitrate = (bitrate: number) => {
   if (CameraManager && CameraManager.updateBitrate) {
     return CameraManager.updateBitrate(bitrate);
   }
-  return;
+  throw new Error("RNCamera.updateBitrate() is not implemented");
 }
 
 Camera.getHlsPath = () => {
