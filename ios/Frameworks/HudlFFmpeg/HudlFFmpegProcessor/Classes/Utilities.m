@@ -12,15 +12,7 @@
 
 + (NSString *)applicationSupportDirectory
 {
-    NSString *path = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
-    
-    NSFileManager *manager = [NSFileManager defaultManager];
-    if (![manager fileExistsAtPath:path])
-    {
-        [manager createDirectoryAtPath:path withIntermediateDirectories:NO attributes:nil error:NULL];
-    }
-    
-    return path;
+    return NSTemporaryDirectory();
 }
 
 + (NSString *)fileNameStringFromDate:(NSDate *)date

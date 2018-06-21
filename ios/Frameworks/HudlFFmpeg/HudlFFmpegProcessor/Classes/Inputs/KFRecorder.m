@@ -140,8 +140,9 @@ static int32_t fragmentOrder;
                                                     DISPATCH_VNODE_DELETE | DISPATCH_VNODE_WRITE | DISPATCH_VNODE_EXTEND |
                                                     DISPATCH_VNODE_ATTRIB | DISPATCH_VNODE_LINK | DISPATCH_VNODE_RENAME |
                                                     DISPATCH_VNODE_REVOKE, queue);
+    __block dispatch_source_t previousFileMonitorSource = self.fileMonitorSource;
     dispatch_source_set_event_handler(self.fileMonitorSource, ^{
-        unsigned long flags = dispatch_source_get_data(self.fileMonitorSource);
+        unsigned long flags = dispatch_source_get_data(previousFileMonitorSource);
         if(flags & DISPATCH_VNODE_DELETE)
         {
             close(fildes);
@@ -150,7 +151,6 @@ static int32_t fragmentOrder;
         }
         [self bgPostNewFragmentsInManifest:path]; // update fragments after file modification
     });
-    __block dispatch_source_t previousFileMonitorSource = self.fileMonitorSource;
     dispatch_source_set_cancel_handler(self.fileMonitorSource, ^(void) {
         close(fildes);
         previousFileMonitorSource = nil;
@@ -173,10 +173,21 @@ static int32_t fragmentOrder;
 {
     void (^postFragments)(void) = ^{
         NSArray *groups = [HlsManifestParser parseAssetGroupsForManifest:manifestPath];
-        
+        NSString *manifest = [NSString stringWithContentsOfFile:manifestPath
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:NULL];
+        NSMutableArray *manifestLines = [[manifest componentsSeparatedByString:@"\n"] mutableCopy];
+        [manifestLines replaceObjectAtIndex:1 withObject:@"#EXT-X-VERSION:6"];
+        [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.0" atIndex: 4];
+        manifest = [manifestLines componentsJoinedByString:@"\n"];
+
+        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"playlist-%ld.m3u8", [[NSDate date] timeIntervalSince1970]]];
+        [manifest writeToFile:updatedManifestPath
+                   atomically:NO
+                     encoding:NSUTF8StringEncoding
+                        error:nil];
         for (AssetGroup *group in groups)
         {
-            //NSString *relativePath = [self.folderName stringByAppendingPathComponent:group.fileName];
             NSString *absolutePath =  [self.hlsDirectoryPath stringByAppendingPathComponent:group.fileName];
             if ([self.processedFragments containsObject:absolutePath])
             {
@@ -187,7 +198,7 @@ static int32_t fragmentOrder;
             NSDictionary* fragment = @{
                                        @"order": @((NSInteger) fragmentOrder++),
                                        @"path": absolutePath,
-                                       @"manifestPath": manifestPath,
+                                       @"manifestPath": updatedManifestPath,
                                        @"filename": group.fileName,
                                        @"height": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoHeight),
                                        @"width": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoWidth),
@@ -196,7 +207,9 @@ static int32_t fragmentOrder;
                                        @"duration": [NSNumber numberWithDouble:self.currentSegmentDuration],
                                        @"id": [NSString stringWithString: _activeStreamId]
                                        };
-            [[NSNotificationCenter defaultCenter] postNotificationName:NotifNewAssetGroupCreated object:fragment];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NotifNewAssetGroupCreated object:fragment];
+            });
             self.lastFragmentDate = [NSDate date];
         }
     };
@@ -365,16 +378,13 @@ static int32_t fragmentOrder;
     }
     dispatch_async(self.videoQueue, ^{
         self.activeStreamId = [[[NSUUID UUID] UUIDString] lowercaseString];
-        self.isRecording = YES;
         self.lastFragmentDate = [NSDate date];
         self.currentSegmentDuration = 0;
         self.originalSample = CMTimeMakeWithSeconds(0, 0);
         self.latestSample = CMTimeMakeWithSeconds(0, 0);
-        
         NSString *segmentName = [self.name stringByAppendingPathComponent:[NSString stringWithFormat:@"segment-%lu-%@", (unsigned long)self.segmentIndex, [Utilities fileNameStringFromDate:[NSDate date]]]];
         [self setupHLSWriterWithName:segmentName];
         self.segmentIndex++;
-        
         NSError *error = nil;
         [self.hlsWriter prepareForWriting:&error];
         if (error)
@@ -387,12 +397,14 @@ static int32_t fragmentOrder;
                 [self.delegate recorderDidStartRecording:self error:error activeStreamId:self.activeStreamId];
             });
         }
+        self.isRecording = YES;
     });
     
 }
 
 - (void)stopRecording
 {
+    [self.h264Encoder clearBitrateChange];
     dispatch_async(self.videoQueue, ^{ // put this on video queue so we don't accidentially write a frame while closing.
         self.directoryWatcher = nil;
         NSError *error = nil;

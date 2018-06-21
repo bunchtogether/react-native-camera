@@ -291,5 +291,23 @@ RCT_EXPORT_METHOD(checkVideoAuthorizationStatus:(RCTPromiseResolveBlock)resolve
     }];
 }
 
+RCT_EXPORT_METHOD(updateBitrate:(NSInteger)bitrate)
+{
+    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, RNCamera *> *viewRegistry) {
+        NSEnumerator *enumerator = [viewRegistry objectEnumerator];
+        RNCamera *view;
+        while ((view = [enumerator nextObject])) {
+            if ([view isKindOfClass:[RNCamera class]]) {
+                [view updateBitrate:bitrate];
+            }
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(getHlsPath:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject) {
+    resolve([NSTemporaryDirectory() stringByAppendingPathComponent:@"react-native-camera"]);
+}
+
 @end
 
