@@ -217,7 +217,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   static updateBitrate: (bitrate: number) => Promise<void>;
   static getHlsPath: () => Promise<string>;
-  
+
   getHlsPath: Function;
   _cameraRef: ?Object;
   _cameraHandle: ?number;
@@ -378,20 +378,20 @@ export default class Camera extends React.Component<PropsType, StateType> {
 }
 
 Camera.updateBitrate = (bitrate: number) => {
-  if(!bitrate) {
-    throw new Error("Missing required argument 'bitrate'");
+  if (!bitrate) {
+    throw new Error('Missing required argument \'bitrate\'');
   }
   if (CameraManager && CameraManager.updateBitrate) {
     return CameraManager.updateBitrate(bitrate);
   }
-  throw new Error("RNCamera.updateBitrate() is not implemented");
+  throw new Error('RNCamera.updateBitrate() is not implemented');
 }
 
 Camera.getHlsPath = () => {
   if (CameraManager && CameraManager.getHlsPath) {
     return CameraManager.getHlsPath();
   }
-  throw new Error("RNCamera.getHlsPath() is not implemented");
+  throw new Error('RNCamera.getHlsPath() is not implemented');
 }
 
 export const Constants = Camera.Constants;

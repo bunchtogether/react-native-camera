@@ -215,6 +215,22 @@ public class CameraModule extends ReactContextBaseJavaModule {
     });
   }
 
+
+  @ReactMethod
+  public String getHlsPath() {
+    File cacheDir;
+    cacheDir = mScopedContext.getCacheDirectory();
+    // If Cache directory doesnt exist, create it
+    if (cacheDir == null) {
+        final ReactApplicationContext context = getReactApplicationContext();
+        mScopedContext.createCacheDirectory(context);
+        cacheDir = mScopedContext.getCacheDirectory();
+    }
+    Log.d("CameraCache", cacheDir.getAbsolutePath());
+    return cacheDir.getAbsolutePath();
+  }
+
+
   @ReactMethod
   public void record(final ReadableMap options, final int viewTag, final Promise promise) {
       final ReactApplicationContext context = getReactApplicationContext();
