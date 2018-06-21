@@ -217,7 +217,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
 
 
   @ReactMethod
-  public String getHlsPath() {
+  public void getHlsPath(Promise promise) {
     File cacheDir;
     cacheDir = mScopedContext.getCacheDirectory();
     // If Cache directory doesnt exist, create it
@@ -226,8 +226,7 @@ public class CameraModule extends ReactContextBaseJavaModule {
         mScopedContext.createCacheDirectory(context);
         cacheDir = mScopedContext.getCacheDirectory();
     }
-    Log.d("CameraCache", cacheDir.getAbsolutePath());
-    return cacheDir.getAbsolutePath();
+    promise.resolve(cacheDir.getAbsolutePath());
   }
 
 
