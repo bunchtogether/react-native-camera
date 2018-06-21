@@ -200,6 +200,12 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   }
 
   @Override
+  public void getHlsPath() {
+    // Returns the tmp directory of the recorded segments
+    return getContext().getCacheDir() + "/Camera";
+  }
+
+  @Override
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     View preview = getView();
     if (null == preview) {
