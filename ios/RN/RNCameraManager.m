@@ -211,7 +211,7 @@ RCT_REMAP_METHOD(takePicture,
 #if TARGET_IPHONE_SIMULATOR
     NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
     float quality = [options[@"quality"] floatValue];
-    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
+    NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"react-native-camera"] withExtension:@".jpg"];
     UIImage *generatedPhoto = [RNImageUtils generatePhotoOfSize:CGSizeMake(200, 200)];
     NSData *photoData = UIImageJPEGRepresentation(generatedPhoto, quality);
     response[@"uri"] = [RNImageUtils writeImage:photoData toPath:path];
