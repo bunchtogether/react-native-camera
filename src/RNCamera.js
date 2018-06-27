@@ -83,13 +83,10 @@ type PropsType = typeof View.props & {
   type?: number | string,
   onCameraReady?: Function,
   onBarCodeRead?: Function,
-<<<<<<< HEAD
   onSegment?: Function,
   onStream?: Function,
-=======
   onPictureSaved?: Function,
   onGoogleVisionBarcodesDetected?: Function,
->>>>>>> upstream/master
   faceDetectionMode?: number,
   flashMode?: number | string,
   barCodeTypes?: Array<string>,

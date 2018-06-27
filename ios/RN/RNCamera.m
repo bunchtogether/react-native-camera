@@ -420,6 +420,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 #endif
 
+
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject
 {
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
@@ -439,7 +440,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageSampleBuffer];
             
             UIImage *takenImage = [UIImage imageWithData:imageData];
-
+            
             CGImageRef takenCGImage = takenImage.CGImage;
             CGSize previewSize;
             if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation])) {
@@ -450,7 +451,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             CGRect cropRect = CGRectMake(0, 0, CGImageGetWidth(takenCGImage), CGImageGetHeight(takenCGImage));
             CGRect croppedSize = AVMakeRectWithAspectRatioInsideRect(previewSize, cropRect);
             takenImage = [RNImageUtils cropImage:takenImage toRect:croppedSize];
-
+            
             if ([options[@"mirrorImage"] boolValue]) {
                 takenImage = [RNImageUtils mirrorImage:takenImage];
             }
@@ -465,7 +466,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
             NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
-            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"react-native-camera"] withExtension:@".jpg"];
+            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
             response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
             response[@"width"] = @(takenImage.size.width);
             response[@"height"] = @(takenImage.size.height);
@@ -498,13 +499,12 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                 }
                 [RNImageUtils updatePhotoMetadata:imageSampleBuffer withAdditionalData:@{ @"Orientation": @(imageRotation) } inResponse:response]; // TODO
             }
-
+            
             if (useFastMode) {
                 [self onPictureSaved:@{@"data": response, @"id": options[@"id"]}];
             } else {
                 resolve(response);
             }
-
         } else {
             reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be captured", error);
         }
@@ -567,7 +567,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self updateSessionAudioIsMuted:!!options[@"mute"]];
     
     AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
-
     if (self.videoStabilizationMode != 0) {
         if (connection.isVideoStabilizationSupported == NO) {
             RCTLogWarn(@"%s: Video Stabilization is not supported on this device.", __func__);
@@ -576,30 +575,23 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         }
     }
     [connection setVideoOrientation:[RNCameraUtils videoOrientationForDeviceOrientation:[[UIDevice currentDevice] orientation]]];
-
+    
     if (options[@"codec"]) {
-      if (@available(iOS 10, *)) {
-        AVVideoCodecType videoCodecType = options[@"codec"];
-        if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
-          [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
-          self.videoCodecType = videoCodecType;
+        if (@available(iOS 10, *)) {
+            AVVideoCodecType videoCodecType = options[@"codec"];
+            if ([self.movieFileOutput.availableVideoCodecTypes containsObject:videoCodecType]) {
+                [self.movieFileOutput setOutputSettings:@{AVVideoCodecKey:videoCodecType} forConnection:connection];
+                self.videoCodecType = videoCodecType;
+            } else {
+                RCTLogWarn(@"%s: Video Codec '%@' is not supported on this device.", __func__, videoCodecType);
+            }
         } else {
-          RCTLogWarn(@"%s: Video Codec '%@' is not supported on this device.", __func__, videoCodecType);
-
+            RCTLogWarn(@"%s: Setting videoCodec is only supported above iOS version 10.", __func__);
         }
-        
-        dispatch_async(self.sessionQueue, ^{
-            NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingString:@"react-native-camera"] withExtension:@".mov"];
-            NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:path];
-            [self.movieFileOutput startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-            self.videoRecordedResolve = resolve;
-            self.videoRecordedReject = reject;
-        });
     }
     
     dispatch_async(self.sessionQueue, ^{
         [self updateFlashMode];
-
         NSString *path = nil;
         if (options[@"path"]) {
             path = options[@"path"];
