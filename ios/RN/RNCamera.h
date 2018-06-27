@@ -33,9 +33,12 @@
 @property (assign, nonatomic) NSInteger autoFocus;
 @property (assign, nonatomic) float focusDepth;
 @property (assign, nonatomic) NSInteger whiteBalance;
-@property (nonatomic, assign, getter=isReadingBarCodes) BOOL barCodeReading;
+@property (assign, nonatomic) AVCaptureSessionPreset pictureSize;
+@property (nonatomic, assign) BOOL isReadingBarCodes;
+@property (nonatomic, assign) BOOL isDetectingFaces;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (nonatomic, strong) KFRecorder *recorder;
+@property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
@@ -46,6 +49,7 @@
 - (void)updateBitrate:(NSInteger)bitrate;
 - (void)updateDisableVideo;
 - (void)updateWhiteBalance;
+- (void)updatePictureSize;
 - (void)updateFaceDetecting:(id)isDetectingFaces;
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
@@ -53,11 +57,15 @@
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)stopRecording;
+- (void)resumePreview;
+- (void)pausePreview;
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableSegmentCapture;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
+- (void)onPictureSaved:(NSDictionary *)event;
+
 @end
 
