@@ -118,11 +118,6 @@ const CameraStatus = {
   NOT_AUTHORIZED: 'NOT_AUTHORIZED',
 };
 
-type StateType = {
-  isAuthorized: boolean,
-  isAuthorizationChecked: boolean,
-};
-
 const CameraManager: Object = NativeModules.RNCameraManager ||
   NativeModules.RNCameraModule || {
     stubbed: true,
@@ -291,7 +286,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
   }
 
-  getAvailablePictureSizes = async (): string[] => {
+  getAvailablePictureSizes = async (): Promise<Array<string>> => {
     return await CameraManager.getAvailablePictureSizes(this.props.ratio, this._cameraHandle);
   };
 
