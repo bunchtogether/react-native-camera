@@ -881,7 +881,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             AVCaptureDeviceInput *audioDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
             
             if (error || audioDeviceInput == nil) {
-                RCTLogWarn(@"%s: %@", __func__, error);
+                #if !(TARGET_IPHONE_SIMULATOR)
+                    RCTLogWarn(@"%s: %@", __func__, error);
+                #endif
                 return;
             }
             
