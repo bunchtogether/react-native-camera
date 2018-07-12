@@ -36,22 +36,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 {
     if ((self = [super init])) {
         self.bridge = bridge;
-        self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
-        self.recorder.delegate = self;
-        self.session = self.recorder.session;
-        self.sessionQueue = self.recorder.videoQueue;
-        self.faceDetectorManager = [self createFaceDetectorManager];
-#if !(TARGET_IPHONE_SIMULATOR)
-        self.previewLayer = self.recorder.previewLayer;
-        self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        self.previewLayer.needsDisplayOnBoundsChange = YES;
-#endif
         self.paused = NO;
         self.autoFocus = RNCameraAutoFocusOn;
         self.disableVideo = NO;
-        //[self changePreviewOrientation:[UIApplication sharedApplication].statusBarOrientation];
-        //[self initializeCaptureSessionInput];
-        //[self startSession];
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(newAssetGroupCreated:)
                                                      name:NotifNewAssetGroupCreated
@@ -62,9 +49,25 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                                                    object:nil];
         
         self.segmentCaptureActive = NO;
-        [self updateSessionAudioIsMuted:NO];
     }
     return self;
+}
+
+- (void)setupSession {
+    if(self.recorder) {
+        return;
+    }
+    self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
+    self.recorder.delegate = self;
+    self.session = self.recorder.session;
+    self.sessionQueue = self.recorder.videoQueue;
+    self.faceDetectorManager = [self createFaceDetectorManager];
+#if !(TARGET_IPHONE_SIMULATOR)
+    self.previewLayer = self.recorder.previewLayer;
+    self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    self.previewLayer.needsDisplayOnBoundsChange = YES;
+#endif
+    [self updateSessionAudioIsMuted:NO];
 }
 
 - (void)onReady:(NSDictionary *)event
@@ -122,24 +125,29 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     [self stopSession];
     [super removeFromSuperview];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    dispatch_async(self.sessionQueue, ^{
+        self.recorder = nil;
+    });
 }
 
 -(void)updateBitrate:(NSInteger)bitrate {
     if(!_segmentCapture) {
         return;
     }
-    if(!_recorder) {
+    [self setupSession];
+    if(!self.recorder) {
         return;
     }
-    if(!_recorder.h264Encoder) {
+    if(!self.recorder.h264Encoder) {
         return;
     }
-    [_recorder.h264Encoder setBitrate:(int)bitrate];
-    _recorder.videoBitrate = bitrate;
+    [self.recorder.h264Encoder setBitrate:(int)bitrate];
+    self.recorder.videoBitrate = bitrate;
 }
 
 -(void)updateType
 {
+    [self setupSession];
     if(_segmentCaptureActive) {
         [self.recorder stopRecording];
     }
@@ -158,6 +166,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self startSession];
         }
         if(_segmentCaptureActive) {
+            RCTLog(@"startRecording");
             [self.recorder startRecording];
         }
     });
@@ -179,7 +188,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (void)updateFlashMode
-{
+{    
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
     
@@ -394,7 +403,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 }
 
 - (void)updatePictureSize
-{
+{    
     [self updateSessionPreset:self.pictureSize];
 }
 
@@ -628,6 +637,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)startSession
 {
+    RCTLog(@"startSession");
 #if TARGET_IPHONE_SIMULATOR
     return;
 #endif
@@ -689,7 +699,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         for (AVCaptureInput *input in self.session.inputs) {
             [self.session removeInput:input];
         }
-        
         for (AVCaptureOutput *output in self.session.outputs) {
             [self.session removeOutput:output];
         }
