@@ -166,7 +166,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self startSession];
         }
         if(_segmentCaptureActive) {
-            RCTLog(@"startRecording");
             [self.recorder startRecording];
         }
     });
@@ -637,7 +636,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)startSession
 {
-    RCTLog(@"startSession");
 #if TARGET_IPHONE_SIMULATOR
     return;
 #endif
@@ -932,7 +930,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)orientationChanged:(NSNotification *)notification
 {
-    RCTLog(@"Orientation change.");
     if(_segmentCaptureActive) {
         [self.recorder stopRecording];
     }
