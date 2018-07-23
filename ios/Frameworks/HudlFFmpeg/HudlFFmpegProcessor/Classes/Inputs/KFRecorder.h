@@ -30,7 +30,6 @@ extern NSString *const SegmentManifestName;
 
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
-@property (nonatomic, strong) AVCaptureDevice *videoDevice;
 @property (nonatomic, strong, readonly) AVCaptureConnection *videoConnection;
 
 @property (nonatomic, strong) KFAACEncoder *aacEncoder;
@@ -58,7 +57,6 @@ extern NSString *const SegmentManifestName;
 - (void)setupVideoCapture;
 - (void)setupSession;
 - (double)durationRecorded;
-- (void)cleanUpCameraInputAndOutput;
-
+- (void)invalidate;
 @end
 

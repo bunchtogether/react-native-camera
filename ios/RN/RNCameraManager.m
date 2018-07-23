@@ -9,6 +9,12 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 
+@interface RNCameraManager ()
+
+@property (nonatomic, strong) RNCamera *camera;
+
+@end
+
 @implementation RNCameraManager
 
 RCT_EXPORT_MODULE(RNCameraManager);
@@ -27,7 +33,8 @@ RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
 
 - (UIView *)view
 {
-    return [[RNCamera alloc] initWithBridge:self.bridge];
+    self.camera = [[RNCamera alloc] initWithBridge:self.bridge];
+    return self.camera;
 }
 
 - (NSDictionary *)constantsToExport

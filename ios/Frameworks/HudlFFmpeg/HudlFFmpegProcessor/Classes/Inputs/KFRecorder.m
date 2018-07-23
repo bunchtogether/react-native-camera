@@ -87,6 +87,11 @@ static int32_t fragmentOrder;
     return self;
 }
 
+- (void)dealloc
+{
+    NSLog(@"KFRecorder dealloc");
+}
+
 - (AVCaptureDevice *)audioDevice
 {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
@@ -180,7 +185,7 @@ static int32_t fragmentOrder;
         [manifestLines replaceObjectAtIndex:1 withObject:@"#EXT-X-VERSION:6"];
         [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.0" atIndex: 4];
         manifest = [manifestLines componentsJoinedByString:@"\n"];
-
+        
         NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"playlist-%ld.m3u8", [[NSDate date] timeIntervalSince1970]]];
         [manifest writeToFile:updatedManifestPath
                    atomically:NO
@@ -233,10 +238,10 @@ static int32_t fragmentOrder;
     self.hlsDirectoryPath = hlsDirectoryPath;
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
     [self setupEncoders];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:hlsDirectoryPath delegate:self];
-    });
-    self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath segmentCount:self.segmentIndex];
+    
+    self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:[hlsDirectoryPath copy] delegate:self];
+    
+    self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:[hlsDirectoryPath copy] segmentCount:self.segmentIndex];
     [self.hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
     [self.hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];
     self.activeVideoDisabled = self.disableVideo;
@@ -254,6 +259,32 @@ static int32_t fragmentOrder;
     self.aacEncoder = [[KFAACEncoder alloc] initWithBitrate:self.audioBitrate sampleRate:self.audioSampleRate channels:1];
     self.aacEncoder.delegate = self;
     self.aacEncoder.addADTSHeader = YES;
+}
+
+
+- (void)invalidate
+{
+    if(self.h264Encoder) {
+        self.h264Encoder.delegate = nil;
+    }
+    if(self.aacEncoder) {
+        self.aacEncoder.delegate = nil;
+    }
+    if(self.directoryWatcher) {
+        self.directoryWatcher.delegate = nil;
+    }
+    if (self.fileMonitorSource) {
+        dispatch_source_cancel(self.fileMonitorSource);
+    }
+    self.videoConnection = nil;
+    self.audioConnection = nil;
+    self.audioOutput = nil;
+    self.videoOutput = nil;
+    self.h264Encoder = nil;
+    self.aacEncoder = nil;
+    self.hlsWriter = nil;
+    self.fileMonitorSource = nil;
+    self.directoryWatcher = nil;
 }
 
 - (void)setupAudioCapture
@@ -297,14 +328,6 @@ static int32_t fragmentOrder;
     }
     self.videoConnection = [self.videoOutput connectionWithMediaType:AVMediaTypeVideo];
     self.isVideoCaptureSetup = YES;
-}
-
-- (void)cleanUpCameraInputAndOutput
-{
-    [self.session removeOutput:self.videoOutput];
-    [self.session removeOutput:self.audioOutput];
-    [self.session removeInput:self.videoInput];
-    [self.session removeInput:self.audioInput];
 }
 
 #pragma mark KFEncoderDelegate method
@@ -359,7 +382,6 @@ static int32_t fragmentOrder;
 
 - (void)setupSession
 {
-    _videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     self.session = [[AVCaptureSession alloc] init];
     //[self setupVideoCapture];
     //[self setupAudioCapture];
@@ -406,7 +428,9 @@ static int32_t fragmentOrder;
 {
     [self.h264Encoder clearBitrateChange];
     dispatch_async(self.videoQueue, ^{ // put this on video queue so we don't accidentially write a frame while closing.
+        self.directoryWatcher.delegate = nil;
         self.directoryWatcher = nil;
+        
         NSError *error = nil;
         [self.hlsWriter finishWriting:&error];
         if (error)
@@ -442,4 +466,5 @@ static int32_t fragmentOrder;
 }
 
 @end
+
 
