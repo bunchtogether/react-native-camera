@@ -238,9 +238,9 @@ static int32_t fragmentOrder;
     self.hlsDirectoryPath = hlsDirectoryPath;
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
     [self setupEncoders];
-    
-    self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:[hlsDirectoryPath copy] delegate:self];
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:[hlsDirectoryPath copy] delegate:self];
+    });
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:[hlsDirectoryPath copy] segmentCount:self.segmentIndex];
     [self.hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
     [self.hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];

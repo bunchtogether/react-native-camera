@@ -37,17 +37,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if ((self = [super init])) {
         self.bridge = bridge;
         self.paused = NO;
-        self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
-        self.recorder.delegate = self;
-        self.session = self.recorder.session;
-        self.sessionQueue = self.recorder.videoQueue;
-        self.faceDetectorManager = [self createFaceDetectorManager];
-#if !(TARGET_IPHONE_SIMULATOR)
-        self.previewLayer = self.recorder.previewLayer;
-        self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        self.previewLayer.needsDisplayOnBoundsChange = YES;
-#endif
-        [self updateSessionAudioIsMuted:NO];
         self.autoFocus = RNCameraAutoFocusOn;
         self.disableVideo = NO;
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -63,6 +52,24 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     return self;
 }
+
+- (void)setupSession {
+    if(self.recorder) {
+        return;
+    }
+    self.recorder = [KFRecorder recorderWithName:@"react-native-camera"];
+    self.recorder.delegate = self;
+    self.session = self.recorder.session;
+    self.sessionQueue = self.recorder.videoQueue;
+    self.faceDetectorManager = [self createFaceDetectorManager];
+#if !(TARGET_IPHONE_SIMULATOR)
+    self.previewLayer = self.recorder.previewLayer;
+    self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    self.previewLayer.needsDisplayOnBoundsChange = YES;
+#endif
+    [self updateSessionAudioIsMuted:NO];
+}
+
 
 - (void)onReady:(NSDictionary *)event
 {
@@ -135,6 +142,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     if(!_segmentCapture) {
         return;
     }
+    [self setupSession];
     if(!self.recorder) {
         return;
     }
@@ -147,6 +155,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 -(void)updateType
 {
+    [self setupSession];
     if(_segmentCaptureActive) {
         [self.recorder stopRecording];
     }
