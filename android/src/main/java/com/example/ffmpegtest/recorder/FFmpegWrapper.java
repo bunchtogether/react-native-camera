@@ -63,7 +63,8 @@ public class FFmpegWrapper {
         public int audioSampleRate = 44100;
         public int numAudioChannels = 1;
 
-        public int hlsSegmentDurationSec = 10;
+        public int hlsSegmentDurationSec = 2;
+        public int hlsListSize = 5;
     }
 
 }

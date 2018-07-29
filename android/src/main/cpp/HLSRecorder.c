@@ -30,7 +30,8 @@
 // Output
 const char *outputPath;
 const char *outputFormatName = "hls";
-int hlsSegmentDurationSec = 10;
+int hlsSegmentDurationSec = 2;
+int hlsListSize = 5;
 int audioStreamIndex = -1;
 int videoStreamIndex = -1;
 
@@ -186,13 +187,17 @@ JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_prepar
 	outputPath = (*env)->GetStringUTFChars(env, jOutputPath, NULL);
 
 	outputFormatContext = avFormatContextForOutputPath(outputPath, outputFormatName);
+	int64_t flags;
 
 	// For manually crafting AVFormatContext
     if (VIDEO_WIDTH > 0 && VIDEO_HEIGHT > 0)
 		addVideoStream(outputFormatContext);
 	addAudioStream(outputFormatContext);
+	// iOS version uses defaults of hls_time 2 and hls_list_size 5
 	av_opt_set_int(outputFormatContext->priv_data, "hls_time", hlsSegmentDurationSec, 0);
-	av_opt_set_int(outputFormatContext->priv_data, "hls_list_size", 0, 0);
+	av_opt_set_int(outputFormatContext->priv_data, "hls_list_size", hlsListSize, 0);
+	av_opt_set_int(outputFormatContext->priv_data, "hls_delete_threshold", 1, 0);
+	av_opt_set(outputFormatContext->priv_data, "hls_flags", "+delete_segments", 0);
 
 	int result = openFileForWriting(outputFormatContext, outputPath);
 	if (result < 0)
@@ -217,6 +222,7 @@ JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_setAVO
 	jfieldID jNumAudioChannelsId = (*env)->GetFieldID(env, ClassAVOptions, "numAudioChannels", "I");
 
 	jfieldID jHlsSegmentDurationSec = (*env)->GetFieldID(env, ClassAVOptions, "hlsSegmentDurationSec", "I");
+	jfieldID jHlsListSize = (*env)->GetFieldID(env, ClassAVOptions, "hlsListSize", "I");
 
 	// 3: Get the Java object field values with the field ids!
 	VIDEO_HEIGHT = (*env)->GetIntField(env, jOpts, jVideoHeightId);
@@ -226,6 +232,7 @@ JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_setAVO
 	AUDIO_CHANNELS = (*env)->GetIntField(env, jOpts, jNumAudioChannelsId);
 
 	hlsSegmentDurationSec = (*env)->GetIntField(env, jOpts, jHlsSegmentDurationSec);
+	hlsListSize = (*env)->GetIntField(env, jOpts, jHlsListSize);
 
 	if (VIDEO_WIDTH == 0 && VIDEO_HEIGHT == 0)
         VIDEO_CODEC_ID = AV_CODEC_ID_NONE;
