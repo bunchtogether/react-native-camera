@@ -210,7 +210,8 @@ static int32_t fragmentOrder;
                                        @"audioBitrate": @((NSInteger) self.audioBitrate),
                                        @"videoBitrate": self.activeVideoDisabled ? @0 : @((NSInteger) self.videoBitrate),
                                        @"duration": [NSNumber numberWithDouble:self.currentSegmentDuration],
-                                       @"id": [NSString stringWithString: _activeStreamId]
+                                       @"id": [NSString stringWithString: _activeStreamId],
+                                       @"complete": @(synchronously)
                                        };
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NotifNewAssetGroupCreated object:fragment];
