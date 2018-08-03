@@ -19,7 +19,7 @@ import java.util.Scanner;
 
 public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
-    private final boolean VERBOSE = true; 						// lots of logging
+    private final boolean VERBOSE = false; 						// lots of logging
 
     private HLSFileObserver observer; // needs to be class level so it isn't garbage collected
     private CameraView cameraView;
@@ -58,7 +58,7 @@ public class LiveHLSRecorder extends HLSRecorder{
             @Override
             public void onManifestUpdated(String path) {
                 if (VERBOSE) Log.i(TAG, ".m3u8 written: " + path);
-                sendSegmentEvent(path, lastTSPath, getDuration(path));
+                sendSegmentEvent(path, lastTSPath, getDuration(path), stopAfterNextEvent);
 
                 if (stopAfterNextEvent) {
                     if (VERBOSE) Log.i(TAG, "Stopped watching " + getOutputDirectory() + " for changes");
@@ -107,7 +107,7 @@ public class LiveHLSRecorder extends HLSRecorder{
     }
 
     private int fragmentOrder = 1;
-    private void sendSegmentEvent(String manifestPath, String tsPath, double duration) {
+    private void sendSegmentEvent(String manifestPath, String tsPath, double duration, boolean isComplete) {
         WritableMap event2 = Arguments.createMap();
         event2.putString("id", getUUID());
         event2.putInt("order", fragmentOrder++);
@@ -119,8 +119,9 @@ public class LiveHLSRecorder extends HLSRecorder{
         event2.putInt("audioBitrate", AUDIO_BIT_RATE);
         event2.putInt("videoBitrate", VIDEO_BIT_RATE);
         event2.putDouble("duration", duration);
+        event2.putBoolean("complete", isComplete);
 
-        if (VERBOSE) Log.i("LiveHLSRecorder", "sending event for ts file " + tsPath + " manifest " + manifestPath);
+        if (VERBOSE) Log.i(TAG, "sending event for ts file " + tsPath + " manifest " + manifestPath);
         RNCameraViewHelper.emitSegmentEvent(cameraView, event2);
     }
 
