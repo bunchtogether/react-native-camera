@@ -150,7 +150,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         return;
     }
     [self.recorder.h264Encoder setBitrate:(int)bitrate];
-    self.recorder.videoBitrate = bitrate;
+    self.recorder.videoBitrate = (int)bitrate;
 }
 
 -(void)updateType
@@ -947,6 +947,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 - (void)orientationChanged:(NSNotification *)notification
 {
+    AVCaptureVideoOrientation orientation = [RNCameraUtils videoOrientationForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    if(self.previewLayer && self.previewLayer.connection && self.previewLayer.connection.videoOrientation == orientation) {
+        return;
+    }
     if(_segmentCaptureActive) {
         [self.recorder stopRecording];
     }
@@ -958,18 +962,16 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             }
         });
     }
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     [self changePreviewOrientation:orientation];
 }
 
-- (void)changePreviewOrientation:(UIInterfaceOrientation)orientation
+- (void)changePreviewOrientation:(AVCaptureVideoOrientation)orientation
 {
     __weak typeof(self) weakSelf = self;
-    AVCaptureVideoOrientation videoOrientation = [RNCameraUtils videoOrientationForInterfaceOrientation:orientation];
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong typeof(self) strongSelf = weakSelf;
         if (strongSelf && strongSelf.previewLayer.connection.isVideoOrientationSupported) {
-            [strongSelf.previewLayer.connection setVideoOrientation:videoOrientation];
+            [strongSelf.previewLayer.connection setVideoOrientation:orientation];
         }
     });
 }
