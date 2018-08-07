@@ -139,6 +139,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 
 -(void)updateBitrate:(NSInteger)bitrate {
+    self.userDefinedBitrate = bitrate;
     if(!_segmentCapture) {
         return;
     }
@@ -151,6 +152,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     }
     [self.recorder.h264Encoder setBitrate:(int)bitrate];
     self.recorder.videoBitrate = (int)bitrate;
+    NSLog(@"Setting bitrate: %li", (long)self.userDefinedBitrate);
 }
 
 -(void)updateType
@@ -856,6 +858,10 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                         self.recorder.videoHeight = 720;
                         self.recorder.videoBitrate = 2097152 / 2;
                     }
+                }
+                if(self.userDefinedBitrate) {
+                    RCTLog(@"Using user defined bitrate: %li", (long)self.userDefinedBitrate);
+                    self.recorder.videoBitrate = (int)self.userDefinedBitrate;
                 }
                 [self.recorder setupVideoCapture];
                 AVCaptureConnection *connection = [self.recorder.videoOutput connectionWithMediaType:AVMediaTypeVideo];
