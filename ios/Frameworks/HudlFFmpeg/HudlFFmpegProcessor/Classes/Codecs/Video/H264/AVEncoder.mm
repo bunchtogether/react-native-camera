@@ -247,7 +247,7 @@ static unsigned int to_host(unsigned char* p)
                     _currentFile = 1;
                 }
                 //NSLog(@"Swap to file %d", _currentFile);
-                
+                _writer = [VideoEncoder encoderForPath:[self makeFilename] height:_height width:_width bitrate:self.bitrate];
                 if (_readSource) {
                     // to do this seamlessly requires a few steps in the right order
                     // first, suspend the read source
@@ -258,7 +258,6 @@ static unsigned int to_host(unsigned char* p)
                         // since we don't yet know where the mdat ends
                         _readSource = nil;
                         [oldVideo finishWithCompletionHandler:^{
-                            _writer = [VideoEncoder encoderForPath:[self makeFilename] height:_height width:_width bitrate:self.bitrate];
                             [self swapFiles:oldVideo.path];
                         }];
                     });
