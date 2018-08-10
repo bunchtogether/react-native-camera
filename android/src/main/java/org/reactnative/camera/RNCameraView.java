@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -159,9 +160,11 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
               @Override
               public void onStopped() {
                 mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+                mFrameSender = new FrameSender();
                 setCaptureSegments(true);
               }
             });
+            return;
           }
 
           if (!isVideoDisabled()) {
