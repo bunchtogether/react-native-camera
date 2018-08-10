@@ -245,6 +245,11 @@ static int32_t fragmentOrder;
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:[hlsDirectoryPath copy] segmentCount:self.segmentIndex];
     [self.hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
     [self.hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];
+    
+    self.hlsWriter.videoStream.stream->codec->bit_rate = self.videoBitrate;
+    self.hlsWriter.videoStream.stream->codec->rc_max_rate = self.videoBitrate;
+    self.hlsWriter.videoStream.stream->codec->rc_buffer_size = self.videoBitrate / 2;
+    
     self.activeVideoDisabled = self.disableVideo;
     if(self.disableVideo) {
         [self.hlsWriter disableVideo];
@@ -423,6 +428,17 @@ static int32_t fragmentOrder;
         self.isRecording = YES;
     });
     
+}
+
+- (void)updateBitrate:(int)bitrate {
+    dispatch_async(self.videoQueue, ^{
+        [self.h264Encoder setBitrate:bitrate];
+        self.videoBitrate = bitrate;
+        self.hlsWriter.videoStream.stream->codec->bit_rate = bitrate;
+        self.hlsWriter.videoStream.stream->codec->rc_max_rate = bitrate;
+        self.hlsWriter.videoStream.stream->codec->rc_buffer_size = bitrate / 2;
+        NSLog(@"Setting bitrate: %li", bitrate);
+    });
 }
 
 - (void)stopRecording

@@ -58,5 +58,6 @@ extern NSString *const SegmentManifestName;
 - (void)setupSession;
 - (double)durationRecorded;
 - (void)invalidate;
+- (void)updateBitrate:(int)bitrate;
 @end
 

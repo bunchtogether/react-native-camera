@@ -7,6 +7,7 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 #import "KFRecorder.h"
+#import "KFHLSWriter.h"
 
 @interface RNCamera ()
 
@@ -139,20 +140,39 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 
 
 -(void)updateBitrate:(NSInteger)bitrate {
+    
     self.userDefinedBitrate = bitrate;
+    
     if(!_segmentCapture) {
         return;
     }
+    
     [self setupSession];
+    
     if(!self.recorder) {
         return;
     }
+    
+    if(self.recorder.videoBitrate == bitrate) {
+        return;
+    }
+    
     if(!self.recorder.h264Encoder) {
         return;
     }
-    [self.recorder.h264Encoder setBitrate:(int)bitrate];
-    self.recorder.videoBitrate = (int)bitrate;
-    NSLog(@"Setting bitrate: %li", (long)self.userDefinedBitrate);
+    
+    if(!self.recorder.hlsWriter) {
+        return;
+    }
+    
+    if(_segmentCaptureActive) {
+        [self.recorder stopRecording];
+        [self.recorder updateBitrate:(int)bitrate];
+        [self.recorder startRecording];
+    } else {
+        [self.recorder updateBitrate:(int)bitrate];
+    }
+    
 }
 
 -(void)updateType
@@ -810,53 +830,53 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                     if(preset == AVCaptureSessionPresetHigh || preset == AVCaptureSessionPresetPhoto) {
                         self.recorder.videoWidth = 720;
                         self.recorder.videoHeight = 1280;
-                        self.recorder.videoBitrate = 4194304 / 2;
+                        self.recorder.videoBitrate = 4194304 / 4;
                     } else if(preset == AVCaptureSessionPresetMedium) {
                         self.recorder.videoWidth = 360;
                         self.recorder.videoHeight = 480;
-                        self.recorder.videoBitrate = 1572864 / 2;
+                        self.recorder.videoBitrate = 1572864 / 4;
                     } else if(preset == AVCaptureSessionPresetLow) {
                         self.recorder.videoWidth = 144;
                         self.recorder.videoHeight = 192;
-                        self.recorder.videoBitrate = 524288 / 2;
+                        self.recorder.videoBitrate = 524288 / 4;
                     } else if(preset == AVCaptureSessionPreset1920x1080) {
                         self.recorder.videoWidth = 1080;
                         self.recorder.videoHeight = 1920;
-                        self.recorder.videoBitrate = 8388608 / 2;
+                        self.recorder.videoBitrate = 8388608 / 4;
                     } else if(preset == AVCaptureSessionPreset1280x720) {
                         self.recorder.videoWidth = 720;
                         self.recorder.videoHeight = 1280;
-                        self.recorder.videoBitrate = 4194304 / 2;
+                        self.recorder.videoBitrate = 4194304 / 4;
                     } else if(preset == AVCaptureSessionPreset640x480) {
                         self.recorder.videoWidth = 480;
                         self.recorder.videoHeight = 640;
-                        self.recorder.videoBitrate = 2097152 / 2;
+                        self.recorder.videoBitrate = 2097152 / 4;
                     }
                 } else {
                     if(preset == AVCaptureSessionPresetHigh || preset == AVCaptureSessionPresetPhoto) {
                         self.recorder.videoWidth = 1280;
                         self.recorder.videoHeight = 720;
-                        self.recorder.videoBitrate = 4194304 / 2;
+                        self.recorder.videoBitrate = 4194304 / 4;
                     } else if(preset == AVCaptureSessionPresetMedium) {
                         self.recorder.videoWidth = 480;
                         self.recorder.videoHeight = 360;
-                        self.recorder.videoBitrate = 1572864 / 2;
+                        self.recorder.videoBitrate = 1572864 / 4;
                     } else if(preset == AVCaptureSessionPresetLow) {
                         self.recorder.videoWidth = 192;
                         self.recorder.videoHeight = 144;
-                        self.recorder.videoBitrate = 524288 / 2;
+                        self.recorder.videoBitrate = 524288 / 4;
                     } else if(preset == AVCaptureSessionPreset1920x1080) {
                         self.recorder.videoWidth = 1920;
                         self.recorder.videoHeight = 1080;
-                        self.recorder.videoBitrate = 8388608 / 2;
+                        self.recorder.videoBitrate = 8388608 / 4;
                     } else if(preset == AVCaptureSessionPreset1280x720) {
                         self.recorder.videoWidth = 1280;
                         self.recorder.videoHeight = 720;
-                        self.recorder.videoBitrate = 4194304 / 2;
+                        self.recorder.videoBitrate = 4194304 / 4;
                     } else if(preset == AVCaptureSessionPreset640x480) {
                         self.recorder.videoWidth = 640;
                         self.recorder.videoHeight = 720;
-                        self.recorder.videoBitrate = 2097152 / 2;
+                        self.recorder.videoBitrate = 2097152 / 4;
                     }
                 }
                 if(self.userDefinedBitrate) {

@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import "FFOutputFile.h"
 
 @interface KFHLSWriter : NSObject
 
 @property (nonatomic, copy, readonly) NSString *manifestPath;
 @property (nonatomic) dispatch_queue_t conversionQueue;
 @property (nonatomic, strong, readonly) NSString *directoryPath;
+@property (nonatomic, strong) FFOutputStream *videoStream;
 
 - (id)initWithDirectoryPath:(NSString *)directoryPath segmentCount:(NSUInteger)segmentCount;
 

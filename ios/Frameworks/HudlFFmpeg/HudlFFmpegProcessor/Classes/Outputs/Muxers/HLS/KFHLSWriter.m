@@ -19,7 +19,6 @@
 @interface KFHLSWriter ()
 
 @property (nonatomic, strong) FFOutputFile *outputFile;
-@property (nonatomic, strong) FFOutputStream *videoStream;
 @property (nonatomic, strong) FFOutputStream *audioStream;
 @property (nonatomic) AVPacket *packet;
 @property (nonatomic) AVRational videoTimeBase;
@@ -54,7 +53,7 @@
         _videoTimeBase.den = 1000000000;
         _audioTimeBase.num = 1;
         _audioTimeBase.den = 1000000000;
-        _segmentDurationSeconds = 2;
+        _segmentDurationSeconds = 3;
         [self setupOutputFileSegmentCount:segmentCount];
         _conversionQueue = dispatch_queue_create("HLS Write queue", DISPATCH_QUEUE_SERIAL);
     }
@@ -83,7 +82,9 @@
     _videoStream.stream->time_base.num = 1;
 
     [_videoStream setupVideoContextWithWidth:width height:height];
-    _videoStream.stream->codec->bit_rate = 3 * 1024 * 1024; // 3 mbps
+    _videoStream.stream->codec->bit_rate = 1024 * 1024; // 1 mbps
+    _videoStream.stream->codec->rc_max_rate = 1024 * 1024;
+    _videoStream.stream->codec->rc_buffer_size = 1024 * 1024 / 2;
     _videoStream.stream->codec->gop_size = 60;
     
     FFBitstreamFilter *bitstreamFilter = [[FFBitstreamFilter alloc] initWithFilterName:@"h264_mp4toannexb"];
@@ -95,6 +96,7 @@
     NSLog(@"hls_init_time %i", ret);
     ret = av_opt_set_int(_outputFile.formatContext->priv_data, "hls_list_size", 0, AV_OPT_SEARCH_CHILDREN);
     NSLog(@"hls_list_size %i", ret);
+    
 }
 
 - (void)addAudioStreamWithSampleRate:(int)sampleRate
