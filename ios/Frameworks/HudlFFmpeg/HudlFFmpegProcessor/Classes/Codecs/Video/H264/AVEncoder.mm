@@ -257,9 +257,11 @@ static unsigned int to_host(unsigned char* p)
                         // finish the file, writing moov, before reading any more from the file
                         // since we don't yet know where the mdat ends
                         _readSource = nil;
-                        [oldVideo finishWithCompletionHandler:^{
-                            [self swapFiles:oldVideo.path];
-                        }];
+                        @synchronized(self) {
+                            [oldVideo finishWithCompletionHandler:^{
+                                [self swapFiles:oldVideo.path];
+                            }];
+                        }
                     });
                 } else {
                     [self swapFiles:oldVideo.path];
