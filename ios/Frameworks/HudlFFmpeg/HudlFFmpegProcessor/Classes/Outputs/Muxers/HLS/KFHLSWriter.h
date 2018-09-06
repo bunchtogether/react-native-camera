@@ -17,7 +17,7 @@
 @property (nonatomic, strong, readonly) NSString *directoryPath;
 @property (nonatomic, strong) FFOutputStream *videoStream;
 
-- (id)initWithDirectoryPath:(NSString *)directoryPath segmentCount:(NSUInteger)segmentCount;
+- (id)initWithDirectoryPath:(NSString *)directoryPath segmentCount:(NSUInteger)segmentCount keyInfoPath:(NSString *)keyInfoPath;
 
 - (void) disableVideo;
 - (void) enableVideo;

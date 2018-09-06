@@ -40,6 +40,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.paused = NO;
         self.autoFocus = RNCameraAutoFocusOn;
         self.disableVideo = NO;
+        self.keyUrlFormat = @"playlist.key";
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(newAssetGroupCreated:)
                                                      name:NotifNewAssetGroupCreated
@@ -201,11 +202,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     });
 }
 
-- (void)recorderDidStartRecording:recorder error:(NSError *)error activeStreamId:(NSString *)activeStreamId {
+- (void)recorderDidStartRecording:recorder error:(NSError *)error activeStreamId:(NSString *)activeStreamId keyPath:(NSString *)keyPath {
     if (error) {
         RCTLogError(@"%s: %@", __func__, error);
     } else {
-        NSDictionary *streamEvent = @{@"success" : @YES, @"id": activeStreamId};
+        NSDictionary *streamEvent = @{@"success" : @YES, @"id": activeStreamId, @"keyPath": keyPath};
         _onStream(streamEvent);
     }
 }
@@ -440,6 +441,11 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
 - (void)updatePictureSize
 {
     [self updateSessionPreset:self.pictureSize];
+}
+
+- (void)updateKeyUrlFormat
+{
+    self.recorder.keyUrlFormat = self.keyUrlFormat;
 }
 
 #if __has_include(<GoogleMobileVision/GoogleMobileVision.h>)
@@ -783,6 +789,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             [self updateFocusMode];
             [self updateFocusDepth];
             [self updateWhiteBalance];
+            [self updateKeyUrlFormat];
             [self.previewLayer.connection setVideoOrientation:orientation];
             [self _updateMetadataObjectsToRecognize];
         }

@@ -103,6 +103,7 @@ type PropsType = typeof View.props & {
   playSoundOnCapture?: boolean,
   videoStabilizationMode?: number | string,
   pictureSize?: string,
+  keyUrlFormat?: string,
 };
 
 type StateType = {
@@ -210,6 +211,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     playSoundOnCapture: PropTypes.bool,
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     pictureSize: PropTypes.string,
+    keyUrlFormat: PropTypes.string,
   };
 
   static defaultProps: Object = {

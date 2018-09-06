@@ -35,6 +35,7 @@
 @property (assign, nonatomic) float focusDepth;
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (assign, nonatomic) AVCaptureSessionPreset pictureSize;
+@property (nonatomic, copy) NSString *keyUrlFormat;
 @property (nonatomic, assign) BOOL isReadingBarCodes;
 @property (nonatomic, assign) BOOL isDetectingFaces;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
@@ -55,6 +56,7 @@
 - (void)updateFaceDetectionMode:(id)requestedMode;
 - (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
+- (void)updateKeyUrlFormat;
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)stopRecording;

@@ -169,6 +169,12 @@ RCT_CUSTOM_VIEW_PROPERTY(type, NSInteger, RNCamera)
     }
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(keyUrlFormat, NSString *, RNCamera)
+{
+    [view setKeyUrlFormat:[RCTConvert NSString:json]];
+    [view updateKeyUrlFormat];
+}
+
 RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RNCamera)
 {
     [view setFlashMode:[RCTConvert NSInteger:json]];

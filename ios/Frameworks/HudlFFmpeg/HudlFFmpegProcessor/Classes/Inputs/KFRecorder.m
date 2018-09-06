@@ -40,6 +40,7 @@ static int32_t fragmentOrder;
 @property (nonatomic, strong) dispatch_queue_t scanningQueue;
 @property (nonatomic, strong) dispatch_source_t fileMonitorSource;
 
+@property (nonatomic, copy) NSString *keyPath;
 @property (nonatomic, copy) NSString *activeStreamId;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *folderName;
@@ -76,7 +77,7 @@ static int32_t fragmentOrder;
     self.videoWidth = 720;
     self.audioBitrate = 128 * 1024; // 128 Kbps
     self.videoBitrate = 3 * 1024 * 1024; // 3 Mbps
-    
+    self.keyUrlFormat = @"playlist.key";
     [self setupSession];
     self.processedFragments = [NSMutableSet new];
     self.scanningQueue = dispatch_queue_create("fsScanner", DISPATCH_QUEUE_SERIAL);
@@ -191,7 +192,7 @@ static int32_t fragmentOrder;
         [manifestLines insertObject:@"#EXT-X-ALLOW-CACHE:YES" atIndex: 4];
         [manifestLines insertObject:@"#EXT-X-START:TIME-OFFSET=0.0,PRECISE=YES" atIndex: 4];
         manifest = [manifestLines componentsJoinedByString:@"\n"];        
-        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"playlist-%ld.m3u8", [[NSDate date] timeIntervalSince1970]]];
+        NSString *updatedManifestPath = [self.hlsDirectoryPath stringByAppendingPathComponent:[NSString stringWithFormat:@"playlist-%f.m3u8", [[NSDate date] timeIntervalSince1970]]];
         [manifest writeToFile:updatedManifestPath
                    atomically:NO
                      encoding:NSUTF8StringEncoding
@@ -244,10 +245,17 @@ static int32_t fragmentOrder;
     self.hlsDirectoryPath = hlsDirectoryPath;
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
     [self setupEncoders];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:[hlsDirectoryPath copy] delegate:self];
-    });
-    self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:[hlsDirectoryPath copy] segmentCount:self.segmentIndex];
+    unsigned char buf[16];
+    arc4random_buf(buf, sizeof(buf));
+    NSData *key = [NSData dataWithBytes:buf length:sizeof(buf)];
+    self.keyPath = [self.hlsDirectoryPath stringByAppendingPathComponent:@"playlist.key"];
+    [key writeToFile:self.keyPath options:NSDataWritingAtomic error:nil];
+    NSString *keyUrl = [self.keyUrlFormat stringByReplacingOccurrencesOfString:@"{id}"
+                                                                    withString:self.activeStreamId];
+    NSString *keyInfo = [NSString stringWithFormat:@"%@\n%@", keyUrl, self.keyPath];
+    NSString *keyInfoPath = [self.hlsDirectoryPath stringByAppendingPathComponent:@"key-info.txt"];
+    [keyInfo writeToFile:keyInfoPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:[hlsDirectoryPath copy] segmentCount:self.segmentIndex keyInfoPath:keyInfoPath];
     [self.hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
     [self.hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];
     
@@ -259,6 +267,11 @@ static int32_t fragmentOrder;
     if(self.disableVideo) {
         [self.hlsWriter disableVideo];
     }
+    dispatch_async(self.videoQueue, ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.directoryWatcher = [HudlDirectoryWatcher watchFolderWithPath:[hlsDirectoryPath copy] delegate:self];
+        });
+    });
 }
 
 - (void)setupEncoders
@@ -420,14 +433,12 @@ static int32_t fragmentOrder;
         self.segmentIndex++;
         NSError *error = nil;
         [self.hlsWriter prepareForWriting:&error];
-        if (error)
-        {
+        if (error) {
             NSLog(@"Error preparing for writing: %@", error);
         }
-        if (self.delegate && [self.delegate respondsToSelector:@selector(recorderDidStartRecording:error:activeStreamId:)])
-        {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(recorderDidStartRecording:error:activeStreamId:keyPath:)]) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate recorderDidStartRecording:self error:error activeStreamId:self.activeStreamId];
+                [self.delegate recorderDidStartRecording:self error:error activeStreamId:self.activeStreamId keyPath:self.keyPath];
             });
         }
         self.isRecording = YES;
