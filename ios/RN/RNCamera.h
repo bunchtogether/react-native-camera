@@ -10,9 +10,19 @@
 #import "RNFaceDetectorManagerStub.h"
 #endif
 
+#if __has_include("TextDetectorManager.h")
+#import "TextDetectorManager.h"
+#else
+#import "TextDetectorManagerStub.h"
+#endif
+
 @class RNCamera;
 
+<<<<<<< HEAD
 @interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, KFRecorderDelegate>
+=======
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
+>>>>>>> ace99ff83fcf494267c5817da293033c9cc9f194
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
@@ -20,6 +30,7 @@
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
 @property(nonatomic, strong) AVCaptureMetadataOutput *metadataOutput;
+@property(nonatomic, strong) AVCaptureVideoDataOutput *videoDataOutput;
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
@@ -38,6 +49,7 @@
 @property (nonatomic, copy) NSString *keyUrlFormat;
 @property (nonatomic, assign) BOOL isReadingBarCodes;
 @property (nonatomic, assign) BOOL isDetectingFaces;
+@property (nonatomic, assign) BOOL canReadText;
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (nonatomic, strong) KFRecorder *recorder;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
@@ -64,11 +76,13 @@
 - (void)pausePreview;
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableSegmentCapture;
+- (void)setupOrDisableTextDetector;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
 - (void)onFacesDetected:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
+- (void)onText:(NSDictionary *)event;
 
 @end
 

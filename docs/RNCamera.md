@@ -336,7 +336,7 @@ Classification is determining whether a certain facial characteristic is present
 
 ### Text Recognition Related props
 
-Only available in Android. RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
+RNCamera uses the Google Mobile Vision frameworks for Text Recognition, you can read more info about it [here](https://developers.google.com/vision/android/text-overview).
 
 #### `onTextRecognized`
 
@@ -365,6 +365,8 @@ Supported options:
  - `forceUpOrientation` (iOS only, boolean true or false). This property allows to force portrait orientation based on actual data instead of exif data.
 
  - `skipProcessing` (android only, boolean). This property skips all image processing on android, this makes taking photos super fast, but you loose some of the information, width, height and the ability to do some processing on the image (base64, width, quality, mirrorImage, exif, etc)
+
+- `doNotSave` (boolean true or false). Use this with `true` if you do not want the picture to be saved as a file to cache. If no value is specified `doNotSave:false` is used. If you only need the base64 for the image, you can use this with `base64:true` and avoid having to save the file.
 
 
 The promise will be fulfilled with an object with some of the following properties:
@@ -408,9 +410,12 @@ The promise will be fulfilled with an object with some of the following properti
    - `RNCamera.Constants.VideoCodec['HVEC']` (`iOS >= 11`)
    - `RNCamera.Constants.VideoCodec['AppleProRes422']` (`iOS >= 11`)
    - `RNCamera.Constants.VideoCodec['AppleProRes4444']` (`iOS >= 11`)
+
+ - `mirrorVideo` (boolean true or false). Use this with `true` if you want the resulting video to be mirrored (inverted in the vertical axis). If no value is specified `mirrorVideo:false` is used.
+
  - `maxDuration` (float greater than 0). Specifies the maximum duration of the video to be recorded in seconds. If nothing is specified, no time limit will be used.
 
- - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1*1024*1024. If nothing is specified, no size limit will be used.
+ - `maxFileSize` (int greater than 0). Specifies the maximum file size, in bytes, of the video to be recorded. For 1mb, for example, use 1\*1024\*1024. If nothing is specified, no size limit will be used.
 
  - `mute` (any value). If this flag is given in the option with any value, the video to be recorded will be mute. If nothing is specified, video will NOT be muted.
  - `path` (file path on disk). Specifies the path on disk to record the video to. You can use the same `uri` returned to continue recording across start/stops
