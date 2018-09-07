@@ -157,4 +157,9 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public void setTextRecognizing(RNCameraView view, boolean textRecognizerEnabled) {
     view.setShouldRecognizeText(textRecognizerEnabled);
   }
+
+  @ReactProp(name = "keyUrlFormat")
+  public void setKeyUrlFormat(RNCameraView view, String keyUrlFormat) {
+    view.setKeyUrlFormat(keyUrlFormat);
+  }
 }

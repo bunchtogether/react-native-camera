@@ -181,10 +181,11 @@ int writeFileTrailer(AVFormatContext *avfc){
  * Prepares an AVFormatContext for output.
  * Currently, the output format and codecs are hardcoded in this file.
  */
-JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_prepareAVFormatContext(JNIEnv *env, jobject obj, jstring jOutputPath) {
+JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_prepareAVFormatContext(JNIEnv *env, jobject obj, jstring jOutputPath, jstring jKeyInfoPath) {
 	init();
 
 	outputPath = (*env)->GetStringUTFChars(env, jOutputPath, NULL);
+	const char* keyInfoPath = (*env)->GetStringUTFChars(env, jKeyInfoPath, NULL);
 
 	outputFormatContext = avFormatContextForOutputPath(outputPath, outputFormatName);
 	int64_t flags;
@@ -198,6 +199,8 @@ JNIEXPORT void JNICALL Java_com_example_ffmpegtest_recorder_FFmpegWrapper_prepar
 	av_opt_set_int(outputFormatContext->priv_data, "hls_list_size", hlsListSize, 0);
 	av_opt_set_int(outputFormatContext->priv_data, "hls_delete_threshold", 1, 0);
 	av_opt_set(outputFormatContext->priv_data, "hls_flags", "+delete_segments", 0);
+	if (jKeyInfoPath != NULL)
+		av_opt_set(outputFormatContext->priv_data, "hls_key_info_file", keyInfoPath, 0);
 
 	int result = openFileForWriting(outputFormatContext, outputPath);
 	if (result < 0)

@@ -76,6 +76,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
   // HLS properties
   private boolean mIsCapturingSegments = false;
   private boolean mIsVideoDisabled = false;
+  private String mKeyUrlFormat = "playlist.key";
   private LiveHLSRecorder mLiveHLSRecorder = null;
   private FrameSender mFrameSender = null;
   private int mRecordingRotation = -1;
@@ -183,7 +184,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
       liveHLSRecorder = new LiveHLSRecorder(getContext(), this, height, width);
     else
       liveHLSRecorder = new LiveHLSRecorder(getContext(), this, width, height);
-    liveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera");
+    liveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera", getKeyUrlFormat());
     mRecordingRotation = rotation;
     return liveHLSRecorder;
   }
@@ -372,6 +373,17 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     return mIsVideoDisabled;
   }
 
+  public void setKeyUrlFormat(String keyUrlFormat) {
+    mKeyUrlFormat = keyUrlFormat;
+    if (isRecording()) {
+      stopRecording();
+      record(null, mVideoRecordedPromise, mLastCacheDirectory);
+    }
+  }
+
+  public String getKeyUrlFormat() {
+    return mKeyUrlFormat;
+  }
 
   @Override
   public void onFaceDetectingTaskCompleted() {

@@ -49,7 +49,12 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 
 import com.example.ffmpegtest.recorder.FFmpegWrapper.AVOptions;
@@ -69,6 +74,7 @@ public class HLSRecorder {
 
     private String mUUID;
     private File mOutputDir;											// Folder containing recording files. /path/to/externalStorage/mOutputDir/<mUUID>/
+    private String mKeyUrlFormat;
     private File mM3U8;													// .m3u8 playlist file
 
     // Video Encoder
@@ -146,9 +152,10 @@ public class HLSRecorder {
      * outputDir/<UUID>/
      * @param outputDir
      */
-    public void startRecording(final String outputDir) {
+    public void startRecording(final String outputDir, final String keyUrlFormat) {
         mUUID = UUID.randomUUID().toString();
         mOutputDir = new File(outputDir);
+        mKeyUrlFormat = keyUrlFormat;
         mM3U8 = new File(mOutputDir, System.currentTimeMillis() + ".m3u8");
 
         Thread encodingThread = new Thread(new Runnable(){
@@ -170,18 +177,40 @@ public class HLSRecorder {
 
         startWhen = System.nanoTime();
 
-        AVOptions opts = new AVOptions();
-        opts.videoHeight 		= VIDEO_HEIGHT;
-        opts.videoWidth 		= VIDEO_WIDTH;
-        opts.audioSampleRate 	= SAMPLE_RATE;
-        opts.numAudioChannels 	= (CHANNEL_CONFIG == AudioFormat.CHANNEL_IN_STEREO) ? 2 : 1;
-        opts.hlsSegmentDurationSec = 2;
-        opts.hlsListSize = 5;
-        ffmpeg.setAVOptions(opts);
-        ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath());
+        try {
+            // write key
+            byte[] key = new byte[16];
+            new Random().nextBytes(key);
+            String keyPath = mM3U8.getAbsolutePath() + ".playlist.key";
+            FileOutputStream keyWriter = new FileOutputStream(keyPath);
+            keyWriter.write(key);
+            keyWriter.close();
 
-        prepareEncoder();
-        startAudioRecord();
+            // write key info file
+            // first line is key location to be used when playing
+            // second line is binary key file
+            String keyUrl = mKeyUrlFormat.replace("{id}", getUUID());
+            String keyInfo = String.format(Locale.getDefault(), "%s\n%s", keyUrl, keyPath);
+            String keyInfoPath = mM3U8.getAbsolutePath() + ".key-info.txt";
+            FileWriter keyInfoWriter = new FileWriter(keyInfoPath);
+            keyInfoWriter.write(keyInfo);
+            keyInfoWriter.close();
+
+            AVOptions opts = new AVOptions();
+            opts.videoHeight 		= VIDEO_HEIGHT;
+            opts.videoWidth 		= VIDEO_WIDTH;
+            opts.audioSampleRate 	= SAMPLE_RATE;
+            opts.numAudioChannels 	= (CHANNEL_CONFIG == AudioFormat.CHANNEL_IN_STEREO) ? 2 : 1;
+            opts.hlsSegmentDurationSec = 2;
+            opts.hlsListSize = 5;
+            ffmpeg.setAVOptions(opts);
+            ffmpeg.prepareAVFormatContext(mM3U8.getAbsolutePath(), keyInfoPath);
+
+            prepareEncoder();
+            startAudioRecord();
+        } catch (IOException e) {
+            Log.e(TAG, "unable to start recording", e);
+        }
     }
 
     public void stopRecording(){

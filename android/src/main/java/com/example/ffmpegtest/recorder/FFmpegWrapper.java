@@ -44,7 +44,7 @@ public class FFmpegWrapper {
     }
 
     public native void setAVOptions(AVOptions jOpts);
-    public native void prepareAVFormatContext(String jOutputPath);
+    public native void prepareAVFormatContext(String jOutputPath, String jKeyInfoFile);
     public native void writeAVPacketFromEncodedData(ByteBuffer jData, int jIsVideo, int jOffset, int jSize, int jFlags, long jPts);
     public native void finalizeAVFormatContext();
 

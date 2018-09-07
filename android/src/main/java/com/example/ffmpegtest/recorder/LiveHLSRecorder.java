@@ -19,7 +19,7 @@ import java.util.Scanner;
 
 public class LiveHLSRecorder extends HLSRecorder{
     private final String TAG = "LiveHLSRecorder";
-    private final boolean VERBOSE = false; 						// lots of logging
+    private final boolean VERBOSE = true; 						// lots of logging
 
     private HLSFileObserver observer; // needs to be class level so it isn't garbage collected
     private CameraView cameraView;
@@ -43,8 +43,8 @@ public class LiveHLSRecorder extends HLSRecorder{
      * is called when the underlying action has been negated by future (but uncalled) events
      */
     @Override
-    public void startRecording(final String outputDir) {
-        super.startRecording(outputDir);
+    public void startRecording(final String outputDir, final String keyUrlFormat) {
+        super.startRecording(outputDir, keyUrlFormat);
         observer = new HLSFileObserver(outputDir, new HLSCallback() {
             private String lastTSPath = "";
 
@@ -121,7 +121,7 @@ public class LiveHLSRecorder extends HLSRecorder{
         event2.putDouble("duration", duration);
         event2.putBoolean("complete", isComplete);
 
-        if (VERBOSE) Log.i(TAG, "sending event for ts file " + tsPath + " manifest " + manifestPath);
+        if (VERBOSE) Log.i(TAG, "sending event for ts file " + tsPath + " manifest " + manifestPath + ", isComplete: " + isComplete);
         RNCameraViewHelper.emitSegmentEvent(cameraView, event2);
     }
 
