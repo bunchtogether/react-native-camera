@@ -19,7 +19,7 @@ extern NSString *const SegmentManifestName;
 @class KFRecorder, KFHLSWriter;
 
 @protocol KFRecorderDelegate <NSObject>
-- (void) recorderDidStartRecording:(KFRecorder*)recorder error:(NSError*)error activeStreamId:(NSString*)activeStreamId;
+- (void) recorderDidStartRecording:(KFRecorder*)recorder error:(NSError*)error activeStreamId:(NSString*)activeStreamId keyPath:(NSString*)keyPath;
 - (void) recorderDidFinishRecording:(KFRecorder*)recorder error:(NSError*)error  activeStreamId:(NSString*)activeStreamId;
 @end
 
@@ -30,7 +30,6 @@ extern NSString *const SegmentManifestName;
 
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
-@property (nonatomic, strong) AVCaptureDevice *videoDevice;
 @property (nonatomic, strong, readonly) AVCaptureConnection *videoConnection;
 
 @property (nonatomic, strong) KFAACEncoder *aacEncoder;
@@ -44,6 +43,7 @@ extern NSString *const SegmentManifestName;
 @property (nonatomic) int videoBitrate;
 @property (nonatomic) int audioBitrate;
 @property (nonatomic) int audioSampleRate;
+@property (nonatomic, copy) NSString *keyUrlFormat;
 @property (nonatomic, strong) dispatch_queue_t videoQueue;
 @property (nonatomic, assign) BOOL disableVideo;
 
@@ -58,7 +58,7 @@ extern NSString *const SegmentManifestName;
 - (void)setupVideoCapture;
 - (void)setupSession;
 - (double)durationRecorded;
-- (void)cleanUpCameraInputAndOutput;
-
+- (void)invalidate;
+- (void)updateBitrate:(int)bitrate;
 @end
 

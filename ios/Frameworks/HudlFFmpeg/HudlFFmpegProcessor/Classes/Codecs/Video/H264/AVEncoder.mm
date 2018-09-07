@@ -204,6 +204,8 @@ static unsigned int to_host(unsigned char* p)
 
 - (void) encodeFrame:(CMSampleBufferRef) sampleBuffer
 {
+    CMTime prestime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+    NSNumber* pts = [NSNumber numberWithLongLong:prestime.value];
     @synchronized(self)
     {
         if (_needParams)
@@ -221,8 +223,6 @@ static unsigned int to_host(unsigned char* p)
             }
         }
     }
-    CMTime prestime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    NSNumber* pts = [NSNumber numberWithLongLong:prestime.value];
     @synchronized(_times)
     {
         [_times addObject:pts];
@@ -248,19 +248,24 @@ static unsigned int to_host(unsigned char* p)
                 }
                 //NSLog(@"Swap to file %d", _currentFile);
                 _writer = [VideoEncoder encoderForPath:[self makeFilename] height:_height width:_width bitrate:self.bitrate];
-                
-                // to do this seamlessly requires a few steps in the right order
-                // first, suspend the read source
-                dispatch_source_cancel(_readSource);
-                // execute the next step as a block on the same queue, to be sure the suspend is done
-                dispatch_async(_readQueue, ^{
-                    // finish the file, writing moov, before reading any more from the file
-                    // since we don't yet know where the mdat ends
-                    _readSource = nil;
-                    [oldVideo finishWithCompletionHandler:^{
-                        [self swapFiles:oldVideo.path];
-                    }];
-                });
+                if (_readSource) {
+                    // to do this seamlessly requires a few steps in the right order
+                    // first, suspend the read source
+                    dispatch_source_cancel(_readSource);
+                    // execute the next step as a block on the same queue, to be sure the suspend is done
+                    dispatch_async(_readQueue, ^{
+                        // finish the file, writing moov, before reading any more from the file
+                        // since we don't yet know where the mdat ends
+                        _readSource = nil;
+                        @synchronized(self) {
+                            [oldVideo finishWithCompletionHandler:^{
+                                [self swapFiles:oldVideo.path];
+                            }];
+                        }
+                    });
+                } else {
+                    [self swapFiles:oldVideo.path];
+                }
             }
         }
         [_writer encodeFrame:sampleBuffer];
@@ -276,13 +281,15 @@ static unsigned int to_host(unsigned char* p)
     [_inputFile seekToFileOffset:_posMDAT];
     NSData* hdr = [_inputFile readDataOfLength:4];
     unsigned char* p = (unsigned char*) [hdr bytes];
-    int lenMDAT = to_host(p);
+    if (p) {
+        int lenMDAT = to_host(p);
 
-    // extract nalus from saved position to mdat end
-    uint64_t posEnd = _posMDAT + lenMDAT;
-    uint32_t cRead = (uint32_t)(posEnd - pos);
-    [_inputFile seekToFileOffset:pos];
-    [self readAndDeliver:cRead];
+        // extract nalus from saved position to mdat end
+        uint64_t posEnd = _posMDAT + lenMDAT;
+        uint32_t cRead = (uint32_t)(posEnd - pos);
+        [_inputFile seekToFileOffset:pos];
+        [self readAndDeliver:cRead];
+    }
     
     // close and remove file
     [_inputFile closeFile];

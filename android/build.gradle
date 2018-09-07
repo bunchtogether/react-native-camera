@@ -1,6 +1,11 @@
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 buildscript {
   repositories {
     jcenter()
+    google()
     maven {
       url 'https://maven.google.com'
     }
@@ -13,27 +18,13 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
-def DEFAULT_COMPILE_SDK_VERSION             = 26
-def DEFAULT_BUILD_TOOLS_VERSION             = "26.0.2"
-def DEFAULT_TARGET_SDK_VERSION              = 26
-def DEFAULT_GOOGLE_PLAY_SERVICES_VERSION    = "12.0.1"
-def DEFAULT_SUPPORT_LIBRARY_VERSION         = "26.1.0"
-
-ext {
-  compileSdkVersion = 26
-  buildToolsVersion = "26.0.2"
-  targetSdkVersion = 26
-  googlePlayServicesVersion = "12.0.1"
-  supportLibraryVersion = "26.0.1"
-}
-
 android {
-  compileSdkVersion rootProject.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : DEFAULT_COMPILE_SDK_VERSION
-  buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.ext.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+  compileSdkVersion safeExtGet('compileSdkVersion', 26)
+  buildToolsVersion safeExtGet('buildToolsVersion', '26.0.2')
 
   defaultConfig {
-    minSdkVersion 16
-    targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
+    minSdkVersion safeExtGet('minSdkVersion', 16)
+    targetSdkVersion safeExtGet('targetSdkVersion', 26)
 
     versionCode 1
     versionName "1.0.0"
@@ -51,20 +42,19 @@ repositories {
    url 'https://maven.google.com'
   }
   maven { url "https://jitpack.io" }
+  maven {
+    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+    url "$rootDir/../node_modules/react-native/android"
+  }
 }
 
 dependencies {
-  def googlePlayServicesVersion = rootProject.hasProperty('googlePlayServicesVersion')  ? rootProject.ext.googlePlayServicesVersion : DEFAULT_GOOGLE_PLAY_SERVICES_VERSION
-  def supportLibraryVersion = rootProject.hasProperty('supportLibraryVersion')  ? rootProject.ext.supportLibraryVersion : DEFAULT_SUPPORT_LIBRARY_VERSION
-
-  implementation 'com.facebook.react:react-native:+'
-  implementation "com.google.zxing:core:3.2.1"
+  compileOnly 'com.facebook.react:react-native:+'
+  compileOnly 'com.facebook.infer.annotation:infer-annotation:+'
+  implementation "com.google.zxing:core:3.3.0"
   implementation "com.drewnoakes:metadata-extractor:2.9.1"
-  implementation "com.google.android.gms:play-services-vision:$googlePlayServicesVersion"
-  implementation "com.android.support:exifinterface:$supportLibraryVersion"
-  implementation "com.android.support:support-annotations:$supportLibraryVersion"
-  implementation "com.android.support:support-v4:$supportLibraryVersion"
-
-  // implementation 'com.github.react-native-community:cameraview:eb9f726215bbbfcc03a54db92e480d4d02e0c001'
-  implementation 'com.github.bunchtogether:cameraview:10393dbb334eba3f3b07624ea3f0e1b1c23be9c7'
+  implementation "com.google.android.gms:play-services-vision:${safeExtGet('googlePlayServicesVersion', '12.0.1')}"
+  implementation "com.android.support:exifinterface:${safeExtGet('supportLibVersion', '27.1.0')}"
+  implementation "com.android.support:support-annotations:${safeExtGet('supportLibVersion', '27.1.0')}"
+  implementation "com.android.support:support-v4:${safeExtGet('supportLibVersion', '27.1.0')}"
 }

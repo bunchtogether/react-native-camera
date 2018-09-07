@@ -8,6 +8,7 @@
 
 #import "FFOutputStream.h"
 #import "FFOutputFile.h"
+#import "libavutil/opt.h"
 
 @interface FFOutputStream ()
 
@@ -64,13 +65,20 @@
     c->codec_type = AVMEDIA_TYPE_VIDEO;
     c->width    = width;
     c->height   = height;
-    c->bit_rate = 2000000;
+    c->bit_rate = 1048576;
     c->profile = FF_PROFILE_H264_HIGH;
     c->time_base.den = 90000;
     c->time_base.num = 1;
     c->pix_fmt       = PIX_FMT_YUV420P;
     if (self.parentFile.formatContext->oformat->flags & AVFMT_GLOBALHEADER)
         c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    // av_opt_set_int(c->priv_data, "sps-id", 2, 0);
+    // av_opt_set(c->priv_data, "preset", "ultrafast", 0);
+    // av_opt_set(c->priv_data, "tune", "zerolatency", 0);;
+    // av_opt_set_int(c->priv_data,"vbv-maxrate", 4000,0 );
+    // av_opt_set_int(c->priv_data,"vbv-bufsize", 8000,0 );
+    // av_opt_set_int(c->priv_data,"crf", 28, 0);
+    // av_opt_set(c->priv_data, "x264opts","force-cfr=1", 0);
 }
 
 - (void) setupAudioContextWithSampleRate:(int)sampleRate {
@@ -94,7 +102,7 @@
     codecContext->time_base.num = 1;
     codecContext->channel_layout = AV_CH_LAYOUT_MONO;
     codecContext->profile = FF_PROFILE_AAC_MAIN;
-    codecContext->bit_rate = 64 * 1000;
+    //codecContext->bit_rate = 64 * 1000;
     //c->bit_rate    = bit_rate;
     codecContext->sample_rate = sampleRate;
     codecContext->channels    = 1;
@@ -103,6 +111,7 @@
     // some formats want stream headers to be separate
     if (self.parentFile.formatContext->oformat->flags & AVFMT_GLOBALHEADER)
         codecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
+
 }
 
 - (void) addBitstreamFilter:(FFBitstreamFilter *)bitstreamFilter {

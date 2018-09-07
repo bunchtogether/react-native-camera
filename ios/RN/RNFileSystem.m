@@ -32,8 +32,9 @@
 
 + (NSString *)cacheDirectoryPath
 {
-    NSArray *array = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    return [array objectAtIndex:0];
+    //NSArray *array = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    //return [array objectAtIndex:0];
+    return NSTemporaryDirectory();
 }
 
 @end
