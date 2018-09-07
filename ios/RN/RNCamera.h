@@ -18,11 +18,7 @@
 
 @class RNCamera;
 
-<<<<<<< HEAD
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, KFRecorderDelegate>
-=======
-@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
->>>>>>> ace99ff83fcf494267c5817da293033c9cc9f194
+@interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate, AVCaptureFileOutputRecordingDelegate, RNFaceDetectorDelegate, KFRecorderDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
 @property(nonatomic, strong) AVCaptureSession *session;
