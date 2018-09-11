@@ -21,7 +21,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 NSString *const NotifNewAssetGroupCreated = @"NotifNewAssetGroupCreated";
-NSString *const SegmentManifestName = @"bunch";
+NSString *const SegmentManifestName = @"bunch-manifest";
 
 static int32_t fragmentOrder;
 

@@ -102,14 +102,6 @@
 		726CAC422141EAEE00B511B5 /* avformat.h in Headers */ = {isa = PBXBuildFile; fileRef = 726CABE32141EAEE00B511B5 /* avformat.h */; };
 		726CAC432141EAEE00B511B5 /* avio.h in Headers */ = {isa = PBXBuildFile; fileRef = 726CABE42141EAEE00B511B5 /* avio.h */; };
 		726CAC442141EAEE00B511B5 /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 726CABE52141EAEE00B511B5 /* version.h */; };
-		726CAC532141EB1200B511B5 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC4A2141EAFD00B511B5 /* libavcodec.a */; };
-		726CAC542141EB1200B511B5 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC482141EAFD00B511B5 /* libavdevice.a */; };
-		726CAC552141EB1200B511B5 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC4B2141EAFD00B511B5 /* libavfilter.a */; };
-		726CAC562141EB1200B511B5 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC452141EAFC00B511B5 /* libavformat.a */; };
-		726CAC572141EB1200B511B5 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC462141EAFD00B511B5 /* libavutil.a */; };
-		726CAC582141EB1200B511B5 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC472141EAFD00B511B5 /* libswresample.a */; };
-		726CAC592141EB1200B511B5 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC492141EAFD00B511B5 /* libswscale.a */; };
-		726CAC5B2141EBE600B511B5 /* librtmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC5A2141EBE600B511B5 /* librtmp.a */; };
 		726CAC612141EC0600B511B5 /* amf.h in Headers */ = {isa = PBXBuildFile; fileRef = 726CAC5D2141EC0600B511B5 /* amf.h */; };
 		726CAC622141EC0600B511B5 /* http.h in Headers */ = {isa = PBXBuildFile; fileRef = 726CAC5E2141EC0600B511B5 /* http.h */; };
 		726CAC632141EC0600B511B5 /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = 726CAC5F2141EC0600B511B5 /* log.h */; };
@@ -122,6 +114,15 @@
 		726CAC6A2141EEF900B511B5 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC462141EAFD00B511B5 /* libavutil.a */; };
 		726CAC6B2141EEF900B511B5 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC472141EAFD00B511B5 /* libswresample.a */; };
 		726CAC6C2141EEF900B511B5 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC492141EAFD00B511B5 /* libswscale.a */; };
+		727A434C214738A700B5B3DB /* librtmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC5A2141EBE600B511B5 /* librtmp.a */; };
+		727A434D214738A700B5B3DB /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC4A2141EAFD00B511B5 /* libavcodec.a */; };
+		727A434E214738A700B5B3DB /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC482141EAFD00B511B5 /* libavdevice.a */; };
+		727A434F214738A700B5B3DB /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC4B2141EAFD00B511B5 /* libavfilter.a */; };
+		727A4350214738A700B5B3DB /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC452141EAFC00B511B5 /* libavformat.a */; };
+		727A4351214738A700B5B3DB /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC462141EAFD00B511B5 /* libavutil.a */; };
+		727A4352214738A700B5B3DB /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC472141EAFD00B511B5 /* libswresample.a */; };
+		727A4353214738A700B5B3DB /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726CAC492141EAFD00B511B5 /* libswscale.a */; };
+		727A4354214738A700B5B3DB /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED92EB201A705DAC00E2C415 /* libssl.a */; };
 		ED1FB9151A8A83D80072E6BC /* AssetGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = ED92EA621A705D9800E2C415 /* AssetGroup.h */; };
 		ED92E9E21A705CEF00E2C415 /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED92E9D61A705CEF00E2C415 /* libHudlFFmpegProcessor.a */; };
 		ED92EA2E1A705D8700E2C415 /* KFAACEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92E9F51A705D8700E2C415 /* KFAACEncoder.m */; };
@@ -175,7 +176,6 @@
 		ED92EA611A705D8700E2C415 /* KFHLSWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EA2D1A705D8700E2C415 /* KFHLSWriter.m */; };
 		ED92EA641A705D9800E2C415 /* AssetGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EA631A705D9800E2C415 /* AssetGroup.m */; };
 		ED92EA651A705D9800E2C415 /* AssetGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EA631A705D9800E2C415 /* AssetGroup.m */; };
-		ED92EB311A705DAC00E2C415 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED92EB201A705DAC00E2C415 /* libssl.a */; };
 		ED92EB321A705DAC00E2C415 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED92EB201A705DAC00E2C415 /* libssl.a */; };
 		ED92EB391A705E3200E2C415 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EB381A705E3200E2C415 /* Utilities.m */; };
 		ED92EB3A1A705E3200E2C415 /* Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = ED92EB381A705E3200E2C415 /* Utilities.m */; };
@@ -552,15 +552,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				726CAC532141EB1200B511B5 /* libavcodec.a in Frameworks */,
-				726CAC542141EB1200B511B5 /* libavdevice.a in Frameworks */,
-				726CAC552141EB1200B511B5 /* libavfilter.a in Frameworks */,
-				726CAC562141EB1200B511B5 /* libavformat.a in Frameworks */,
-				726CAC572141EB1200B511B5 /* libavutil.a in Frameworks */,
-				726CAC582141EB1200B511B5 /* libswresample.a in Frameworks */,
-				726CAC592141EB1200B511B5 /* libswscale.a in Frameworks */,
-				726CAC5B2141EBE600B511B5 /* librtmp.a in Frameworks */,
-				ED92EB311A705DAC00E2C415 /* libssl.a in Frameworks */,
+				727A434C214738A700B5B3DB /* librtmp.a in Frameworks */,
+				727A434D214738A700B5B3DB /* libavcodec.a in Frameworks */,
+				727A434E214738A700B5B3DB /* libavdevice.a in Frameworks */,
+				727A434F214738A700B5B3DB /* libavfilter.a in Frameworks */,
+				727A4350214738A700B5B3DB /* libavformat.a in Frameworks */,
+				727A4351214738A700B5B3DB /* libavutil.a in Frameworks */,
+				727A4352214738A700B5B3DB /* libswresample.a in Frameworks */,
+				727A4353214738A700B5B3DB /* libswscale.a in Frameworks */,
+				727A4354214738A700B5B3DB /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -762,6 +762,7 @@
 			isa = PBXGroup;
 			children = (
 				ED92EA661A705DAC00E2C415 /* FFmpeg */,
+				ED92EB181A705DAC00E2C415 /* lib */,
 				ED92E9F01A705D8700E2C415 /* Classes */,
 			);
 			path = HudlFFmpegProcessor;
@@ -927,7 +928,6 @@
 			isa = PBXGroup;
 			children = (
 				ED92EA671A705DAC00E2C415 /* include */,
-				ED92EB181A705DAC00E2C415 /* lib */,
 			);
 			path = FFmpeg;
 			sourceTree = "<group>";
@@ -1515,6 +1515,7 @@
 					"$(PROJECT_DIR)/HudlFFmpegProcessor/FFmpeg/lib",
 					/usr/local/Cellar/libiconv/1.15/lib,
 					"$(PROJECT_DIR)/HudlFFmpegProcessor",
+					"$(PROJECT_DIR)/HudlFFmpegProcessor/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1537,6 +1538,7 @@
 					"$(PROJECT_DIR)/HudlFFmpegProcessor/FFmpeg/lib",
 					/usr/local/Cellar/libiconv/1.15/lib,
 					"$(PROJECT_DIR)/HudlFFmpegProcessor",
+					"$(PROJECT_DIR)/HudlFFmpegProcessor/lib",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
