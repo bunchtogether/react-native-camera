@@ -31,6 +31,7 @@
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
 @property(nonatomic, assign) BOOL disableVideo;
+@property(nonatomic, assign) BOOL encryptImage;
 @property(nonatomic, assign) BOOL segmentCapture;
 @property(nonatomic, assign) BOOL segmentCaptureActive;
 

@@ -41,6 +41,7 @@ type PictureOptions = {
   width?: number,
   fixOrientation?: boolean,
   forceUpOrientation?: boolean,
+  encryptImage?: boolean,
 };
 
 type TrackedFaceFeature = FaceFeature & {
@@ -208,6 +209,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     pendingAuthorizationView: PropTypes.element,
     captureAudio: PropTypes.bool,
     disableVideo: PropTypes.bool,
+    encryptImage: PropTypes.bool,
     useCamera2Api: PropTypes.bool,
     playSoundOnCapture: PropTypes.bool,
     videoStabilizationMode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -244,6 +246,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     ),
     captureAudio: false,
     disableVideo: false,
+    encryptImage: false,
     useCamera2Api: false,
     playSoundOnCapture: false,
     pictureSize: 'None',

@@ -212,6 +212,10 @@ RCT_CUSTOM_VIEW_PROPERTY(pictureSize, NSString *, RNCamera)
     [view updatePictureSize];
 }
 
+RCT_CUSTOM_VIEW_PROPERTY(encryptImage, BOOL, RNCamera)
+{
+    view.encryptImage = [RCTConvert BOOL:json];
+}
 
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectorEnabled, BOOL, RNCamera)
 {

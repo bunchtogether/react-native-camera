@@ -1,6 +1,7 @@
 #import "RNCamera.h"
 #import "RNCameraUtils.h"
 #import "RNImageUtils.h"
+#import "RNCryptManager.h"
 #import "RNFileSystem.h"
 #import <React/RCTEventDispatcher.h>
 #import <React/RCTLog.h>
@@ -8,6 +9,7 @@
 #import <React/UIView+React.h>
 #import "KFRecorder.h"
 #import "KFHLSWriter.h"
+
 
 @interface RNCamera ()
 
@@ -44,6 +46,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.paused = NO;
         self.autoFocus = RNCameraAutoFocusOn;
         self.disableVideo = NO;
+        self.encryptImage = NO;
         self.keyUrlFormat = @"playlist.key";
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(newAssetGroupCreated:)
@@ -536,6 +539,32 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             NSMutableDictionary *response = [[NSMutableDictionary alloc] init];
             float quality = [options[@"quality"] floatValue];
             NSData *takenImageData = UIImageJPEGRepresentation(takenImage, quality);
+            BOOL encrypt = self.encryptImage;
+            if(options[@"encryptImage"]) {
+                encrypt = [options[@"encryptImage"] boolValue];
+            }
+            if(encrypt) {
+                unsigned char buf[16];
+                arc4random_buf(buf, sizeof(buf));
+                NSData *key = [NSData dataWithBytes:buf length:sizeof(buf)];
+                NSError *encryptionError;
+                NSInputStream *inputStream = [NSInputStream inputStreamWithData:takenImageData];
+                NSOutputStream *outputStream = [NSOutputStream outputStreamToMemory];
+                [inputStream open];
+                [outputStream open];
+                BOOL result = [RNCryptManager encryptFromStream:inputStream
+                                                       toStream:outputStream
+                                                            key:key
+                                                          error:&encryptionError];
+                if (!result) {
+                    reject(@"E_IMAGE_CAPTURE_FAILED", @"Image could not be encrypted", encryptionError);
+                    return;
+                }
+                takenImageData = [outputStream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
+                response[@"key"] = [[NSString alloc]initWithData:[key base64EncodedDataWithOptions:kNilOptions] encoding:NSUTF8StringEncoding];
+                [inputStream close];
+                [outputStream close];
+            }
             NSString *path = [RNFileSystem generatePathInDirectory:[[RNFileSystem cacheDirectoryPath] stringByAppendingPathComponent:@"Camera"] withExtension:@".jpg"];
             if (![options[@"doNotSave"] boolValue]) {
                 response[@"uri"] = [RNImageUtils writeImage:takenImageData toPath:path];
@@ -546,8 +575,6 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
             if ([options[@"base64"] boolValue]) {
                 response[@"base64"] = [takenImageData base64EncodedStringWithOptions:0];
             }
-            
-            
             
             if ([options[@"exif"] boolValue]) {
                 int imageRotation;

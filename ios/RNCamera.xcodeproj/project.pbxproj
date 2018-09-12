@@ -21,6 +21,7 @@
 		71D5C72A201B8A2F0030A15E /* RNFaceDetectorPointTransformCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB8201553EE003C59C3 /* RNFaceDetectorPointTransformCalculator.m */; };
 		71D5C72B201B8A320030A15E /* RNFaceDetectorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB520155340003C59C3 /* RNFaceDetectorModule.m */; };
 		71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7147DBB22015319E003C59C3 /* RNFaceDetectorManager.m */; };
+		7234995B214978740099689D /* RNCryptManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7234995A214978740099689D /* RNCryptManager.m */; };
 		725FA0D4206DA58900E15BB2 /* libHudlFFmpegProcessor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 725FA0A4206DA45100E15BB2 /* libHudlFFmpegProcessor.a */; };
 		728ABC4220632286007DC4F1 /* RCTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 410701481ACB732B00C6AA39 /* RCTCamera.m */; };
 		728ABDE7206353E2007DC4F1 /* GoogleMobileVision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */; };
@@ -93,6 +94,8 @@
 		71C7FFD22013C817006EB75A /* RNImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImageUtils.m; sourceTree = "<group>"; };
 		71C7FFD42013C824006EB75A /* RNFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFileSystem.h; sourceTree = "<group>"; };
 		71C7FFD52013C824006EB75A /* RNFileSystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFileSystem.m; sourceTree = "<group>"; };
+		723499572149783F0099689D /* RNCryptManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNCryptManager.h; sourceTree = "<group>"; };
+		7234995A214978740099689D /* RNCryptManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNCryptManager.m; sourceTree = "<group>"; };
 		725FA09E206DA45100E15BB2 /* HudlFFmpegProcessor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = HudlFFmpegProcessor.xcodeproj; path = HudlFFmpeg/HudlFFmpegProcessor.xcodeproj; sourceTree = "<group>"; };
 		728ABDC0206353E1007DC4F1 /* dummy.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.txt; sourceTree = "<group>"; };
 		728ABDC3206353E1007DC4F1 /* GoogleMobileVision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleMobileVision.framework; sourceTree = "<group>"; };
@@ -186,6 +189,8 @@
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
 				7103647920195C53009691D1 /* RNFaceDetectorManagerStub.h */,
 				7103647A20195C53009691D1 /* RNFaceDetectorManagerStub.m */,
+				723499572149783F0099689D /* RNCryptManager.h */,
+				7234995A214978740099689D /* RNCryptManager.m */,
 			);
 			path = RN;
 			sourceTree = "<group>";
@@ -507,6 +512,7 @@
 				728ABC4220632286007DC4F1 /* RCTCamera.m in Sources */,
 				71D5C72C201B8A360030A15E /* RNFaceDetectorManager.m in Sources */,
 				7103647B20195C53009691D1 /* RNFaceDetectorManagerStub.m in Sources */,
+				7234995B214978740099689D /* RNCryptManager.m in Sources */,
 				71D5C72A201B8A2F0030A15E /* RNFaceDetectorPointTransformCalculator.m in Sources */,
 				71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */,
 				7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */,
