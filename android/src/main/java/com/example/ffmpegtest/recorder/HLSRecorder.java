@@ -120,10 +120,11 @@ public class HLSRecorder {
 
     private Context c;										// For accessing external storage
 
-    public HLSRecorder(Context c, int videoWidth, int videoHeight) {
+    public HLSRecorder(Context c, int videoWidth, int videoHeight, int bitrate) {
         this.c = c;
         this.VIDEO_WIDTH = videoWidth;
         this.VIDEO_HEIGHT = videoHeight;
+        this.VIDEO_BIT_RATE = bitrate;
     }
 
     public String getUUID(){
@@ -380,6 +381,8 @@ public class HLSRecorder {
     private boolean hasVideo() {
         return VIDEO_WIDTH > 0 && VIDEO_HEIGHT > 0;
     }
+
+    public int getBitrate() { return VIDEO_BIT_RATE; }
 
     private void stopAndReleaseVideoEncoder(){
         videoEncoderStopped = true;

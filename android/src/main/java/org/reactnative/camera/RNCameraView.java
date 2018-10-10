@@ -186,9 +186,9 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
 
         if (isRecording() && isCapturingSegments()) {
           if (mLiveHLSRecorder == null) {
-            mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+            mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation, mBitrate);
             mFrameSender = new FrameSender();
-          } else if (mRecordingRotation != correctRotation) {
+          } else if (mRecordingRotation != correctRotation || mLiveHLSRecorder.getBitrate() != mBitrate) {
             // stop this recording, wait for it to finish, then restart with the new rotation
             mFrameSender.shutdown();
             mFrameSender = null;
@@ -196,7 +196,7 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
             mLiveHLSRecorder.stopRecording(new LiveHLSRecorder.StopHandler() {
               @Override
               public void onStopped() {
-                mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation);
+                mLiveHLSRecorder = createHLSRecorder(width, height, correctRotation, mBitrate);
                 mFrameSender = new FrameSender();
                 setCaptureSegments(true);
               }
@@ -212,18 +212,23 @@ public class RNCameraView extends CameraView implements LifecycleEventListener, 
     });
   }
 
-  private LiveHLSRecorder createHLSRecorder(int width, int height, int rotation) {
+  private LiveHLSRecorder createHLSRecorder(int width, int height, int rotation, int bitrate) {
     LiveHLSRecorder liveHLSRecorder;
     // create hls recorder
     if (isVideoDisabled())
-      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, 0, 0);
+      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, 0, 0, bitrate);
     else if (rotation == 90 || rotation == 270)
-      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, height, width);
+      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, height, width, bitrate);
     else
-      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, width, height);
+      liveHLSRecorder = new LiveHLSRecorder(getContext(), this, width, height, bitrate);
     liveHLSRecorder.startRecording(getContext().getCacheDir() + "/Camera", getKeyUrlFormat());
     mRecordingRotation = rotation;
     return liveHLSRecorder;
+  }
+
+  private static int mBitrate = 262144 * 8;
+  public static void updateBitrate(int bitsPerSecond) {
+    mBitrate = bitsPerSecond;
   }
 
   @Override

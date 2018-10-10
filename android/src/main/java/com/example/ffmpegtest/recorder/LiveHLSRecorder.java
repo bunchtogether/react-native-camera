@@ -30,8 +30,8 @@ public class LiveHLSRecorder extends HLSRecorder{
     }
     private StopHandler stopHandler = null;
 
-    public LiveHLSRecorder(Context reactContext, CameraView cameraView, int videoWidth, int videoHeight) {
-        super(reactContext, videoWidth, videoHeight);
+    public LiveHLSRecorder(Context reactContext, CameraView cameraView, int videoWidth, int videoHeight, int bitrate) {
+        super(reactContext, videoWidth, videoHeight, bitrate);
         this.cameraView = cameraView;
     }
 

@@ -187,6 +187,11 @@ public class CameraModule extends ReactContextBaseJavaModule {
       }
     });
   }
+
+  @ReactMethod
+  public void updateBitrate(final int bitsPerSecond) {
+      RNCameraView.updateBitrate(bitsPerSecond);
+  }
     
     @ReactMethod
     public void pausePreview(final int viewTag) {
