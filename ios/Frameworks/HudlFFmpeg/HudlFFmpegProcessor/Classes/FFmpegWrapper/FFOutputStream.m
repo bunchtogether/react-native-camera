@@ -72,6 +72,9 @@
     c->pix_fmt       = PIX_FMT_YUV420P;
     if (self.parentFile.formatContext->oformat->flags & AVFMT_GLOBALHEADER)
         c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+    
+    av_opt_set_int(c->priv_data,"crf", 21, 0);
+    
     // av_opt_set_int(c->priv_data, "sps-id", 2, 0);
     // av_opt_set(c->priv_data, "preset", "ultrafast", 0);
     // av_opt_set(c->priv_data, "tune", "zerolatency", 0);;
