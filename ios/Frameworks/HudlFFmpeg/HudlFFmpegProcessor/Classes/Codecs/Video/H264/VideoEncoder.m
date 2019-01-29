@@ -26,16 +26,19 @@
     
     [[NSFileManager defaultManager] removeItemAtPath:self.path error:nil];
     NSURL* url = [NSURL fileURLWithPath:self.path];
-    
-    _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:nil];
+    NSError *error;
+    _writer = [AVAssetWriter assetWriterWithURL:url fileType:AVFileTypeMPEG4 error:&error];
+    if(error){
+        NSLog(@"AVAssetWriter initialization problem: %@", error.localizedDescription);
+    }
     NSDictionary* settings = @{
         AVVideoCodecKey: AVVideoCodecH264,
         AVVideoWidthKey: @(width),
         AVVideoHeightKey: @(height),
         AVVideoCompressionPropertiesKey: @{
              AVVideoExpectedSourceFrameRateKey: @(30),
-             AVVideoAverageBitRateKey: @(self.bitrate),
-             AVVideoMaxKeyFrameIntervalKey: @(60),
+             AVVideoAverageBitRateKey: @(8388608 * 4),
+             AVVideoMaxKeyFrameIntervalKey: @(30),
              AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel,
              AVVideoAllowFrameReorderingKey: @NO,
         }
