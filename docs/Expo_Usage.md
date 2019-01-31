@@ -1,6 +1,6 @@
 # [Expo](https://expo.io/) Usage
 
-RNCamera of react-native-camera is heavyly based on Expo camera module. Thanks @aalices and Expo for the great work.
+RNCamera of react-native-camera is heavily based on Expo camera module. Thanks @aalices and Expo for the great work.
 
 So you don't need to use **react-native-camera** if you have the following config:
 
@@ -21,6 +21,7 @@ If you decide to eject without using ExpoKit, you can follow react-native-camera
 ```
 
 ## How to migrate from react-native-camera to Expo Camera Module
+
 ```diff
 - import { RNCamera } from 'react-native-camera';
 + import { Camera } from 'expo';
@@ -28,4 +29,3 @@ If you decide to eject without using ExpoKit, you can follow react-native-camera
 - <RNCamera
 + <Camera
 ```
-

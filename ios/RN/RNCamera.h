@@ -40,6 +40,7 @@
 @property (assign, nonatomic) CGFloat zoom;
 @property (assign, nonatomic) NSInteger autoFocus;
 @property (assign, nonatomic) NSInteger userDefinedBitrate;
+@property (copy, nonatomic) NSDictionary *autoFocusPointOfInterest;
 @property (assign, nonatomic) float focusDepth;
 @property (assign, nonatomic) NSInteger whiteBalance;
 @property (assign, nonatomic) AVCaptureSessionPreset pictureSize;
@@ -50,12 +51,16 @@
 @property(assign, nonatomic) AVVideoCodecType videoCodecType;
 @property (nonatomic, strong) KFRecorder *recorder;
 @property (assign, nonatomic) AVCaptureVideoStabilizationMode videoStabilizationMode;
+@property(assign, nonatomic, nullable) NSNumber *defaultVideoQuality;
+@property(assign, nonatomic, nullable) NSNumber *deviceOrientation;
+@property(assign, nonatomic, nullable) NSNumber *orientation;
 
 - (id)initWithBridge:(RCTBridge *)bridge;
 - (void)updateType;
 - (void)updateFlashMode;
 - (void)updateFocusMode;
 - (void)updateFocusDepth;
+- (void)updateAutoFocusPointOfInterest;
 - (void)updateZoom;
 - (void)updateBitrate:(NSInteger)bitrate;
 - (void)updateDisableVideo;
@@ -67,7 +72,9 @@
 - (void)updateFaceDetectionClassifications:(id)requestedClassifications;
 - (void)updateKeyUrlFormat;
 - (void)takePicture:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)takePictureWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)record:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void)recordWithOrientation:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 - (void)stopRecording;
 - (void)resumePreview;
 - (void)pausePreview;
@@ -80,6 +87,7 @@
 - (void)onFacesDetected:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
+- (bool)isRecording;
 
 @end
 

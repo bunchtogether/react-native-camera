@@ -14,9 +14,39 @@ import {
   View,
   Text,
   UIManager,
+  PermissionsAndroid,
 } from 'react-native';
 
-import { requestPermissions } from './handlePermissions';
+const requestPermissions = async (
+  hasVideoAndAudio,
+  CameraManager,
+  permissionDialogTitle,
+  permissionDialogMessage,
+): Promise<boolean> => {
+  if (Platform.OS === 'ios') {
+    let check = hasVideoAndAudio
+      ? CameraManager.checkDeviceAuthorizationStatus
+      : CameraManager.checkVideoAuthorizationStatus;
+
+    if (check) return await check();
+  } else if (Platform.OS === 'android') {
+    let params = undefined;
+    if (permissionDialogTitle || permissionDialogMessage)
+      params = { title: permissionDialogTitle, message: permissionDialogMessage };
+    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, params);
+    if (!hasVideoAndAudio)
+      return granted === PermissionsAndroid.RESULTS.GRANTED || granted === true;
+    const grantedAudio = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      params,
+    );
+    return (
+      (granted === PermissionsAndroid.RESULTS.GRANTED || granted === true) &&
+      (grantedAudio === PermissionsAndroid.RESULTS.GRANTED || grantedAudio === true)
+    );
+  }
+  return true;
+};
 
 const styles = StyleSheet.create({
   base: {},
@@ -230,6 +260,7 @@ export default class Camera extends Component {
       this.cameraBarCodeReadListener = Platform.select({
         ios: NativeAppEventEmitter.addListener('CameraBarCodeRead', this._onBarCodeRead),
         android: DeviceEventEmitter.addListener('CameraBarCodeReadAndroid', this._onBarCodeRead),
+        windows: DeviceEventEmitter.addListener('CameraBarCodeReadWindows', this._onBarCodeRead),
       });
     }
   }
@@ -315,6 +346,10 @@ export default class Camera extends Component {
       ...options,
     };
 
+    if (Platform.OS === 'windows') {
+      options['view'] = this._cameraHandle;
+    }
+
     if (options.mode === Camera.constants.CaptureMode.video) {
       options.totalSeconds = options.totalSeconds > -1 ? options.totalSeconds : -1;
       options.preferredTimeScale = options.preferredTimeScale || 30;
@@ -366,6 +401,10 @@ export default class Camera extends Component {
       const props = convertNativeProps(this.props);
       return CameraManager.hasFlash({
         type: props.type,
+      });
+    } else if (Platform.OS === 'windows') {
+      return CameraManager.hasFlash({
+        view: this._cameraHandle,
       });
     }
     return CameraManager.hasFlash();

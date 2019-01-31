@@ -7,6 +7,7 @@ The idea is to provide a list of useful snippets, links and resources to be used
 You can use a state variable and use it to determine if you want to turn on or off face detection/barcode detection/text recognition.
 
 Example:
+
 ```
 const { shouldFaceDetect } = this.state;
 <RNCamera
@@ -43,6 +44,7 @@ const { navigation } = this.props;
 ## Sending the image to a server
 
 A good way is to get the base64 string representation of your image. You can get it from RNCamera by passing the `base64: true` option lto `takePictureAsync` like:
+
 ```
 if (this.camera) {
   const data = await this.camera.takePictureAsync({ base64: true });
@@ -74,3 +76,70 @@ const takePicture = () => {
 ## How to get a video thumbnail?
 
 Use this package https://github.com/phuochau/react-native-thumbnail
+
+## How to zoom with touch gestures?
+
+Because of different project requirements there is no gesture zoom (like pinch zoom or slide-up zoom) implemented in this package. All implementation should be done in user-land.
+
+However we have some recipies for common zoom behaviours. If you implemented your own solution feel free to add it to the list!
+
+### SlideUp Zoom
+
+```js
+import React, { Component } from 'react';
+import { View, PanResponder, Dimensions } from 'react-native';
+import { RNCamera } from 'react-native-camera';
+
+// ZoomView
+class ZoomView extends Component {
+  constructor(props) {
+    super(props);
+    this._panResponder = PanResponder.create({
+      onPanResponderMove: (e, { dy }) => {
+        const { height: windowHeight } = Dimensions.get('window');
+        return this.props.onZoomProgress(Math.min(Math.max((dy * -1) / windowHeight, 0), 0.5));
+      },
+      onMoveShouldSetPanResponder: (ev, { dx }) => {
+        return dx !== 0;
+      },
+      onPanResponderGrant: () => {
+        return this.props.onZoomStart();
+      },
+      onPanResponderRelease: () => {
+        return this.props.onZoomEnd();
+      },
+    });
+  }
+  render() {
+    return (
+      <View style={{ flex: 1, width: '100%' }} {...this._panResponder.panHandlers}>
+        {this.props.children}
+      </View>
+    );
+  }
+}
+
+// Implementation
+class CameraView extends Component {
+  state = {
+    zoom: 0,
+  };
+  render() {
+    return (
+      <ZoomView
+        onZoomProgress={progress => {
+          this.setState({ zoom: progress });
+        }}
+        onZoomStart={() => {
+          console.log('zoom start');
+        }}
+        onZoomEnd={() => {
+          console.log('zoom end');
+        }}
+      >
+        <RNCamera zoom={this.state.zoom} style={{ flex: 1 }} />
+      </ZoomView>
+    );
+  }
+}
+```
