@@ -45,6 +45,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         self.bridge = bridge;
         self.paused = NO;
         self.autoFocus = RNCameraAutoFocusOn;
+        
         self.disableVideo = NO;
         self.encryptImage = NO;
         self.keyUrlFormat = @"playlist.key";
@@ -70,6 +71,7 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
     self.recorder.delegate = self;
     self.session = self.recorder.session;
     self.sessionQueue = self.recorder.videoQueue;
+    self.sensorOrientationChecker = [RNSensorOrientationChecker new];
     self.textDetector = [self createTextDetector];
     self.finishedReadingText = true;
     self.start = [NSDate date];
@@ -541,7 +543,9 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
         [self takePictureWithOrientation:options resolve:resolve reject:reject];
         return;
     }
-
+    
+    NSLog(@"_takePicture");
+    
     NSInteger orientation = [options[@"orientation"] integerValue];
 
     AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
