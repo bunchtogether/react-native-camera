@@ -74,6 +74,7 @@
         c->flags |= CODEC_FLAG_GLOBAL_HEADER;
     
     av_opt_set_int(c->priv_data,"crf", 21, 0);
+    av_opt_set(c->priv_data, "tune", "zerolatency", 0);
     
     // av_opt_set_int(c->priv_data, "sps-id", 2, 0);
     // av_opt_set(c->priv_data, "preset", "ultrafast", 0);

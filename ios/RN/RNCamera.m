@@ -906,53 +906,53 @@ static NSDictionary *defaultFaceDetectorOptions = nil;
                     if(preset == AVCaptureSessionPresetHigh || preset == AVCaptureSessionPresetPhoto) {
                         self.recorder.videoWidth = 720;
                         self.recorder.videoHeight = 1280;
-                        self.recorder.videoBitrate = 4194304 / 4;
+                        self.recorder.videoBitrate = 4194304 / 8;
                     } else if(preset == AVCaptureSessionPresetMedium) {
                         self.recorder.videoWidth = 360;
                         self.recorder.videoHeight = 480;
-                        self.recorder.videoBitrate = 1572864 / 4;
+                        self.recorder.videoBitrate = 1572864 / 8;
                     } else if(preset == AVCaptureSessionPresetLow) {
                         self.recorder.videoWidth = 144;
                         self.recorder.videoHeight = 192;
-                        self.recorder.videoBitrate = 524288 / 4;
+                        self.recorder.videoBitrate = 524288 / 8;
                     } else if(preset == AVCaptureSessionPreset1920x1080) {
                         self.recorder.videoWidth = 1080;
                         self.recorder.videoHeight = 1920;
-                        self.recorder.videoBitrate = 8388608 / 4;
+                        self.recorder.videoBitrate = 8388608 / 8;
                     } else if(preset == AVCaptureSessionPreset1280x720) {
                         self.recorder.videoWidth = 720;
                         self.recorder.videoHeight = 1280;
-                        self.recorder.videoBitrate = 4194304 / 4;
+                        self.recorder.videoBitrate = 4194304 / 8;
                     } else if(preset == AVCaptureSessionPreset640x480) {
                         self.recorder.videoWidth = 480;
                         self.recorder.videoHeight = 640;
-                        self.recorder.videoBitrate = 2097152 / 4;
+                        self.recorder.videoBitrate = 2097152 / 8;
                     }
                 } else {
                     if(preset == AVCaptureSessionPresetHigh || preset == AVCaptureSessionPresetPhoto) {
                         self.recorder.videoWidth = 1280;
                         self.recorder.videoHeight = 720;
-                        self.recorder.videoBitrate = 4194304 / 4;
+                        self.recorder.videoBitrate = 4194304 / 8;
                     } else if(preset == AVCaptureSessionPresetMedium) {
                         self.recorder.videoWidth = 480;
                         self.recorder.videoHeight = 360;
-                        self.recorder.videoBitrate = 1572864 / 4;
+                        self.recorder.videoBitrate = 1572864 / 8;
                     } else if(preset == AVCaptureSessionPresetLow) {
                         self.recorder.videoWidth = 192;
                         self.recorder.videoHeight = 144;
-                        self.recorder.videoBitrate = 524288 / 4;
+                        self.recorder.videoBitrate = 524288 / 8;
                     } else if(preset == AVCaptureSessionPreset1920x1080) {
                         self.recorder.videoWidth = 1920;
                         self.recorder.videoHeight = 1080;
-                        self.recorder.videoBitrate = 8388608 / 4;
+                        self.recorder.videoBitrate = 8388608 / 8;
                     } else if(preset == AVCaptureSessionPreset1280x720) {
                         self.recorder.videoWidth = 1280;
                         self.recorder.videoHeight = 720;
-                        self.recorder.videoBitrate = 4194304 / 4;
+                        self.recorder.videoBitrate = 4194304 / 8;
                     } else if(preset == AVCaptureSessionPreset640x480) {
                         self.recorder.videoWidth = 640;
                         self.recorder.videoHeight = 720;
-                        self.recorder.videoBitrate = 2097152 / 4;
+                        self.recorder.videoBitrate = 2097152 / 8;
                     }
                 }
                 if(self.userDefinedBitrate) {
