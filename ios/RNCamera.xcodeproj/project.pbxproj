@@ -18,6 +18,10 @@
 		71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFCF2013C7E5006EB75A /* RNCameraUtils.m */; };
 		71C7FFD32013C817006EB75A /* RNImageUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFD22013C817006EB75A /* RNImageUtils.m */; };
 		71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */ = {isa = PBXBuildFile; fileRef = 71C7FFD52013C824006EB75A /* RNFileSystem.m */; };
+		7239E65922C02CB400863967 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 7239E65822C02CB400863967 /* GCDAsyncUdpSocket.m */; };
+		728F35C322C14A5100796C61 /* EncodeH264.m in Sources */ = {isa = PBXBuildFile; fileRef = 728F35C222C14A5100796C61 /* EncodeH264.m */; };
+		728F35C622C1678000796C61 /* EncodeAAC.m in Sources */ = {isa = PBXBuildFile; fileRef = 728F35C522C1678000796C61 /* EncodeAAC.m */; };
+		72AE1EF622C0530E00CAFDD9 /* FastSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 72AE1EF522C0530E00CAFDD9 /* FastSocket.m */; };
 		9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */; };
 		F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = F8393BEB21469C0000AB1995 /* RNSensorOrientationChecker.m */; };
 /* End PBXBuildFile section */
@@ -57,6 +61,14 @@
 		71C7FFD22013C817006EB75A /* RNImageUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNImageUtils.m; sourceTree = "<group>"; };
 		71C7FFD42013C824006EB75A /* RNFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNFileSystem.h; sourceTree = "<group>"; };
 		71C7FFD52013C824006EB75A /* RNFileSystem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNFileSystem.m; sourceTree = "<group>"; };
+		7239E65722C02CA500863967 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCDAsyncUdpSocket.h; sourceTree = "<group>"; };
+		7239E65822C02CB400863967 /* GCDAsyncUdpSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncUdpSocket.m; sourceTree = "<group>"; };
+		728F35C122C14A3F00796C61 /* EncodeH264.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EncodeH264.h; sourceTree = "<group>"; };
+		728F35C222C14A5100796C61 /* EncodeH264.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EncodeH264.m; sourceTree = "<group>"; };
+		728F35C422C1675F00796C61 /* EncodeAAC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EncodeAAC.h; sourceTree = "<group>"; };
+		728F35C522C1678000796C61 /* EncodeAAC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EncodeAAC.m; sourceTree = "<group>"; };
+		72AE1EF422C052FF00CAFDD9 /* FastSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FastSocket.h; sourceTree = "<group>"; };
+		72AE1EF522C0530E00CAFDD9 /* FastSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FastSocket.m; sourceTree = "<group>"; };
 		9FE592B11CA3CBF500788287 /* RCTSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTSensorOrientationChecker.h; sourceTree = "<group>"; };
 		9FE592B21CA3CBF500788287 /* RCTSensorOrientationChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTSensorOrientationChecker.m; sourceTree = "<group>"; };
 		F8393BEA21469C0000AB1995 /* RNSensorOrientationChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSensorOrientationChecker.h; sourceTree = "<group>"; };
@@ -126,6 +138,14 @@
 				71C7FFC92013C7AE006EB75A /* RNCameraManager.m */,
 				71C7FFCB2013C7BF006EB75A /* RNCamera.h */,
 				71C7FFCC2013C7BF006EB75A /* RNCamera.m */,
+				7239E65722C02CA500863967 /* GCDAsyncUdpSocket.h */,
+				7239E65822C02CB400863967 /* GCDAsyncUdpSocket.m */,
+				72AE1EF422C052FF00CAFDD9 /* FastSocket.h */,
+				72AE1EF522C0530E00CAFDD9 /* FastSocket.m */,
+				728F35C122C14A3F00796C61 /* EncodeH264.h */,
+				728F35C222C14A5100796C61 /* EncodeH264.m */,
+				728F35C422C1675F00796C61 /* EncodeAAC.h */,
+				728F35C522C1678000796C61 /* EncodeAAC.m */,
 			);
 			path = RN;
 			sourceTree = "<group>";
@@ -190,12 +210,16 @@
 				0314E39D1B661A460092D183 /* CameraFocusSquare.m in Sources */,
 				454EBCF41B5082DC00AD0F86 /* NSMutableDictionary+ImageMetadata.m in Sources */,
 				71C7FFD62013C824006EB75A /* RNFileSystem.m in Sources */,
+				7239E65922C02CB400863967 /* GCDAsyncUdpSocket.m in Sources */,
 				4107014E1ACB732B00C6AA39 /* RCTCameraManager.m in Sources */,
 				4107014D1ACB732B00C6AA39 /* RCTCamera.m in Sources */,
 				F8393BEC21469C0000AB1995 /* RNSensorOrientationChecker.m in Sources */,
 				71C7FFD02013C7E5006EB75A /* RNCameraUtils.m in Sources */,
+				728F35C322C14A5100796C61 /* EncodeH264.m in Sources */,
 				7162BE682013EAA400FE51FF /* RNCameraManager.m in Sources */,
 				7162BE672013EAA100FE51FF /* RNCamera.m in Sources */,
+				72AE1EF622C0530E00CAFDD9 /* FastSocket.m in Sources */,
+				728F35C622C1678000796C61 /* EncodeAAC.m in Sources */,
 				9FE592B31CA3CBF500788287 /* RCTSensorOrientationChecker.m in Sources */,
 				2647D6712256BBD5007D2F91 /* FaceDetectorManagerMlkit.m in Sources */,
 				71C7FFD32013C817006EB75A /* RNImageUtils.m in Sources */,

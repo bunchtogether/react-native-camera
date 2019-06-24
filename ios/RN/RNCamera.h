@@ -6,15 +6,25 @@
 #import "FaceDetectorManagerMlkit.h"
 #import "BarcodeDetectorManagerMlkit.h"
 #import "TextDetectorManager.h"
+#import "FastSocket.h"
+#import "EncodeH264.h"
+#import "EncodeAAC.h"
 
 @class RNCamera;
 
 @interface RNCamera : UIView <AVCaptureMetadataOutputObjectsDelegate,
                               AVCaptureFileOutputRecordingDelegate,
-                              AVCaptureVideoDataOutputSampleBufferDelegate>
+                              AVCaptureVideoDataOutputSampleBufferDelegate,
+                              AVCaptureAudioDataOutputSampleBufferDelegate>
 
 @property(nonatomic, strong) dispatch_queue_t sessionQueue;
+@property(nonatomic, strong) dispatch_queue_t audioQueue;
+@property(nonatomic, strong) dispatch_queue_t socketQueue;
+@property(nonatomic, assign) CMTime lastSampleTime;
 @property(nonatomic, strong) AVCaptureSession *session;
+@property(nonatomic, strong) EncodeH264 *h264;
+@property(nonatomic, strong) EncodeAAC *aac;
+@property(nonatomic, strong) AVCaptureAudioDataOutput *audioDataOutput;
 @property(nonatomic, strong) AVCaptureDeviceInput *videoCaptureDeviceInput;
 @property(nonatomic, strong) AVCaptureStillImageOutput *stillImageOutput;
 @property(nonatomic, strong) AVCaptureMovieFileOutput *movieFileOutput;
@@ -24,6 +34,10 @@
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) NSArray *barCodeTypes;
 @property(nonatomic, strong) NSArray *googleVisionBarcodeTypes;
+@property(nonatomic, strong) NSFileHandle *outputFileHandle;
+@property(nonatomic, strong) dispatch_source_t outputFileDispatchSource;
+@property(nonatomic, strong) FastSocket *outputFileSocket;
+@property(assign, nonatomic) unsigned long long outputFileBytesRead;
 
 @property(nonatomic, assign) NSInteger presetCamera;
 @property(assign, nonatomic) NSInteger flashMode;
@@ -90,6 +104,5 @@
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onText:(NSDictionary *)event;
 - (void)onBarcodesDetected:(NSDictionary *)event;
-- (bool)isRecording;
 
 @end
